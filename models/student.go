@@ -11,8 +11,9 @@ type Student struct {
 	Email        string    `gorm:"uniqueIndex"`
 	UpdatedTime  time.Time `gorm:"not null"`
 	VisibleFlg   bool      `gorm:"not null"`
+	Hymn         Hymn      `gorm:"foreignKey:UpdatedUser"`
 }
 
-// func (Student) TableName() string {
-// 	return "students"
-// }
+func (Student) TableName() string {
+	return "students"
+}

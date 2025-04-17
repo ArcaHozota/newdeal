@@ -16,6 +16,6 @@ type Hymn struct {
 	HymnWork    HymnWork  `gorm:"foreignKey:WorkId"`
 }
 
-// func (Hymn) TableName() string {
-// 	return "hymns"
-// }
+func (Hymn) TableName() string {
+	return "hymns"
+}
