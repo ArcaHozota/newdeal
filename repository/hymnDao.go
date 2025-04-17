@@ -9,20 +9,20 @@ import (
 	"gorm.io/gorm"
 )
 
-func CountHymnsAll() (uint32, error) {
+func CountHymnsAll() (int, error) {
 	var kennsu int64
 	err := models.DB.Model(&models.Hymn{}).Where(&models.Hymn{VisibleFlg: true}).Count(&kennsu).Error
-	return uint32(kennsu), err
+	return int(kennsu), err
 }
 
-func CountHymnsByKeyword(keyword string) (uint32, error) {
+func CountHymnsByKeyword(keyword string) (int, error) {
 	searchStr := common.GetDetailKeyword1(keyword)
 	var kennsu int64
 	err := models.DB.Model(&models.Hymn{}).
 		InnerJoins("INNER JOIN hymns_work ON hymns_work.work_id = hymns.id").
 		Where("hymns.name_jp LIKE ? OR hymns.name_kr LIKE ? OR hymns_work.name_jp_rational LIKE ?", searchStr, searchStr, searchStr).
 		Count(&kennsu).Error
-	return uint32(kennsu), err
+	return int(kennsu), err
 }
 
 func PaginationHymns(keyword string, pageNum int, pageSize int) ([]models.Hymn, error) {

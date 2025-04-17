@@ -9,7 +9,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func CountHymnsByKeyword(keyword string) (uint32, error) {
+func CountHymnsByKeyword(keyword string) (int, error) {
 	kennsu, err := repository.CountHymnsByKeyword(keyword)
 	return kennsu, err
 }
