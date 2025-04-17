@@ -4,4 +4,6 @@ const NormalError string = "想定外のエラーが発生しました。管理�
 
 const AttrNameEntity string = "arawaseta"
 
-var EmptyString string = ""
+const EmptyString string = ""
+
+const HankakuPercentMark = "%"
