@@ -17,8 +17,9 @@ func main() {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/static", "./static")
 
-	routers.CategoryHandlerInit(r)
 	routers.HomeHandlerInit(r)
+	routers.CategoryHandlerInit(r)
+	routers.HymnsHandlerInit(r)
 
 	err := r.Run(":8277")
 	if err != nil {

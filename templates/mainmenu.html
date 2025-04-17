@@ -21,7 +21,7 @@
 		<div class="row">
 			{{template "include-sidebar.html" .}}
 			<div class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">
-				{{if nq .loginMsg null}}
+				{{if ne .loginMsg nil}}
 				<input type="hidden" value="{{.loginMsg}}" id="loginMsgContainer">
 				{{else}}
 				<input type="hidden" id="loginMsgContainer">
