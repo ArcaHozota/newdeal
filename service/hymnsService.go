@@ -10,9 +10,8 @@ import (
 	"github.com/samber/lo"
 )
 
-func GetHymnsByKeyword(keyword string, pageNum uint32) ([]pojos.HymnDTO, error) {
-	offset := uint32(common.DefaultPageSize) * (pageNum - 1)
-	hymns, err := repository.PaginationHymns(keyword, common.DefaultPageSize, offset)
+func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
+	hymns, err := repository.PaginationHymns(keyword, pageNum, int(common.DefaultPageSize))
 	return lo.Map(hymns, func(hm models.Hymn, _ int) pojos.HymnDTO {
 		return pojos.HymnDTO{
 			ID:          hm.Id,

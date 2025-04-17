@@ -1,8 +1,11 @@
 package repository
 
 import (
+	"database/sql"
 	"newdeal/common"
 	"newdeal/models"
+
+	"gorm.io/gorm"
 )
 
 func CountHymns() (uint32, error) {
@@ -11,9 +14,37 @@ func CountHymns() (uint32, error) {
 	return uint32(kennsu), err
 }
 
-func PaginationHymns(keyword string, pageSize uint8, offset uint32) ([]models.Hymn, error) {
+func PaginationHymns(keyword string, pageNum int, pageSize int) ([]models.Hymn, error) {
 	searchStr := common.GetDetailKeyword1(keyword)
 	var hymns []models.Hymn
-	err := models.DB.Model(&models.Hymn{}).InnerJoins("inner join hymns_work on hymns_work.work_id = hymns.id").Where(&models.Hymn{NameJp: searchStr}).Or(&models.Hymn{NameKr: searchStr}).Or(&models.HymnWork{NameJpRa: searchStr}).Limit(int(pageSize)).Offset(int(offset)).Find(&hymns).Error
+	err := models.DB.
+		Model(&models.Hymn{}).
+		InnerJoins(`
+			INNER JOIN hymns_work
+			        ON hymns_work.work_id = hymns.id
+		`).
+		Scopes(ByKeyword(searchStr), Paginate(pageNum, pageSize)).
+		Find(&hymns).Error
 	return hymns, err
+}
+
+// ---------- scope_helpers.go ----------
+func ByKeyword(kw string) func(*gorm.DB) *gorm.DB {
+	like := common.GetDetailKeyword1(kw)
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(`
+			hymns.name_jp LIKE @kw OR
+			hymns.name_kr LIKE @kw OR
+			hymns_work.name_jp_rational LIKE @kw
+		`, sql.Named("kw", like))
+	}
+}
+
+func Paginate(page, size int) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if size == 0 {
+			return db
+		}
+		return db.Offset((page - 1) * size).Limit(size)
+	}
 }
