@@ -6,6 +6,7 @@ import (
 	"newdeal/common"
 	"newdeal/common/pagination"
 	"newdeal/service"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +16,13 @@ func HymnsHandlerInit(r *gin.Engine) {
 	hymnsRouter := r.Group("/hymns")
 	{
 		hymnsRouter.GET("pagination.action", func(ctx *gin.Context) {
-			pageNum := ctx.GetInt("pageNum")
+			// 未指定時は 1 にしたいので DefaultQuery
+			pageNumStr := ctx.DefaultQuery("pageNum", "1")
+			pageNum, err := strconv.Atoi(pageNumStr)
+			if err != nil || pageNum < 1 {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err)
+			}
 			cnt, err := service.CountHymnsByKeyword(common.EmptyString)
 			if err != nil {
 				log.Println(err)
