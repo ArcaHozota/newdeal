@@ -17,6 +17,11 @@ func HomeHandlerInit(r *gin.Engine) {
 				"totalRecords": count,
 			})
 		})
+		homeRouter1.GET("index.action", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "index.html", gin.H{
+				"totalRecords": count,
+			})
+		})
 	}
 
 	homeRouter2 := r.Group("/home")
