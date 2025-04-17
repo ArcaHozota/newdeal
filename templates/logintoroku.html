@@ -46,7 +46,7 @@
 				<span>すでにアカウント持ち？</span>ログイン
 			</h2>
 			<form action="/category/doLogin" class="input-box" id="loginForm" method="post">
-				{{if nq registeredEmail null}}
+				{{if ne registeredEmail null}}
 				<input id="accountIpt" name="loginAcct" placeholder="アカウント" type="text" value="{{.registeredEmail}}">
 				{{else}}
 				<input id="accountIpt" name="loginAcct" placeholder="アカウント" type="text">
