@@ -1,7 +1,7 @@
 package models
 
 import (
-	"fmt"
+	"log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -15,6 +15,6 @@ func init() {
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 }
