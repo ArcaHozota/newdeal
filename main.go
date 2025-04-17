@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"newdeal/common"
 	"newdeal/routers"
 	"text/template"
@@ -21,6 +22,8 @@ func main() {
 
 	err := r.Run(":8277")
 	if err != nil {
+		log.Println(err.Error())
 		return
 	}
+
 }

@@ -39,7 +39,7 @@
         <div class="text-center">
             <h2>システム情報</h2>
             {{if gt .exception 120}}
-            <p style="margin-top: 33px;font-size: 22px;">{{.exception[0,120]}}</p>
+            <p style="margin-top: 33px;font-size: 22px;">{{Substr .exception 0 120}}</p>
             {{else}}
             <p style="margin-top: 33px;font-size: 22px;">{{.exception}}</p>
             {{end}}
