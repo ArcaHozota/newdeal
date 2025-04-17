@@ -1,8 +1,6 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
 type Hymn struct {
 	Id          int64     `gorm:"primaryKey"`
