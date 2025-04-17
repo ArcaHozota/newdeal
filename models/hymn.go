@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Hymn struct {
 	Id          int64     `gorm:"primaryKey"`
@@ -11,6 +13,7 @@ type Hymn struct {
 	UpdatedUser int64     `gorm:"not null"`
 	Serif       string    `gorm:"not null"`
 	VisibleFlg  bool      `gorm:"not null"`
+	HymnWork    HymnWork  `gorm:"foreignKey:WorkId"`
 }
 
 // func (Hymn) TableName() string {

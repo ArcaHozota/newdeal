@@ -1,9 +1,11 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type HymnWork struct {
-	WorkId      int64 `gorm:"primaryKey"`
+	WorkId      int64 `gorm:"primaryKey;"`
 	Score       []byte
 	NameJpRa    string    `gorm:"column:name_jp_rational"`
 	UpdatedTime time.Time `gorm:"not null"`
