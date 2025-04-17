@@ -11,7 +11,7 @@ import (
 
 func HomeHandlerInit(r *gin.Engine) {
 
-	count, err := repository.CountHymns()
+	count, err := repository.CountHymnsAll()
 
 	if err != nil {
 		log.Println(err)
