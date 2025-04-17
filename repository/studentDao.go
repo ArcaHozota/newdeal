@@ -14,8 +14,8 @@ func GetStudentById(id int64) []models.Student {
 	return student
 }
 
-func CountStudentsByAccount(account string, id int64) int64 {
+func CountStudentsByAccount(account string, id int64) uint32 {
 	var kennsu int64
 	models.DB.Where(&models.Student{VisibleFlg: true, LoginAccount: account}).Not(&models.Student{Id: id}).Count(&kennsu)
-	return kennsu
+	return uint32(kennsu)
 }
