@@ -11,19 +11,19 @@ import (
 // Pagination 与 Java 版字段一一对应。
 // T 表示记录元素类型；可以是你的实体模型，也可以是 DTO。
 type Pagination[T any] struct {
-	Records       []T   // 当前页数据
-	PageNum       int   // 当前页（从 1 开始）
-	PageSize      int   // 每页大小
-	TotalPages    int   // 总页数
-	TotalRecords  int   // 总记录数
-	HasPrevPage   bool  // 是否有上一页
-	HasNextPage   bool  // 是否有下一页
-	PrevPage      int   // 上一页 (0 表示不存在)
-	NextPage      int   // 下一页 (0 表示不存在)
-	NavigatePages int   // 最大导航页数
-	NaviFirstPage int   // 导航条第一个页码
-	NaviLastPage  int   // 导航条最后一个页码
-	NavigateNums  []int // 实际导航页码切片
+	Records       []T   `json:"records"`       // 当前页数据
+	PageNum       int   `json:"pageNum"`       // 当前页（从 1 开始）
+	PageSize      int   `json:"pageSize"`      // 每页大小
+	TotalPages    int   `json:"totalPages"`    // 总页数
+	TotalRecords  int   `json:"totalRecords"`  // 总记录数
+	HasPrevPage   bool  `json:"hasPrevPage"`   // 是否有上一页
+	HasNextPage   bool  `json:"hasNextPage"`   // 是否有下一页
+	PrevPage      int   `json:"prevPage"`      // 上一页 (0 表示不存在)
+	NextPage      int   `json:"nextPage"`      // 下一页 (0 表示不存在)
+	NavigatePages int   `json:"navigatePages"` // 最大导航页数
+	NaviFirstPage int   `json:"naviFirstPage"` // 导航条第一个页码
+	NaviLastPage  int   `json:"naviLastPage"`  // 导航条最后一个页码
+	NavigateNums  []int `json:"navigateNums"`  // 实际导航页码切片
 }
 
 // NewPagination 创建分页对象；pageNum 从 1 开始。
