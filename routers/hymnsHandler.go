@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"log"
 	"net/http"
 	"newdeal/common"
 	"newdeal/service"
@@ -13,7 +14,11 @@ func HymnsHandlerInit(r *gin.Engine) {
 	{
 		hymnsRouter.GET("pagination.action", func(ctx *gin.Context) {
 			pageNum := ctx.GetUint("pageNum")
-			dtos := service.GetHymnsByKeyword(common.EmptyString, uint32(pageNum))
+			dtos, err := service.GetHymnsByKeyword(common.EmptyString, uint32(pageNum))
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err)
+			}
 			ctx.JSON(http.StatusOK, dtos)
 		})
 	}
