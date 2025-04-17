@@ -4,15 +4,15 @@
 <head>
 	<title>NASB1995</title>
 	<meta charset="UTF-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="_csrf_header" content="${_csrf.headerName}">
-	<meta name="_csrf_token" content="${_csrf.token}">
-	<link rel="stylesheet" type="text/css" href="/static/css/login.css">
-	<link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap">
+	<meta content="IE=edge" http-equiv="X-UA-Compatible">
+	<meta content="width=device-width, initial-scale=1.0" name="viewport">
+	<meta content="${_csrf.headerName}" name="_csrf_header">
+	<meta content="${_csrf.token}" name="_csrf_token">
+	<link href="/static/css/login.css" rel="stylesheet" type="text/css">
+	<link href="/static/favicon.ico" rel="shortcut icon" type="image/x-icon">
+	<link href="https://fonts.googleapis.com" rel="preconnect">
+	<link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
 	<style type="text/css">
 		input[type=password]::-ms-reveal {
 			display: none;
@@ -35,8 +35,8 @@
 			font-size: 1.2em;
 		}
 	</style>
-	<script type="text/javascript" src="/static/jquery/jquery-3.7.1.min.js"></script>
-	<script type="text/javascript" src="/static/layer/layer.js"></script>
+	<script src="/static/jquery/jquery-3.7.1.min.js" type="text/javascript"></script>
+	<script src="/static/layer/layer.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -45,34 +45,34 @@
 			<h2 class="login-title">
 				<span>すでにアカウント持ち？</span>ログイン
 			</h2>
-			<form class="input-box" action="/category/doLogin" method="post" id="loginForm">
+			<form action="/category/doLogin" class="input-box" id="loginForm" method="post">
 				{{if nq registeredEmail null}}
-				<input type="text" value="{{.registeredEmail}}" name="loginAcct" id="accountIpt" placeholder="アカウント">
+				<input id="accountIpt" name="loginAcct" placeholder="アカウント" type="text" value="{{.registeredEmail}}">
 				{{else}}
-				<input type="text" name="loginAcct" id="accountIpt" placeholder="アカウント">
+				<input id="accountIpt" name="loginAcct" placeholder="アカウント" type="text">
 				{{end}}
-				<ion-icon name="eye-outline" id="eyeIcons"></ion-icon>
-				<input type="password" name="userPswd" id="passwordIpt" placeholder="パスワード">
+				<ion-icon id="eyeIcons" name="eye-outline"></ion-icon>
+				<input id="passwordIpt" name="userPswd" placeholder="パスワード" type="password">
 			</form>
-			<button type="button" id="loginBtn">ログイン</button>
+			<button id="loginBtn" type="button">ログイン</button>
 		</div>
 		<div class="toroku-box slide-up" id="torokuBox">
 			<div class="center">
 				<h2 class="toroku-title">
 					<span>アカウント無し？</span>登録
 				</h2>
-				<form class="input-box" action="/category/toroku" method="post" id="torokuForm">
-					<input type="email" name="email" id="emailIpt" placeholder="メール">
-					<input type="password" name="password" id="passwordIpt1" placeholder="パスワード">
-					<input type="password" id="passwordIpt2" placeholder="パス再入力">
+				<form action="/category/toroku" class="input-box" id="torokuForm" method="post">
+					<input id="emailIpt" name="email" placeholder="メール" type="email">
+					<input id="passwordIpt1" name="password" placeholder="パスワード" type="password">
+					<input id="passwordIpt2" placeholder="パス再入力" type="password">
 				</form>
-				<button type="button" id="torokuBtn">登録</button>
+				<button id="torokuBtn" type="button">登録</button>
 			</div>
 		</div>
-		<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+		<script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js" type="module"></script>
 		<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 	</div>
-	<script type="text/javascript" src="/static/customizes/logintoroku.js"></script>
+	<script src="/static/customizes/logintoroku.js" type="text/javascript"></script>
 </body>
 
 </html>

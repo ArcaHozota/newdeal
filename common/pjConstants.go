@@ -1,7 +1,7 @@
 package common
 
-const normalError string = "想定外のエラーが発生しました。管理員へご連絡ください。"
+const NormalError string = "想定外のエラーが発生しました。管理員へご連絡ください。"
 
-const entityAttrName string = "arawaseta"
+const AttrNameEntity string = "arawaseta"
 
-var emptyString string = ""
+var EmptyString string = ""

@@ -17,6 +17,10 @@ func main() {
 	r.Static("/static", "./static")
 
 	routers.CategoryHandlerInit(r)
+	routers.HomeHandlerInit(r)
 
-	r.Run(":8277")
+	err := r.Run(":8277")
+	if err != nil {
+		return
+	}
 }

@@ -2,11 +2,12 @@ package routers
 
 import (
 	"net/http"
+	"newdeal/repository"
 
 	"github.com/gin-gonic/gin"
 )
 
-var count int64 = repository.countHymns()
+var count int64 = repository.CountHymns()
 
 func HomeHandlerInit(r *gin.Engine) {
 
@@ -28,6 +29,11 @@ func HomeHandlerInit(r *gin.Engine) {
 	{
 		homeRouter2.GET("/login.action", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "logintoroku.html", nil)
+		})
+		homeRouter1.GET("index.action", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "index.html", gin.H{
+				"totalRecords": count,
+			})
 		})
 	}
 }
