@@ -7,7 +7,7 @@ import (
 
 func CountHymns() (uint32, error) {
 	var kennsu int64
-	err := models.DB.Where(&models.Hymn{VisibleFlg: true}).Count(&kennsu).Error
+	err := models.DB.Model(&models.Hymn{}).Where(&models.Hymn{VisibleFlg: true}).Count(&kennsu).Error
 	return uint32(kennsu), err
 }
 
