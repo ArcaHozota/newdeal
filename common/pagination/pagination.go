@@ -1,4 +1,3 @@
-// pagination.go
 package pagination
 
 import (

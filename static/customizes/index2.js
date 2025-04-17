@@ -1,14 +1,14 @@
-$(document).ready(function() {
+$(document).ready(function () {
 	adjustWidth();
 	initialPagination(1, null);
-	$("#saraniSearchBtn").on("mousemove", function(e) {
+	$("#saraniSearchBtn").on("mousemove", function (e) {
 		let x = e.pageX - $(this).offset().left;
 		let y = e.pageY - $(this).offset().top;
 		$(this).css("--x", x + "px");
 		$(this).css("--y", y + "px");
 	});
 });
-$("#saraniSearchBtn").on("click", function(e) {
+$("#saraniSearchBtn").on("click", function (e) {
 	e.preventDefault();
 	let hymnId = $("#nameDisplay").attr('idVal');
 	if (hymnId === "0" || hymnId === 0 || hymnId === null || hymnId === undefined) {
@@ -30,7 +30,7 @@ $("#saraniSearchBtn").on("click", function(e) {
 				$("#loadingBackground2").show();
 				$("#saraniSearchBtn").css("pointer-events", "none");
 				kanumiRetrieve(hymnId);
-				setTimeout(function() {
+				setTimeout(function () {
 					$("#loadingBackground2").hide();
 					$("#saraniSearchBtn").css("pointer-events", "auto");
 					let nameJp = $('.table-danger').find("td:eq(1)").children("a").text();
@@ -44,17 +44,17 @@ $("#saraniSearchBtn").on("click", function(e) {
 		});
 	}
 });
-$("#tableBody").on("click", '.form-check-input', function() {
+$("#tableBody").on("click", '.form-check-input', function () {
 	if ($(this).prop('checked')) {
 		let idVal = $(this).val();
 		$.ajax({
 			url: '/hymns/getInfoById.action',
 			data: 'hymnId=' + idVal,
-			success: function(response) {
+			success: function (response) {
 				$("#nameDisplay").text(response.nameJp);
 				$("#nameDisplay").attr('idVal', response.id);
 			},
-			error: function(xhr) {
+			error: function (xhr) {
 				let message = xhr.responseText.replace(/^"|"$/g, emptyString);
 				layer.msg(message);
 			}
@@ -66,11 +66,11 @@ $("#tableBody").on("click", '.form-check-input', function() {
 				$.ajax({
 					url: '/hymns/getInfoById.action',
 					data: 'hymnId=' + $(element).val(),
-					success: function(response) {
+					success: function (response) {
 						$("#nameDisplay").text(response.nameJp);
 						$("#nameDisplay").attr('idVal', response.id);
 					},
-					error: function(xhr) {
+					error: function (xhr) {
 						let message = xhr.responseText.replace(/^"|"$/g, emptyString);
 						layer.msg(message);
 					}
@@ -80,7 +80,7 @@ $("#tableBody").on("click", '.form-check-input', function() {
 		}
 	}
 });
-$("#tableBody").on("click", '.link-btn', function(e) {
+$("#tableBody").on("click", '.link-btn', function (e) {
 	e.preventDefault();
 	let transferVal = $(this).attr('transferVal');
 	window.open(transferVal);
@@ -89,12 +89,12 @@ function initialPagination(pageNum, keyword) {
 	$.ajax({
 		url: '/hymns/pagination.action',
 		data: 'pageNum=' + pageNum,
-		success: function(response) {
+		success: function (response) {
 			buildTableBody1(response);
 			buildPageInfos(response);
 			buildPageNavi(response);
 		},
-		error: function(xhr) {
+		error: function (xhr) {
 			let message = xhr.responseText.replace(/^"|"$/g, emptyString);
 			layer.msg(message);
 		}
@@ -129,14 +129,14 @@ function buildPageNavi(result) {
 		$("<a class='page-link'></a>").append("最初へ").attr("href", "#"));
 	let previousPageLi = $("<li class='page-item'></li>").append(
 		$("<a class='page-link'></a>").append("&laquo;").attr("href", "#"));
-	if (!result.hasPreviousPage) {
+	if (!result.hasPrevPage) {
 		firstPageLi.addClass('disabled');
 		previousPageLi.addClass('disabled');
 	} else {
-		firstPageLi.click(function() {
+		firstPageLi.click(function () {
 			initialPagination(1, keyword);
 		});
-		previousPageLi.click(function() {
+		previousPageLi.click(function () {
 			initialPagination(pageNum - 1, keyword);
 		});
 	}
@@ -149,21 +149,21 @@ function buildPageNavi(result) {
 		lastPageLi.addClass('disabled');
 	} else {
 		lastPageLi.addClass('success');
-		nextPageLi.click(function() {
+		nextPageLi.click(function () {
 			initialPagination(pageNum + 1, keyword);
 		});
-		lastPageLi.click(function() {
+		lastPageLi.click(function () {
 			initialPagination(totalPages, keyword);
 		});
 	}
 	ul.append(firstPageLi).append(previousPageLi);
-	$.each(result.navigatePageNums, (index, item) => {
+	$.each(result.navigateNums, (index, item) => {
 		let numsLi = $("<li class='page-item'></li>").append(
 			$("<a class='page-link'></a>").append(item).attr("href", "#"));
 		if (pageNum === item) {
 			numsLi.attr("href", "#").addClass("active");
 		}
-		numsLi.click(function() {
+		numsLi.click(function () {
 			initialPagination(item, keyword);
 		});
 		ul.append(numsLi);
@@ -175,10 +175,10 @@ function kanumiRetrieve(hymnId) {
 	$.ajax({
 		url: '/hymns/kanumiRetrieve.action',
 		data: 'hymnId=' + hymnId,
-		success: function(response) {
+		success: function (response) {
 			buildTableBody2(response);
 		},
-		error: function(result) {
+		error: function (result) {
 			layer.msg(result.responseJSON.message);
 		}
 	});
