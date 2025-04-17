@@ -8,4 +8,6 @@ const EmptyString string = ""
 
 const HankakuPercentMark string = "%"
 
+const AttrNameException string = "exception"
+
 const DefaultPageSize uint8 = 5

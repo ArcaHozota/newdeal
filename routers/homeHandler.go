@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"log"
 	"net/http"
 	"newdeal/common"
 	"newdeal/repository"
@@ -8,9 +9,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var count uint32 = repository.CountHymns()
-
 func HomeHandlerInit(r *gin.Engine) {
+
+	count, err := repository.CountHymns()
+
+	if err != nil {
+		log.Println(err)
+		r.GET("toSystemError.action", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "error.html", gin.H{
+				common.AttrNameException: err.Error(),
+			})
+		})
+	}
 
 	homeRouter1 := r.Group("/")
 	{
@@ -49,4 +59,5 @@ func HomeHandlerInit(r *gin.Engine) {
 			})
 		})
 	}
+
 }

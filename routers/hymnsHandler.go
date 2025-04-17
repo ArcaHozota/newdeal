@@ -10,6 +10,7 @@ import (
 )
 
 func HymnsHandlerInit(r *gin.Engine) {
+
 	hymnsRouter := r.Group("/hymns")
 	{
 		hymnsRouter.GET("pagination.action", func(ctx *gin.Context) {
@@ -22,4 +23,5 @@ func HymnsHandlerInit(r *gin.Engine) {
 			ctx.JSON(http.StatusOK, dtos)
 		})
 	}
+
 }

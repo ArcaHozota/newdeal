@@ -8,6 +8,7 @@ import (
 )
 
 func CategoryHandlerInit(r *gin.Engine) {
+
 	categoryRouter := r.Group("/category")
 	{
 		categoryRouter.GET("/login.action", func(ctx *gin.Context) {
@@ -16,4 +17,5 @@ func CategoryHandlerInit(r *gin.Engine) {
 			})
 		})
 	}
+
 }
