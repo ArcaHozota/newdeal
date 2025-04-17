@@ -3,14 +3,11 @@ package models
 import "time"
 
 type HymnWork struct {
-	Id          int64     `gorm:"primaryKey"`
-	NameJp      string    `gorm:"uniqueIndex;not null"`
-	NameKr      string    `gorm:"uniqueIndex;not null"`
-	Link        string    `gorm:"uniqueIndex"`
+	WorkId      int64 `gorm:"primaryKey"`
+	Score       []byte
+	NameJpRa    string    `gorm:"column:name_jp_rational"`
 	UpdatedTime time.Time `gorm:"not null"`
-	UpdatedUser int64     `gorm:"not null"`
-	Serif       string    `gorm:"not null"`
-	VisibleFlg  bool      `gorm:"not null"`
+	Biko        string
 }
 
 func (HymnWork) TableName() string {

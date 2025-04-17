@@ -1,8 +1,6 @@
 package common
 
-import (
-	"time"
-)
+import "time"
 
 func Unix2DateTime(timestamp int64) string {
 	t := time.Unix(timestamp, 0)

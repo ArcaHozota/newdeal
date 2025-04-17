@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var count int64 = repository.CountHymns()
+var count uint32 = repository.CountHymns()
 
 func HomeHandlerInit(r *gin.Engine) {
 

@@ -6,4 +6,6 @@ const AttrNameEntity string = "arawaseta"
 
 const EmptyString string = ""
 
-const HankakuPercentMark = "%"
+const HankakuPercentMark string = "%"
+
+const DefaultPageSize uint8 = 5

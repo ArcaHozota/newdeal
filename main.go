@@ -1,7 +1,7 @@
 package main
 
 import (
-	"newdeal/models"
+	"newdeal/common"
 	"newdeal/routers"
 	"text/template"
 
@@ -11,7 +11,7 @@ import (
 func main() {
 	r := gin.Default()
 	r.SetFuncMap(template.FuncMap{
-		"Substr": models.Substr,
+		"Substr": common.Substr,
 	})
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/static", "./static")
