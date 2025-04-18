@@ -13,7 +13,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // HymnCreate is the builder for creating a Hymn entity.
@@ -41,9 +40,11 @@ func (hc *HymnCreate) SetLink(s string) *HymnCreate {
 	return hc
 }
 
-// SetUpdatedTime sets the "updated_time" field.
-func (hc *HymnCreate) SetUpdatedTime(t time.Time) *HymnCreate {
-	hc.mutation.SetUpdatedTime(t)
+// SetNillableLink sets the "link" field if the given value is not nil.
+func (hc *HymnCreate) SetNillableLink(s *string) *HymnCreate {
+	if s != nil {
+		hc.SetLink(*s)
+	}
 	return hc
 }
 
@@ -53,9 +54,23 @@ func (hc *HymnCreate) SetUpdatedUser(i int64) *HymnCreate {
 	return hc
 }
 
+// SetUpdatedTime sets the "updated_time" field.
+func (hc *HymnCreate) SetUpdatedTime(t time.Time) *HymnCreate {
+	hc.mutation.SetUpdatedTime(t)
+	return hc
+}
+
 // SetSerif sets the "serif" field.
 func (hc *HymnCreate) SetSerif(s string) *HymnCreate {
 	hc.mutation.SetSerif(s)
+	return hc
+}
+
+// SetNillableSerif sets the "serif" field if the given value is not nil.
+func (hc *HymnCreate) SetNillableSerif(s *string) *HymnCreate {
+	if s != nil {
+		hc.SetSerif(*s)
+	}
 	return hc
 }
 
@@ -66,47 +81,39 @@ func (hc *HymnCreate) SetVisibleFlg(b bool) *HymnCreate {
 }
 
 // SetID sets the "id" field.
-func (hc *HymnCreate) SetID(u uuid.UUID) *HymnCreate {
-	hc.mutation.SetID(u)
+func (hc *HymnCreate) SetID(i int64) *HymnCreate {
+	hc.mutation.SetID(i)
 	return hc
 }
 
-// SetStudentsID sets the "students" edge to the Student entity by ID.
-func (hc *HymnCreate) SetStudentsID(id uuid.UUID) *HymnCreate {
-	hc.mutation.SetStudentsID(id)
+// SetUpdatedByID sets the "updated_by" edge to the Student entity by ID.
+func (hc *HymnCreate) SetUpdatedByID(id int64) *HymnCreate {
+	hc.mutation.SetUpdatedByID(id)
 	return hc
 }
 
-// SetNillableStudentsID sets the "students" edge to the Student entity by ID if the given value is not nil.
-func (hc *HymnCreate) SetNillableStudentsID(id *uuid.UUID) *HymnCreate {
+// SetUpdatedBy sets the "updated_by" edge to the Student entity.
+func (hc *HymnCreate) SetUpdatedBy(s *Student) *HymnCreate {
+	return hc.SetUpdatedByID(s.ID)
+}
+
+// SetWorkID sets the "work" edge to the HymnsWork entity by ID.
+func (hc *HymnCreate) SetWorkID(id int) *HymnCreate {
+	hc.mutation.SetWorkID(id)
+	return hc
+}
+
+// SetNillableWorkID sets the "work" edge to the HymnsWork entity by ID if the given value is not nil.
+func (hc *HymnCreate) SetNillableWorkID(id *int) *HymnCreate {
 	if id != nil {
-		hc = hc.SetStudentsID(*id)
+		hc = hc.SetWorkID(*id)
 	}
 	return hc
 }
 
-// SetStudents sets the "students" edge to the Student entity.
-func (hc *HymnCreate) SetStudents(s *Student) *HymnCreate {
-	return hc.SetStudentsID(s.ID)
-}
-
-// SetHymnsWorkID sets the "hymns_work" edge to the HymnsWork entity by ID.
-func (hc *HymnCreate) SetHymnsWorkID(id int) *HymnCreate {
-	hc.mutation.SetHymnsWorkID(id)
-	return hc
-}
-
-// SetNillableHymnsWorkID sets the "hymns_work" edge to the HymnsWork entity by ID if the given value is not nil.
-func (hc *HymnCreate) SetNillableHymnsWorkID(id *int) *HymnCreate {
-	if id != nil {
-		hc = hc.SetHymnsWorkID(*id)
-	}
-	return hc
-}
-
-// SetHymnsWork sets the "hymns_work" edge to the HymnsWork entity.
-func (hc *HymnCreate) SetHymnsWork(h *HymnsWork) *HymnCreate {
-	return hc.SetHymnsWorkID(h.ID)
+// SetWork sets the "work" edge to the HymnsWork entity.
+func (hc *HymnCreate) SetWork(h *HymnsWork) *HymnCreate {
+	return hc.SetWorkID(h.ID)
 }
 
 // Mutation returns the HymnMutation object of the builder.
@@ -146,28 +153,35 @@ func (hc *HymnCreate) check() error {
 	if _, ok := hc.mutation.NameJp(); !ok {
 		return &ValidationError{Name: "name_jp", err: errors.New(`ent: missing required field "Hymn.name_jp"`)}
 	}
+	if v, ok := hc.mutation.NameJp(); ok {
+		if err := hymn.NameJpValidator(v); err != nil {
+			return &ValidationError{Name: "name_jp", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_jp": %w`, err)}
+		}
+	}
 	if _, ok := hc.mutation.NameKr(); !ok {
 		return &ValidationError{Name: "name_kr", err: errors.New(`ent: missing required field "Hymn.name_kr"`)}
 	}
-	if _, ok := hc.mutation.Link(); !ok {
-		return &ValidationError{Name: "link", err: errors.New(`ent: missing required field "Hymn.link"`)}
+	if v, ok := hc.mutation.NameKr(); ok {
+		if err := hymn.NameKrValidator(v); err != nil {
+			return &ValidationError{Name: "name_kr", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_kr": %w`, err)}
+		}
 	}
-	if _, ok := hc.mutation.UpdatedTime(); !ok {
-		return &ValidationError{Name: "updated_time", err: errors.New(`ent: missing required field "Hymn.updated_time"`)}
+	if v, ok := hc.mutation.Link(); ok {
+		if err := hymn.LinkValidator(v); err != nil {
+			return &ValidationError{Name: "link", err: fmt.Errorf(`ent: validator failed for field "Hymn.link": %w`, err)}
+		}
 	}
 	if _, ok := hc.mutation.UpdatedUser(); !ok {
 		return &ValidationError{Name: "updated_user", err: errors.New(`ent: missing required field "Hymn.updated_user"`)}
 	}
-	if v, ok := hc.mutation.UpdatedUser(); ok {
-		if err := hymn.UpdatedUserValidator(v); err != nil {
-			return &ValidationError{Name: "updated_user", err: fmt.Errorf(`ent: validator failed for field "Hymn.updated_user": %w`, err)}
-		}
-	}
-	if _, ok := hc.mutation.Serif(); !ok {
-		return &ValidationError{Name: "serif", err: errors.New(`ent: missing required field "Hymn.serif"`)}
+	if _, ok := hc.mutation.UpdatedTime(); !ok {
+		return &ValidationError{Name: "updated_time", err: errors.New(`ent: missing required field "Hymn.updated_time"`)}
 	}
 	if _, ok := hc.mutation.VisibleFlg(); !ok {
 		return &ValidationError{Name: "visible_flg", err: errors.New(`ent: missing required field "Hymn.visible_flg"`)}
+	}
+	if len(hc.mutation.UpdatedByIDs()) == 0 {
+		return &ValidationError{Name: "updated_by", err: errors.New(`ent: missing required edge "Hymn.updated_by"`)}
 	}
 	return nil
 }
@@ -183,12 +197,9 @@ func (hc *HymnCreate) sqlSave(ctx context.Context) (*Hymn, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int64(id)
 	}
 	hc.mutation.id = &_node.ID
 	hc.mutation.done = true
@@ -198,11 +209,11 @@ func (hc *HymnCreate) sqlSave(ctx context.Context) (*Hymn, error) {
 func (hc *HymnCreate) createSpec() (*Hymn, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Hymn{config: hc.config}
-		_spec = sqlgraph.NewCreateSpec(hymn.Table, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther))
+		_spec = sqlgraph.NewCreateSpec(hymn.Table, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64))
 	)
 	if id, ok := hc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := hc.mutation.NameJp(); ok {
 		_spec.SetField(hymn.FieldNameJp, field.TypeString, value)
@@ -214,47 +225,43 @@ func (hc *HymnCreate) createSpec() (*Hymn, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := hc.mutation.Link(); ok {
 		_spec.SetField(hymn.FieldLink, field.TypeString, value)
-		_node.Link = &value
+		_node.Link = value
 	}
 	if value, ok := hc.mutation.UpdatedTime(); ok {
 		_spec.SetField(hymn.FieldUpdatedTime, field.TypeTime, value)
 		_node.UpdatedTime = value
 	}
-	if value, ok := hc.mutation.UpdatedUser(); ok {
-		_spec.SetField(hymn.FieldUpdatedUser, field.TypeInt64, value)
-		_node.UpdatedUser = value
-	}
 	if value, ok := hc.mutation.Serif(); ok {
 		_spec.SetField(hymn.FieldSerif, field.TypeString, value)
-		_node.Serif = &value
+		_node.Serif = value
 	}
 	if value, ok := hc.mutation.VisibleFlg(); ok {
 		_spec.SetField(hymn.FieldVisibleFlg, field.TypeBool, value)
 		_node.VisibleFlg = value
 	}
-	if nodes := hc.mutation.StudentsIDs(); len(nodes) > 0 {
+	if nodes := hc.mutation.UpdatedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   hymn.StudentsTable,
-			Columns: []string{hymn.StudentsColumn},
+			Table:   hymn.UpdatedByTable,
+			Columns: []string{hymn.UpdatedByColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.student_hymns = &nodes[0]
+		_node.UpdatedUser = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := hc.mutation.HymnsWorkIDs(); len(nodes) > 0 {
+	if nodes := hc.mutation.WorkIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   hymn.HymnsWorkTable,
-			Columns: []string{hymn.HymnsWorkColumn},
+			Table:   hymn.WorkTable,
+			Columns: []string{hymn.WorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt),
@@ -312,6 +319,10 @@ func (hcb *HymnCreateBulk) Save(ctx context.Context) ([]*Hymn, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int64(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})

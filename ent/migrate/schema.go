@@ -3,6 +3,7 @@
 package migrate
 
 import (
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/schema/field"
 )
@@ -10,15 +11,14 @@ import (
 var (
 	// HymnsColumns holds the columns for the "hymns" table.
 	HymnsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "bigint"}},
-		{Name: "name_jp", Type: field.TypeString},
-		{Name: "name_kr", Type: field.TypeString},
-		{Name: "link", Type: field.TypeString},
+		{Name: "id", Type: field.TypeInt64, Increment: true, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "name_jp", Type: field.TypeString, Size: 66},
+		{Name: "name_kr", Type: field.TypeString, Size: 66},
+		{Name: "link", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "updated_time", Type: field.TypeTime},
-		{Name: "updated_user", Type: field.TypeInt64, SchemaType: map[string]string{"postgres": "bigint"}},
-		{Name: "serif", Type: field.TypeString, Size: 2147483647},
+		{Name: "serif", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "visible_flg", Type: field.TypeBool},
-		{Name: "student_hymns", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "updated_user", Type: field.TypeInt64, SchemaType: map[string]string{"postgres": "bigint"}},
 	}
 	// HymnsTable holds the schema information for the "hymns" table.
 	HymnsTable = &schema.Table{
@@ -27,60 +27,62 @@ var (
 		PrimaryKey: []*schema.Column{HymnsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "hymns_students_hymns",
-				Columns:    []*schema.Column{HymnsColumns[8]},
+				Symbol:     "hymns_students_updated_hymns",
+				Columns:    []*schema.Column{HymnsColumns[7]},
 				RefColumns: []*schema.Column{StudentsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "hymn_id_link_name_jp_name_kr",
-				Unique:  true,
-				Columns: []*schema.Column{HymnsColumns[0], HymnsColumns[3], HymnsColumns[1], HymnsColumns[2]},
-			},
-		},
-	}
-	// HymnsWorksColumns holds the columns for the "hymns_works" table.
-	HymnsWorksColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "work_id", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "bigint"}},
-		{Name: "score", Type: field.TypeBytes},
-		{Name: "name_jp_rational", Type: field.TypeString},
-		{Name: "updated_time", Type: field.TypeTime},
-		{Name: "biko", Type: field.TypeString},
-		{Name: "hymn_hymns_work", Type: field.TypeOther, Unique: true, SchemaType: map[string]string{"postgres": "bigint"}},
-	}
-	// HymnsWorksTable holds the schema information for the "hymns_works" table.
-	HymnsWorksTable = &schema.Table{
-		Name:       "hymns_works",
-		Columns:    HymnsWorksColumns,
-		PrimaryKey: []*schema.Column{HymnsWorksColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "hymns_works_hymns_hymns_work",
-				Columns:    []*schema.Column{HymnsWorksColumns[6]},
-				RefColumns: []*schema.Column{HymnsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "hymnswork_work_id",
-				Unique:  false,
-				Columns: []*schema.Column{HymnsWorksColumns[1]},
+				Name:    "hymn_link",
+				Unique:  true,
+				Columns: []*schema.Column{HymnsColumns[3]},
+			},
+			{
+				Name:    "hymn_name_jp",
+				Unique:  true,
+				Columns: []*schema.Column{HymnsColumns[1]},
+			},
+			{
+				Name:    "hymn_name_kr",
+				Unique:  true,
+				Columns: []*schema.Column{HymnsColumns[2]},
+			},
+		},
+	}
+	// HymnsWorkColumns holds the columns for the "hymns_work" table.
+	HymnsWorkColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "score", Type: field.TypeBytes, Nullable: true},
+		{Name: "name_jp_rational", Type: field.TypeString, Nullable: true, Size: 120},
+		{Name: "updated_time", Type: field.TypeTime},
+		{Name: "biko", Type: field.TypeString, Nullable: true, Size: 10},
+		{Name: "work_id", Type: field.TypeInt64, Unique: true, SchemaType: map[string]string{"postgres": "bigint"}},
+	}
+	// HymnsWorkTable holds the schema information for the "hymns_work" table.
+	HymnsWorkTable = &schema.Table{
+		Name:       "hymns_work",
+		Columns:    HymnsWorkColumns,
+		PrimaryKey: []*schema.Column{HymnsWorkColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "hymns_work_hymns_work",
+				Columns:    []*schema.Column{HymnsWorkColumns[5]},
+				RefColumns: []*schema.Column{HymnsColumns[0]},
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}
 	// StudentsColumns holds the columns for the "students" table.
 	StudentsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "bigint"}},
-		{Name: "login_account", Type: field.TypeString},
-		{Name: "password", Type: field.TypeString},
-		{Name: "username", Type: field.TypeString},
+		{Name: "id", Type: field.TypeInt64, Increment: true, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "login_account", Type: field.TypeString, Size: 40},
+		{Name: "password", Type: field.TypeString, Size: 255},
+		{Name: "username", Type: field.TypeString, Size: 40},
 		{Name: "date_of_birth", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "date"}},
-		{Name: "email", Type: field.TypeString},
-		{Name: "updated_time", Type: field.TypeTime},
+		{Name: "email", Type: field.TypeString, Nullable: true, Size: 60},
+		{Name: "updated_time", Type: field.TypeTime, Nullable: true},
 		{Name: "visible_flg", Type: field.TypeBool},
 	}
 	// StudentsTable holds the schema information for the "students" table.
@@ -90,21 +92,35 @@ var (
 		PrimaryKey: []*schema.Column{StudentsColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "student_id_login_account_email",
+				Name:    "student_login_account",
 				Unique:  true,
-				Columns: []*schema.Column{StudentsColumns[0], StudentsColumns[1], StudentsColumns[5]},
+				Columns: []*schema.Column{StudentsColumns[1]},
+			},
+			{
+				Name:    "student_email",
+				Unique:  true,
+				Columns: []*schema.Column{StudentsColumns[5]},
 			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		HymnsTable,
-		HymnsWorksTable,
+		HymnsWorkTable,
 		StudentsTable,
 	}
 )
 
 func init() {
 	HymnsTable.ForeignKeys[0].RefTable = StudentsTable
-	HymnsWorksTable.ForeignKeys[0].RefTable = HymnsTable
+	HymnsTable.Annotation = &entsql.Annotation{
+		Table: "hymns",
+	}
+	HymnsWorkTable.ForeignKeys[0].RefTable = HymnsTable
+	HymnsWorkTable.Annotation = &entsql.Annotation{
+		Table: "hymns_work",
+	}
+	StudentsTable.Annotation = &entsql.Annotation{
+		Table: "students",
+	}
 }

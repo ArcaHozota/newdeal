@@ -1,13 +1,11 @@
 package schema
 
 import (
-	"newdeal/common/tools"
-
 	"entgo.io/ent"
-	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/index"
 )
 
 type HymnsWork struct {
@@ -16,32 +14,45 @@ type HymnsWork struct {
 
 func (HymnsWork) Fields() []ent.Field {
 	return []ent.Field{
-		field.Other("work_id", tools.SnowflakeUUID()).
-			Immutable().
-			SchemaType(map[string]string{
-				dialect.Postgres: "bigint",
-			}),
-		field.Bytes("score").Nillable(),
-		field.String("name_jp_rational").Nillable(),
-		field.Time("updated_time"),
-		field.String("biko").Nillable(),
+		field.Int64("work_id").
+			Unique().
+			Comment("ワークID"),
+		field.Bytes("score").
+			Comment("楽譜").
+			Optional(),
+		field.String("name_jp_rational").
+			MaxLen(120).
+			Comment("日本語名称").
+			Optional(),
+		field.Time("updated_time").
+			Comment("更新時間"),
+		field.String("biko").
+			MaxLen(10).
+			Comment("備考").
+			Optional(),
 	}
 }
 
 func (HymnsWork) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("hymns", Hymn.Type).
-			Ref("hymns_work").
-			Unique().
+		edge.From("linked_hymn", Hymn.Type).
+			Ref("work").
+			Field("work_id").
 			// We add the "Required" method to the builder
 			// to make this edge required on entity creation.
 			// i.e. Card cannot be created without its owner.
-			Required(),
+			Required().
+			Unique(),
 	}
 }
 
 func (HymnsWork) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("work_id"),
+	return []ent.Index{}
+}
+
+// Annotations of the HymnsWork.
+func (HymnsWork) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "hymns_work"},
 	}
 }

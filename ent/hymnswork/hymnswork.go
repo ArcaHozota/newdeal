@@ -22,17 +22,17 @@ const (
 	FieldUpdatedTime = "updated_time"
 	// FieldBiko holds the string denoting the biko field in the database.
 	FieldBiko = "biko"
-	// EdgeHymns holds the string denoting the hymns edge name in mutations.
-	EdgeHymns = "hymns"
+	// EdgeLinkedHymn holds the string denoting the linked_hymn edge name in mutations.
+	EdgeLinkedHymn = "linked_hymn"
 	// Table holds the table name of the hymnswork in the database.
-	Table = "hymns_works"
-	// HymnsTable is the table that holds the hymns relation/edge.
-	HymnsTable = "hymns_works"
-	// HymnsInverseTable is the table name for the Hymn entity.
+	Table = "hymns_work"
+	// LinkedHymnTable is the table that holds the linked_hymn relation/edge.
+	LinkedHymnTable = "hymns_work"
+	// LinkedHymnInverseTable is the table name for the Hymn entity.
 	// It exists in this package in order to avoid circular dependency with the "hymn" package.
-	HymnsInverseTable = "hymns"
-	// HymnsColumn is the table column denoting the hymns relation/edge.
-	HymnsColumn = "hymn_hymns_work"
+	LinkedHymnInverseTable = "hymns"
+	// LinkedHymnColumn is the table column denoting the linked_hymn relation/edge.
+	LinkedHymnColumn = "work_id"
 )
 
 // Columns holds all SQL columns for hymnswork fields.
@@ -45,12 +45,6 @@ var Columns = []string{
 	FieldBiko,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "hymns_works"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"hymn_hymns_work",
-}
-
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
@@ -58,13 +52,15 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
+
+var (
+	// NameJpRationalValidator is a validator for the "name_jp_rational" field. It is called by the builders before save.
+	NameJpRationalValidator func(string) error
+	// BikoValidator is a validator for the "biko" field. It is called by the builders before save.
+	BikoValidator func(string) error
+)
 
 // OrderOption defines the ordering options for the HymnsWork queries.
 type OrderOption func(*sql.Selector)
@@ -94,16 +90,16 @@ func ByBiko(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBiko, opts...).ToFunc()
 }
 
-// ByHymnsField orders the results by hymns field.
-func ByHymnsField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByLinkedHymnField orders the results by linked_hymn field.
+func ByLinkedHymnField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newHymnsStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newLinkedHymnStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newHymnsStep() *sqlgraph.Step {
+func newLinkedHymnStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(HymnsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, HymnsTable, HymnsColumn),
+		sqlgraph.To(LinkedHymnInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, true, LinkedHymnTable, LinkedHymnColumn),
 	)
 }

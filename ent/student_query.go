@@ -15,17 +15,16 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // StudentQuery is the builder for querying Student entities.
 type StudentQuery struct {
 	config
-	ctx        *QueryContext
-	order      []student.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Student
-	withHymns  *HymnQuery
+	ctx              *QueryContext
+	order            []student.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.Student
+	withUpdatedHymns *HymnQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -62,8 +61,8 @@ func (sq *StudentQuery) Order(o ...student.OrderOption) *StudentQuery {
 	return sq
 }
 
-// QueryHymns chains the current query on the "hymns" edge.
-func (sq *StudentQuery) QueryHymns() *HymnQuery {
+// QueryUpdatedHymns chains the current query on the "updated_hymns" edge.
+func (sq *StudentQuery) QueryUpdatedHymns() *HymnQuery {
 	query := (&HymnClient{config: sq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sq.prepareQuery(ctx); err != nil {
@@ -76,7 +75,7 @@ func (sq *StudentQuery) QueryHymns() *HymnQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(student.Table, student.FieldID, selector),
 			sqlgraph.To(hymn.Table, hymn.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, student.HymnsTable, student.HymnsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, student.UpdatedHymnsTable, student.UpdatedHymnsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -108,8 +107,8 @@ func (sq *StudentQuery) FirstX(ctx context.Context) *Student {
 
 // FirstID returns the first Student ID from the query.
 // Returns a *NotFoundError when no Student ID was found.
-func (sq *StudentQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (sq *StudentQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = sq.Limit(1).IDs(setContextOp(ctx, sq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -121,7 +120,7 @@ func (sq *StudentQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (sq *StudentQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (sq *StudentQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := sq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -159,8 +158,8 @@ func (sq *StudentQuery) OnlyX(ctx context.Context) *Student {
 // OnlyID is like Only, but returns the only Student ID in the query.
 // Returns a *NotSingularError when more than one Student ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (sq *StudentQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (sq *StudentQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = sq.Limit(2).IDs(setContextOp(ctx, sq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -176,7 +175,7 @@ func (sq *StudentQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (sq *StudentQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (sq *StudentQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := sq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -204,7 +203,7 @@ func (sq *StudentQuery) AllX(ctx context.Context) []*Student {
 }
 
 // IDs executes the query and returns a list of Student IDs.
-func (sq *StudentQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+func (sq *StudentQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if sq.ctx.Unique == nil && sq.path != nil {
 		sq.Unique(true)
 	}
@@ -216,7 +215,7 @@ func (sq *StudentQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (sq *StudentQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (sq *StudentQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := sq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -271,26 +270,26 @@ func (sq *StudentQuery) Clone() *StudentQuery {
 		return nil
 	}
 	return &StudentQuery{
-		config:     sq.config,
-		ctx:        sq.ctx.Clone(),
-		order:      append([]student.OrderOption{}, sq.order...),
-		inters:     append([]Interceptor{}, sq.inters...),
-		predicates: append([]predicate.Student{}, sq.predicates...),
-		withHymns:  sq.withHymns.Clone(),
+		config:           sq.config,
+		ctx:              sq.ctx.Clone(),
+		order:            append([]student.OrderOption{}, sq.order...),
+		inters:           append([]Interceptor{}, sq.inters...),
+		predicates:       append([]predicate.Student{}, sq.predicates...),
+		withUpdatedHymns: sq.withUpdatedHymns.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
 	}
 }
 
-// WithHymns tells the query-builder to eager-load the nodes that are connected to
-// the "hymns" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *StudentQuery) WithHymns(opts ...func(*HymnQuery)) *StudentQuery {
+// WithUpdatedHymns tells the query-builder to eager-load the nodes that are connected to
+// the "updated_hymns" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StudentQuery) WithUpdatedHymns(opts ...func(*HymnQuery)) *StudentQuery {
 	query := (&HymnClient{config: sq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	sq.withHymns = query
+	sq.withUpdatedHymns = query
 	return sq
 }
 
@@ -373,7 +372,7 @@ func (sq *StudentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Stud
 		nodes       = []*Student{}
 		_spec       = sq.querySpec()
 		loadedTypes = [1]bool{
-			sq.withHymns != nil,
+			sq.withUpdatedHymns != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -394,19 +393,19 @@ func (sq *StudentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Stud
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := sq.withHymns; query != nil {
-		if err := sq.loadHymns(ctx, query, nodes,
-			func(n *Student) { n.Edges.Hymns = []*Hymn{} },
-			func(n *Student, e *Hymn) { n.Edges.Hymns = append(n.Edges.Hymns, e) }); err != nil {
+	if query := sq.withUpdatedHymns; query != nil {
+		if err := sq.loadUpdatedHymns(ctx, query, nodes,
+			func(n *Student) { n.Edges.UpdatedHymns = []*Hymn{} },
+			func(n *Student, e *Hymn) { n.Edges.UpdatedHymns = append(n.Edges.UpdatedHymns, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (sq *StudentQuery) loadHymns(ctx context.Context, query *HymnQuery, nodes []*Student, init func(*Student), assign func(*Student, *Hymn)) error {
+func (sq *StudentQuery) loadUpdatedHymns(ctx context.Context, query *HymnQuery, nodes []*Student, init func(*Student), assign func(*Student, *Hymn)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Student)
+	nodeids := make(map[int64]*Student)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -414,22 +413,21 @@ func (sq *StudentQuery) loadHymns(ctx context.Context, query *HymnQuery, nodes [
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(hymn.FieldUpdatedUser)
+	}
 	query.Where(predicate.Hymn(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(student.HymnsColumn), fks...))
+		s.Where(sql.InValues(s.C(student.UpdatedHymnsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.student_hymns
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "student_hymns" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.UpdatedUser
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "student_hymns" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "updated_user" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -446,7 +444,7 @@ func (sq *StudentQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (sq *StudentQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeOther))
+	_spec := sqlgraph.NewQuerySpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64))
 	_spec.From = sq.sql
 	if unique := sq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

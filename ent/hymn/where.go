@@ -8,51 +8,50 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id uuid.UUID) predicate.Hymn {
+func ID(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id uuid.UUID) predicate.Hymn {
+func IDEQ(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id uuid.UUID) predicate.Hymn {
+func IDNEQ(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...uuid.UUID) predicate.Hymn {
+func IDIn(ids ...int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...uuid.UUID) predicate.Hymn {
+func IDNotIn(ids ...int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id uuid.UUID) predicate.Hymn {
+func IDGT(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id uuid.UUID) predicate.Hymn {
+func IDGTE(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id uuid.UUID) predicate.Hymn {
+func IDLT(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id uuid.UUID) predicate.Hymn {
+func IDLTE(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldLTE(FieldID, id))
 }
 
@@ -71,14 +70,14 @@ func Link(v string) predicate.Hymn {
 	return predicate.Hymn(sql.FieldEQ(FieldLink, v))
 }
 
-// UpdatedTime applies equality check predicate on the "updated_time" field. It's identical to UpdatedTimeEQ.
-func UpdatedTime(v time.Time) predicate.Hymn {
-	return predicate.Hymn(sql.FieldEQ(FieldUpdatedTime, v))
-}
-
 // UpdatedUser applies equality check predicate on the "updated_user" field. It's identical to UpdatedUserEQ.
 func UpdatedUser(v int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldEQ(FieldUpdatedUser, v))
+}
+
+// UpdatedTime applies equality check predicate on the "updated_time" field. It's identical to UpdatedTimeEQ.
+func UpdatedTime(v time.Time) predicate.Hymn {
+	return predicate.Hymn(sql.FieldEQ(FieldUpdatedTime, v))
 }
 
 // Serif applies equality check predicate on the "serif" field. It's identical to SerifEQ.
@@ -276,6 +275,16 @@ func LinkHasSuffix(v string) predicate.Hymn {
 	return predicate.Hymn(sql.FieldHasSuffix(FieldLink, v))
 }
 
+// LinkIsNil applies the IsNil predicate on the "link" field.
+func LinkIsNil() predicate.Hymn {
+	return predicate.Hymn(sql.FieldIsNull(FieldLink))
+}
+
+// LinkNotNil applies the NotNil predicate on the "link" field.
+func LinkNotNil() predicate.Hymn {
+	return predicate.Hymn(sql.FieldNotNull(FieldLink))
+}
+
 // LinkEqualFold applies the EqualFold predicate on the "link" field.
 func LinkEqualFold(v string) predicate.Hymn {
 	return predicate.Hymn(sql.FieldEqualFold(FieldLink, v))
@@ -284,6 +293,26 @@ func LinkEqualFold(v string) predicate.Hymn {
 // LinkContainsFold applies the ContainsFold predicate on the "link" field.
 func LinkContainsFold(v string) predicate.Hymn {
 	return predicate.Hymn(sql.FieldContainsFold(FieldLink, v))
+}
+
+// UpdatedUserEQ applies the EQ predicate on the "updated_user" field.
+func UpdatedUserEQ(v int64) predicate.Hymn {
+	return predicate.Hymn(sql.FieldEQ(FieldUpdatedUser, v))
+}
+
+// UpdatedUserNEQ applies the NEQ predicate on the "updated_user" field.
+func UpdatedUserNEQ(v int64) predicate.Hymn {
+	return predicate.Hymn(sql.FieldNEQ(FieldUpdatedUser, v))
+}
+
+// UpdatedUserIn applies the In predicate on the "updated_user" field.
+func UpdatedUserIn(vs ...int64) predicate.Hymn {
+	return predicate.Hymn(sql.FieldIn(FieldUpdatedUser, vs...))
+}
+
+// UpdatedUserNotIn applies the NotIn predicate on the "updated_user" field.
+func UpdatedUserNotIn(vs ...int64) predicate.Hymn {
+	return predicate.Hymn(sql.FieldNotIn(FieldUpdatedUser, vs...))
 }
 
 // UpdatedTimeEQ applies the EQ predicate on the "updated_time" field.
@@ -324,46 +353,6 @@ func UpdatedTimeLT(v time.Time) predicate.Hymn {
 // UpdatedTimeLTE applies the LTE predicate on the "updated_time" field.
 func UpdatedTimeLTE(v time.Time) predicate.Hymn {
 	return predicate.Hymn(sql.FieldLTE(FieldUpdatedTime, v))
-}
-
-// UpdatedUserEQ applies the EQ predicate on the "updated_user" field.
-func UpdatedUserEQ(v int64) predicate.Hymn {
-	return predicate.Hymn(sql.FieldEQ(FieldUpdatedUser, v))
-}
-
-// UpdatedUserNEQ applies the NEQ predicate on the "updated_user" field.
-func UpdatedUserNEQ(v int64) predicate.Hymn {
-	return predicate.Hymn(sql.FieldNEQ(FieldUpdatedUser, v))
-}
-
-// UpdatedUserIn applies the In predicate on the "updated_user" field.
-func UpdatedUserIn(vs ...int64) predicate.Hymn {
-	return predicate.Hymn(sql.FieldIn(FieldUpdatedUser, vs...))
-}
-
-// UpdatedUserNotIn applies the NotIn predicate on the "updated_user" field.
-func UpdatedUserNotIn(vs ...int64) predicate.Hymn {
-	return predicate.Hymn(sql.FieldNotIn(FieldUpdatedUser, vs...))
-}
-
-// UpdatedUserGT applies the GT predicate on the "updated_user" field.
-func UpdatedUserGT(v int64) predicate.Hymn {
-	return predicate.Hymn(sql.FieldGT(FieldUpdatedUser, v))
-}
-
-// UpdatedUserGTE applies the GTE predicate on the "updated_user" field.
-func UpdatedUserGTE(v int64) predicate.Hymn {
-	return predicate.Hymn(sql.FieldGTE(FieldUpdatedUser, v))
-}
-
-// UpdatedUserLT applies the LT predicate on the "updated_user" field.
-func UpdatedUserLT(v int64) predicate.Hymn {
-	return predicate.Hymn(sql.FieldLT(FieldUpdatedUser, v))
-}
-
-// UpdatedUserLTE applies the LTE predicate on the "updated_user" field.
-func UpdatedUserLTE(v int64) predicate.Hymn {
-	return predicate.Hymn(sql.FieldLTE(FieldUpdatedUser, v))
 }
 
 // SerifEQ applies the EQ predicate on the "serif" field.
@@ -421,6 +410,16 @@ func SerifHasSuffix(v string) predicate.Hymn {
 	return predicate.Hymn(sql.FieldHasSuffix(FieldSerif, v))
 }
 
+// SerifIsNil applies the IsNil predicate on the "serif" field.
+func SerifIsNil() predicate.Hymn {
+	return predicate.Hymn(sql.FieldIsNull(FieldSerif))
+}
+
+// SerifNotNil applies the NotNil predicate on the "serif" field.
+func SerifNotNil() predicate.Hymn {
+	return predicate.Hymn(sql.FieldNotNull(FieldSerif))
+}
+
 // SerifEqualFold applies the EqualFold predicate on the "serif" field.
 func SerifEqualFold(v string) predicate.Hymn {
 	return predicate.Hymn(sql.FieldEqualFold(FieldSerif, v))
@@ -441,21 +440,21 @@ func VisibleFlgNEQ(v bool) predicate.Hymn {
 	return predicate.Hymn(sql.FieldNEQ(FieldVisibleFlg, v))
 }
 
-// HasStudents applies the HasEdge predicate on the "students" edge.
-func HasStudents() predicate.Hymn {
+// HasUpdatedBy applies the HasEdge predicate on the "updated_by" edge.
+func HasUpdatedBy() predicate.Hymn {
 	return predicate.Hymn(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, StudentsTable, StudentsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, UpdatedByTable, UpdatedByColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasStudentsWith applies the HasEdge predicate on the "students" edge with a given conditions (other predicates).
-func HasStudentsWith(preds ...predicate.Student) predicate.Hymn {
+// HasUpdatedByWith applies the HasEdge predicate on the "updated_by" edge with a given conditions (other predicates).
+func HasUpdatedByWith(preds ...predicate.Student) predicate.Hymn {
 	return predicate.Hymn(func(s *sql.Selector) {
-		step := newStudentsStep()
+		step := newUpdatedByStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -464,21 +463,21 @@ func HasStudentsWith(preds ...predicate.Student) predicate.Hymn {
 	})
 }
 
-// HasHymnsWork applies the HasEdge predicate on the "hymns_work" edge.
-func HasHymnsWork() predicate.Hymn {
+// HasWork applies the HasEdge predicate on the "work" edge.
+func HasWork() predicate.Hymn {
 	return predicate.Hymn(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, HymnsWorkTable, HymnsWorkColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, WorkTable, WorkColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasHymnsWorkWith applies the HasEdge predicate on the "hymns_work" edge with a given conditions (other predicates).
-func HasHymnsWorkWith(preds ...predicate.HymnsWork) predicate.Hymn {
+// HasWorkWith applies the HasEdge predicate on the "work" edge with a given conditions (other predicates).
+func HasWorkWith(preds ...predicate.HymnsWork) predicate.Hymn {
 	return predicate.Hymn(func(s *sql.Selector) {
-		step := newHymnsWorkStep()
+		step := newWorkStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -8,7 +8,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
@@ -57,7 +56,7 @@ func IDLTE(id int) predicate.HymnsWork {
 }
 
 // WorkID applies equality check predicate on the "work_id" field. It's identical to WorkIDEQ.
-func WorkID(v uuid.UUID) predicate.HymnsWork {
+func WorkID(v int64) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldEQ(FieldWorkID, v))
 }
 
@@ -82,43 +81,23 @@ func Biko(v string) predicate.HymnsWork {
 }
 
 // WorkIDEQ applies the EQ predicate on the "work_id" field.
-func WorkIDEQ(v uuid.UUID) predicate.HymnsWork {
+func WorkIDEQ(v int64) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldEQ(FieldWorkID, v))
 }
 
 // WorkIDNEQ applies the NEQ predicate on the "work_id" field.
-func WorkIDNEQ(v uuid.UUID) predicate.HymnsWork {
+func WorkIDNEQ(v int64) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldNEQ(FieldWorkID, v))
 }
 
 // WorkIDIn applies the In predicate on the "work_id" field.
-func WorkIDIn(vs ...uuid.UUID) predicate.HymnsWork {
+func WorkIDIn(vs ...int64) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldIn(FieldWorkID, vs...))
 }
 
 // WorkIDNotIn applies the NotIn predicate on the "work_id" field.
-func WorkIDNotIn(vs ...uuid.UUID) predicate.HymnsWork {
+func WorkIDNotIn(vs ...int64) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldNotIn(FieldWorkID, vs...))
-}
-
-// WorkIDGT applies the GT predicate on the "work_id" field.
-func WorkIDGT(v uuid.UUID) predicate.HymnsWork {
-	return predicate.HymnsWork(sql.FieldGT(FieldWorkID, v))
-}
-
-// WorkIDGTE applies the GTE predicate on the "work_id" field.
-func WorkIDGTE(v uuid.UUID) predicate.HymnsWork {
-	return predicate.HymnsWork(sql.FieldGTE(FieldWorkID, v))
-}
-
-// WorkIDLT applies the LT predicate on the "work_id" field.
-func WorkIDLT(v uuid.UUID) predicate.HymnsWork {
-	return predicate.HymnsWork(sql.FieldLT(FieldWorkID, v))
-}
-
-// WorkIDLTE applies the LTE predicate on the "work_id" field.
-func WorkIDLTE(v uuid.UUID) predicate.HymnsWork {
-	return predicate.HymnsWork(sql.FieldLTE(FieldWorkID, v))
 }
 
 // ScoreEQ applies the EQ predicate on the "score" field.
@@ -159,6 +138,16 @@ func ScoreLT(v []byte) predicate.HymnsWork {
 // ScoreLTE applies the LTE predicate on the "score" field.
 func ScoreLTE(v []byte) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldLTE(FieldScore, v))
+}
+
+// ScoreIsNil applies the IsNil predicate on the "score" field.
+func ScoreIsNil() predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldIsNull(FieldScore))
+}
+
+// ScoreNotNil applies the NotNil predicate on the "score" field.
+func ScoreNotNil() predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldNotNull(FieldScore))
 }
 
 // NameJpRationalEQ applies the EQ predicate on the "name_jp_rational" field.
@@ -214,6 +203,16 @@ func NameJpRationalHasPrefix(v string) predicate.HymnsWork {
 // NameJpRationalHasSuffix applies the HasSuffix predicate on the "name_jp_rational" field.
 func NameJpRationalHasSuffix(v string) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldHasSuffix(FieldNameJpRational, v))
+}
+
+// NameJpRationalIsNil applies the IsNil predicate on the "name_jp_rational" field.
+func NameJpRationalIsNil() predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldIsNull(FieldNameJpRational))
+}
+
+// NameJpRationalNotNil applies the NotNil predicate on the "name_jp_rational" field.
+func NameJpRationalNotNil() predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldNotNull(FieldNameJpRational))
 }
 
 // NameJpRationalEqualFold applies the EqualFold predicate on the "name_jp_rational" field.
@@ -321,6 +320,16 @@ func BikoHasSuffix(v string) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldHasSuffix(FieldBiko, v))
 }
 
+// BikoIsNil applies the IsNil predicate on the "biko" field.
+func BikoIsNil() predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldIsNull(FieldBiko))
+}
+
+// BikoNotNil applies the NotNil predicate on the "biko" field.
+func BikoNotNil() predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldNotNull(FieldBiko))
+}
+
 // BikoEqualFold applies the EqualFold predicate on the "biko" field.
 func BikoEqualFold(v string) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldEqualFold(FieldBiko, v))
@@ -331,21 +340,21 @@ func BikoContainsFold(v string) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldContainsFold(FieldBiko, v))
 }
 
-// HasHymns applies the HasEdge predicate on the "hymns" edge.
-func HasHymns() predicate.HymnsWork {
+// HasLinkedHymn applies the HasEdge predicate on the "linked_hymn" edge.
+func HasLinkedHymn() predicate.HymnsWork {
 	return predicate.HymnsWork(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, HymnsTable, HymnsColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, LinkedHymnTable, LinkedHymnColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasHymnsWith applies the HasEdge predicate on the "hymns" edge with a given conditions (other predicates).
-func HasHymnsWith(preds ...predicate.Hymn) predicate.HymnsWork {
+// HasLinkedHymnWith applies the HasEdge predicate on the "linked_hymn" edge with a given conditions (other predicates).
+func HasLinkedHymnWith(preds ...predicate.Hymn) predicate.HymnsWork {
 	return predicate.HymnsWork(func(s *sql.Selector) {
-		step := newHymnsStep()
+		step := newLinkedHymnStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

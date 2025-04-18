@@ -11,7 +11,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 )
 
 // HymnsWork is the model entity for the HymnsWork schema.
@@ -19,41 +18,40 @@ type HymnsWork struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// WorkID holds the value of the "work_id" field.
-	WorkID uuid.UUID `json:"work_id,omitempty"`
-	// Score holds the value of the "score" field.
-	Score *[]byte `json:"score,omitempty"`
-	// NameJpRational holds the value of the "name_jp_rational" field.
-	NameJpRational *string `json:"name_jp_rational,omitempty"`
-	// UpdatedTime holds the value of the "updated_time" field.
+	// ワークID
+	WorkID int64 `json:"work_id,omitempty"`
+	// 楽譜
+	Score []byte `json:"score,omitempty"`
+	// 日本語名称
+	NameJpRational string `json:"name_jp_rational,omitempty"`
+	// 更新時間
 	UpdatedTime time.Time `json:"updated_time,omitempty"`
-	// Biko holds the value of the "biko" field.
-	Biko *string `json:"biko,omitempty"`
+	// 備考
+	Biko string `json:"biko,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the HymnsWorkQuery when eager-loading is set.
-	Edges           HymnsWorkEdges `json:"edges"`
-	hymn_hymns_work *uuid.UUID
-	selectValues    sql.SelectValues
+	Edges        HymnsWorkEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // HymnsWorkEdges holds the relations/edges for other nodes in the graph.
 type HymnsWorkEdges struct {
-	// Hymns holds the value of the hymns edge.
-	Hymns *Hymn `json:"hymns,omitempty"`
+	// LinkedHymn holds the value of the linked_hymn edge.
+	LinkedHymn *Hymn `json:"linked_hymn,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// HymnsOrErr returns the Hymns value or an error if the edge
+// LinkedHymnOrErr returns the LinkedHymn value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e HymnsWorkEdges) HymnsOrErr() (*Hymn, error) {
-	if e.Hymns != nil {
-		return e.Hymns, nil
+func (e HymnsWorkEdges) LinkedHymnOrErr() (*Hymn, error) {
+	if e.LinkedHymn != nil {
+		return e.LinkedHymn, nil
 	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: hymn.Label}
 	}
-	return nil, &NotLoadedError{edge: "hymns"}
+	return nil, &NotLoadedError{edge: "linked_hymn"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -63,16 +61,12 @@ func (*HymnsWork) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case hymnswork.FieldScore:
 			values[i] = new([]byte)
-		case hymnswork.FieldID:
+		case hymnswork.FieldID, hymnswork.FieldWorkID:
 			values[i] = new(sql.NullInt64)
 		case hymnswork.FieldNameJpRational, hymnswork.FieldBiko:
 			values[i] = new(sql.NullString)
 		case hymnswork.FieldUpdatedTime:
 			values[i] = new(sql.NullTime)
-		case hymnswork.FieldWorkID:
-			values[i] = new(uuid.UUID)
-		case hymnswork.ForeignKeys[0]: // hymn_hymns_work
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -95,23 +89,22 @@ func (hw *HymnsWork) assignValues(columns []string, values []any) error {
 			}
 			hw.ID = int(value.Int64)
 		case hymnswork.FieldWorkID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field work_id", values[i])
-			} else if value != nil {
-				hw.WorkID = *value
+			} else if value.Valid {
+				hw.WorkID = value.Int64
 			}
 		case hymnswork.FieldScore:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field score", values[i])
 			} else if value != nil {
-				hw.Score = value
+				hw.Score = *value
 			}
 		case hymnswork.FieldNameJpRational:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name_jp_rational", values[i])
 			} else if value.Valid {
-				hw.NameJpRational = new(string)
-				*hw.NameJpRational = value.String
+				hw.NameJpRational = value.String
 			}
 		case hymnswork.FieldUpdatedTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -123,15 +116,7 @@ func (hw *HymnsWork) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field biko", values[i])
 			} else if value.Valid {
-				hw.Biko = new(string)
-				*hw.Biko = value.String
-			}
-		case hymnswork.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field hymn_hymns_work", values[i])
-			} else if value.Valid {
-				hw.hymn_hymns_work = new(uuid.UUID)
-				*hw.hymn_hymns_work = *value.S.(*uuid.UUID)
+				hw.Biko = value.String
 			}
 		default:
 			hw.selectValues.Set(columns[i], values[i])
@@ -146,9 +131,9 @@ func (hw *HymnsWork) Value(name string) (ent.Value, error) {
 	return hw.selectValues.Get(name)
 }
 
-// QueryHymns queries the "hymns" edge of the HymnsWork entity.
-func (hw *HymnsWork) QueryHymns() *HymnQuery {
-	return NewHymnsWorkClient(hw.config).QueryHymns(hw)
+// QueryLinkedHymn queries the "linked_hymn" edge of the HymnsWork entity.
+func (hw *HymnsWork) QueryLinkedHymn() *HymnQuery {
+	return NewHymnsWorkClient(hw.config).QueryLinkedHymn(hw)
 }
 
 // Update returns a builder for updating this HymnsWork.
@@ -177,23 +162,17 @@ func (hw *HymnsWork) String() string {
 	builder.WriteString("work_id=")
 	builder.WriteString(fmt.Sprintf("%v", hw.WorkID))
 	builder.WriteString(", ")
-	if v := hw.Score; v != nil {
-		builder.WriteString("score=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
+	builder.WriteString("score=")
+	builder.WriteString(fmt.Sprintf("%v", hw.Score))
 	builder.WriteString(", ")
-	if v := hw.NameJpRational; v != nil {
-		builder.WriteString("name_jp_rational=")
-		builder.WriteString(*v)
-	}
+	builder.WriteString("name_jp_rational=")
+	builder.WriteString(hw.NameJpRational)
 	builder.WriteString(", ")
 	builder.WriteString("updated_time=")
 	builder.WriteString(hw.UpdatedTime.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := hw.Biko; v != nil {
-		builder.WriteString("biko=")
-		builder.WriteString(*v)
-	}
+	builder.WriteString("biko=")
+	builder.WriteString(hw.Biko)
 	builder.WriteByte(')')
 	return builder.String()
 }

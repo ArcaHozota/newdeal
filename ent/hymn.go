@@ -12,66 +12,65 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 )
 
 // Hymn is the model entity for the Hymn schema.
 type Hymn struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID uuid.UUID `json:"id,omitempty"`
-	// NameJp holds the value of the "name_jp" field.
+	// ID
+	ID int64 `json:"id,omitempty"`
+	// 日本語名称
 	NameJp string `json:"name_jp,omitempty"`
-	// NameKr holds the value of the "name_kr" field.
+	// 韓国語名称
 	NameKr string `json:"name_kr,omitempty"`
-	// Link holds the value of the "link" field.
-	Link *string `json:"link,omitempty"`
-	// UpdatedTime holds the value of the "updated_time" field.
-	UpdatedTime time.Time `json:"updated_time,omitempty"`
-	// UpdatedUser holds the value of the "updated_user" field.
+	// リンク
+	Link string `json:"link,omitempty"`
+	// 更新者ID
 	UpdatedUser int64 `json:"updated_user,omitempty"`
-	// Serif holds the value of the "serif" field.
-	Serif *string `json:"serif,omitempty"`
-	// VisibleFlg holds the value of the "visible_flg" field.
+	// 更新時間
+	UpdatedTime time.Time `json:"updated_time,omitempty"`
+	// 歌詞
+	Serif string `json:"serif,omitempty"`
+	// 論理削除フラグ
 	VisibleFlg bool `json:"visible_flg,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the HymnQuery when eager-loading is set.
-	Edges         HymnEdges `json:"edges"`
-	student_hymns *uuid.UUID
-	selectValues  sql.SelectValues
+	Edges        HymnEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // HymnEdges holds the relations/edges for other nodes in the graph.
 type HymnEdges struct {
-	// Students holds the value of the students edge.
-	Students *Student `json:"students,omitempty"`
-	// HymnsWork holds the value of the hymns_work edge.
-	HymnsWork *HymnsWork `json:"hymns_work,omitempty"`
+	// UpdatedBy holds the value of the updated_by edge.
+	UpdatedBy *Student `json:"updated_by,omitempty"`
+	// Work holds the value of the work edge.
+	Work *HymnsWork `json:"work,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
 }
 
-// StudentsOrErr returns the Students value or an error if the edge
+// UpdatedByOrErr returns the UpdatedBy value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e HymnEdges) StudentsOrErr() (*Student, error) {
-	if e.Students != nil {
-		return e.Students, nil
+func (e HymnEdges) UpdatedByOrErr() (*Student, error) {
+	if e.UpdatedBy != nil {
+		return e.UpdatedBy, nil
 	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: student.Label}
 	}
-	return nil, &NotLoadedError{edge: "students"}
+	return nil, &NotLoadedError{edge: "updated_by"}
 }
 
-// HymnsWorkOrErr returns the HymnsWork value or an error if the edge
+// WorkOrErr returns the Work value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e HymnEdges) HymnsWorkOrErr() (*HymnsWork, error) {
-	if e.HymnsWork != nil {
-		return e.HymnsWork, nil
+func (e HymnEdges) WorkOrErr() (*HymnsWork, error) {
+	if e.Work != nil {
+		return e.Work, nil
 	} else if e.loadedTypes[1] {
 		return nil, &NotFoundError{label: hymnswork.Label}
 	}
-	return nil, &NotLoadedError{edge: "hymns_work"}
+	return nil, &NotLoadedError{edge: "work"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -81,16 +80,12 @@ func (*Hymn) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case hymn.FieldVisibleFlg:
 			values[i] = new(sql.NullBool)
-		case hymn.FieldUpdatedUser:
+		case hymn.FieldID, hymn.FieldUpdatedUser:
 			values[i] = new(sql.NullInt64)
 		case hymn.FieldNameJp, hymn.FieldNameKr, hymn.FieldLink, hymn.FieldSerif:
 			values[i] = new(sql.NullString)
 		case hymn.FieldUpdatedTime:
 			values[i] = new(sql.NullTime)
-		case hymn.FieldID:
-			values[i] = new(uuid.UUID)
-		case hymn.ForeignKeys[0]: // student_hymns
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -107,11 +102,11 @@ func (h *Hymn) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case hymn.FieldID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value != nil {
-				h.ID = *value
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			h.ID = int64(value.Int64)
 		case hymn.FieldNameJp:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name_jp", values[i])
@@ -128,14 +123,7 @@ func (h *Hymn) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field link", values[i])
 			} else if value.Valid {
-				h.Link = new(string)
-				*h.Link = value.String
-			}
-		case hymn.FieldUpdatedTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updated_time", values[i])
-			} else if value.Valid {
-				h.UpdatedTime = value.Time
+				h.Link = value.String
 			}
 		case hymn.FieldUpdatedUser:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -143,25 +131,23 @@ func (h *Hymn) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				h.UpdatedUser = value.Int64
 			}
+		case hymn.FieldUpdatedTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_time", values[i])
+			} else if value.Valid {
+				h.UpdatedTime = value.Time
+			}
 		case hymn.FieldSerif:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field serif", values[i])
 			} else if value.Valid {
-				h.Serif = new(string)
-				*h.Serif = value.String
+				h.Serif = value.String
 			}
 		case hymn.FieldVisibleFlg:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field visible_flg", values[i])
 			} else if value.Valid {
 				h.VisibleFlg = value.Bool
-			}
-		case hymn.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field student_hymns", values[i])
-			} else if value.Valid {
-				h.student_hymns = new(uuid.UUID)
-				*h.student_hymns = *value.S.(*uuid.UUID)
 			}
 		default:
 			h.selectValues.Set(columns[i], values[i])
@@ -176,14 +162,14 @@ func (h *Hymn) Value(name string) (ent.Value, error) {
 	return h.selectValues.Get(name)
 }
 
-// QueryStudents queries the "students" edge of the Hymn entity.
-func (h *Hymn) QueryStudents() *StudentQuery {
-	return NewHymnClient(h.config).QueryStudents(h)
+// QueryUpdatedBy queries the "updated_by" edge of the Hymn entity.
+func (h *Hymn) QueryUpdatedBy() *StudentQuery {
+	return NewHymnClient(h.config).QueryUpdatedBy(h)
 }
 
-// QueryHymnsWork queries the "hymns_work" edge of the Hymn entity.
-func (h *Hymn) QueryHymnsWork() *HymnsWorkQuery {
-	return NewHymnClient(h.config).QueryHymnsWork(h)
+// QueryWork queries the "work" edge of the Hymn entity.
+func (h *Hymn) QueryWork() *HymnsWorkQuery {
+	return NewHymnClient(h.config).QueryWork(h)
 }
 
 // Update returns a builder for updating this Hymn.
@@ -215,21 +201,17 @@ func (h *Hymn) String() string {
 	builder.WriteString("name_kr=")
 	builder.WriteString(h.NameKr)
 	builder.WriteString(", ")
-	if v := h.Link; v != nil {
-		builder.WriteString("link=")
-		builder.WriteString(*v)
-	}
-	builder.WriteString(", ")
-	builder.WriteString("updated_time=")
-	builder.WriteString(h.UpdatedTime.Format(time.ANSIC))
+	builder.WriteString("link=")
+	builder.WriteString(h.Link)
 	builder.WriteString(", ")
 	builder.WriteString("updated_user=")
 	builder.WriteString(fmt.Sprintf("%v", h.UpdatedUser))
 	builder.WriteString(", ")
-	if v := h.Serif; v != nil {
-		builder.WriteString("serif=")
-		builder.WriteString(*v)
-	}
+	builder.WriteString("updated_time=")
+	builder.WriteString(h.UpdatedTime.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("serif=")
+	builder.WriteString(h.Serif)
 	builder.WriteString(", ")
 	builder.WriteString("visible_flg=")
 	builder.WriteString(fmt.Sprintf("%v", h.VisibleFlg))

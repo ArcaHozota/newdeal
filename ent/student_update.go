@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // StudentUpdate is the builder for updating Student entities.
@@ -100,6 +99,12 @@ func (su *StudentUpdate) SetNillableEmail(s *string) *StudentUpdate {
 	return su
 }
 
+// ClearEmail clears the value of the "email" field.
+func (su *StudentUpdate) ClearEmail() *StudentUpdate {
+	su.mutation.ClearEmail()
+	return su
+}
+
 // SetUpdatedTime sets the "updated_time" field.
 func (su *StudentUpdate) SetUpdatedTime(t time.Time) *StudentUpdate {
 	su.mutation.SetUpdatedTime(t)
@@ -111,6 +116,12 @@ func (su *StudentUpdate) SetNillableUpdatedTime(t *time.Time) *StudentUpdate {
 	if t != nil {
 		su.SetUpdatedTime(*t)
 	}
+	return su
+}
+
+// ClearUpdatedTime clears the value of the "updated_time" field.
+func (su *StudentUpdate) ClearUpdatedTime() *StudentUpdate {
+	su.mutation.ClearUpdatedTime()
 	return su
 }
 
@@ -128,19 +139,19 @@ func (su *StudentUpdate) SetNillableVisibleFlg(b *bool) *StudentUpdate {
 	return su
 }
 
-// AddHymnIDs adds the "hymns" edge to the Hymn entity by IDs.
-func (su *StudentUpdate) AddHymnIDs(ids ...uuid.UUID) *StudentUpdate {
-	su.mutation.AddHymnIDs(ids...)
+// AddUpdatedHymnIDs adds the "updated_hymns" edge to the Hymn entity by IDs.
+func (su *StudentUpdate) AddUpdatedHymnIDs(ids ...int64) *StudentUpdate {
+	su.mutation.AddUpdatedHymnIDs(ids...)
 	return su
 }
 
-// AddHymns adds the "hymns" edges to the Hymn entity.
-func (su *StudentUpdate) AddHymns(h ...*Hymn) *StudentUpdate {
-	ids := make([]uuid.UUID, len(h))
+// AddUpdatedHymns adds the "updated_hymns" edges to the Hymn entity.
+func (su *StudentUpdate) AddUpdatedHymns(h ...*Hymn) *StudentUpdate {
+	ids := make([]int64, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
-	return su.AddHymnIDs(ids...)
+	return su.AddUpdatedHymnIDs(ids...)
 }
 
 // Mutation returns the StudentMutation object of the builder.
@@ -148,25 +159,25 @@ func (su *StudentUpdate) Mutation() *StudentMutation {
 	return su.mutation
 }
 
-// ClearHymns clears all "hymns" edges to the Hymn entity.
-func (su *StudentUpdate) ClearHymns() *StudentUpdate {
-	su.mutation.ClearHymns()
+// ClearUpdatedHymns clears all "updated_hymns" edges to the Hymn entity.
+func (su *StudentUpdate) ClearUpdatedHymns() *StudentUpdate {
+	su.mutation.ClearUpdatedHymns()
 	return su
 }
 
-// RemoveHymnIDs removes the "hymns" edge to Hymn entities by IDs.
-func (su *StudentUpdate) RemoveHymnIDs(ids ...uuid.UUID) *StudentUpdate {
-	su.mutation.RemoveHymnIDs(ids...)
+// RemoveUpdatedHymnIDs removes the "updated_hymns" edge to Hymn entities by IDs.
+func (su *StudentUpdate) RemoveUpdatedHymnIDs(ids ...int64) *StudentUpdate {
+	su.mutation.RemoveUpdatedHymnIDs(ids...)
 	return su
 }
 
-// RemoveHymns removes "hymns" edges to Hymn entities.
-func (su *StudentUpdate) RemoveHymns(h ...*Hymn) *StudentUpdate {
-	ids := make([]uuid.UUID, len(h))
+// RemoveUpdatedHymns removes "updated_hymns" edges to Hymn entities.
+func (su *StudentUpdate) RemoveUpdatedHymns(h ...*Hymn) *StudentUpdate {
+	ids := make([]int64, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
-	return su.RemoveHymnIDs(ids...)
+	return su.RemoveUpdatedHymnIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -196,8 +207,36 @@ func (su *StudentUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (su *StudentUpdate) check() error {
+	if v, ok := su.mutation.LoginAccount(); ok {
+		if err := student.LoginAccountValidator(v); err != nil {
+			return &ValidationError{Name: "login_account", err: fmt.Errorf(`ent: validator failed for field "Student.login_account": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.Password(); ok {
+		if err := student.PasswordValidator(v); err != nil {
+			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "Student.password": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.Username(); ok {
+		if err := student.UsernameValidator(v); err != nil {
+			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "Student.username": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.Email(); ok {
+		if err := student.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Student.email": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeOther))
+	if err := su.check(); err != nil {
+		return n, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64))
 	if ps := su.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -220,34 +259,40 @@ func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.Email(); ok {
 		_spec.SetField(student.FieldEmail, field.TypeString, value)
 	}
+	if su.mutation.EmailCleared() {
+		_spec.ClearField(student.FieldEmail, field.TypeString)
+	}
 	if value, ok := su.mutation.UpdatedTime(); ok {
 		_spec.SetField(student.FieldUpdatedTime, field.TypeTime, value)
+	}
+	if su.mutation.UpdatedTimeCleared() {
+		_spec.ClearField(student.FieldUpdatedTime, field.TypeTime)
 	}
 	if value, ok := su.mutation.VisibleFlg(); ok {
 		_spec.SetField(student.FieldVisibleFlg, field.TypeBool, value)
 	}
-	if su.mutation.HymnsCleared() {
+	if su.mutation.UpdatedHymnsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   student.HymnsTable,
-			Columns: []string{student.HymnsColumn},
+			Table:   student.UpdatedHymnsTable,
+			Columns: []string{student.UpdatedHymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.RemovedHymnsIDs(); len(nodes) > 0 && !su.mutation.HymnsCleared() {
+	if nodes := su.mutation.RemovedUpdatedHymnsIDs(); len(nodes) > 0 && !su.mutation.UpdatedHymnsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   student.HymnsTable,
-			Columns: []string{student.HymnsColumn},
+			Table:   student.UpdatedHymnsTable,
+			Columns: []string{student.UpdatedHymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -255,15 +300,15 @@ func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.HymnsIDs(); len(nodes) > 0 {
+	if nodes := su.mutation.UpdatedHymnsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   student.HymnsTable,
-			Columns: []string{student.HymnsColumn},
+			Table:   student.UpdatedHymnsTable,
+			Columns: []string{student.UpdatedHymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -361,6 +406,12 @@ func (suo *StudentUpdateOne) SetNillableEmail(s *string) *StudentUpdateOne {
 	return suo
 }
 
+// ClearEmail clears the value of the "email" field.
+func (suo *StudentUpdateOne) ClearEmail() *StudentUpdateOne {
+	suo.mutation.ClearEmail()
+	return suo
+}
+
 // SetUpdatedTime sets the "updated_time" field.
 func (suo *StudentUpdateOne) SetUpdatedTime(t time.Time) *StudentUpdateOne {
 	suo.mutation.SetUpdatedTime(t)
@@ -372,6 +423,12 @@ func (suo *StudentUpdateOne) SetNillableUpdatedTime(t *time.Time) *StudentUpdate
 	if t != nil {
 		suo.SetUpdatedTime(*t)
 	}
+	return suo
+}
+
+// ClearUpdatedTime clears the value of the "updated_time" field.
+func (suo *StudentUpdateOne) ClearUpdatedTime() *StudentUpdateOne {
+	suo.mutation.ClearUpdatedTime()
 	return suo
 }
 
@@ -389,19 +446,19 @@ func (suo *StudentUpdateOne) SetNillableVisibleFlg(b *bool) *StudentUpdateOne {
 	return suo
 }
 
-// AddHymnIDs adds the "hymns" edge to the Hymn entity by IDs.
-func (suo *StudentUpdateOne) AddHymnIDs(ids ...uuid.UUID) *StudentUpdateOne {
-	suo.mutation.AddHymnIDs(ids...)
+// AddUpdatedHymnIDs adds the "updated_hymns" edge to the Hymn entity by IDs.
+func (suo *StudentUpdateOne) AddUpdatedHymnIDs(ids ...int64) *StudentUpdateOne {
+	suo.mutation.AddUpdatedHymnIDs(ids...)
 	return suo
 }
 
-// AddHymns adds the "hymns" edges to the Hymn entity.
-func (suo *StudentUpdateOne) AddHymns(h ...*Hymn) *StudentUpdateOne {
-	ids := make([]uuid.UUID, len(h))
+// AddUpdatedHymns adds the "updated_hymns" edges to the Hymn entity.
+func (suo *StudentUpdateOne) AddUpdatedHymns(h ...*Hymn) *StudentUpdateOne {
+	ids := make([]int64, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
-	return suo.AddHymnIDs(ids...)
+	return suo.AddUpdatedHymnIDs(ids...)
 }
 
 // Mutation returns the StudentMutation object of the builder.
@@ -409,25 +466,25 @@ func (suo *StudentUpdateOne) Mutation() *StudentMutation {
 	return suo.mutation
 }
 
-// ClearHymns clears all "hymns" edges to the Hymn entity.
-func (suo *StudentUpdateOne) ClearHymns() *StudentUpdateOne {
-	suo.mutation.ClearHymns()
+// ClearUpdatedHymns clears all "updated_hymns" edges to the Hymn entity.
+func (suo *StudentUpdateOne) ClearUpdatedHymns() *StudentUpdateOne {
+	suo.mutation.ClearUpdatedHymns()
 	return suo
 }
 
-// RemoveHymnIDs removes the "hymns" edge to Hymn entities by IDs.
-func (suo *StudentUpdateOne) RemoveHymnIDs(ids ...uuid.UUID) *StudentUpdateOne {
-	suo.mutation.RemoveHymnIDs(ids...)
+// RemoveUpdatedHymnIDs removes the "updated_hymns" edge to Hymn entities by IDs.
+func (suo *StudentUpdateOne) RemoveUpdatedHymnIDs(ids ...int64) *StudentUpdateOne {
+	suo.mutation.RemoveUpdatedHymnIDs(ids...)
 	return suo
 }
 
-// RemoveHymns removes "hymns" edges to Hymn entities.
-func (suo *StudentUpdateOne) RemoveHymns(h ...*Hymn) *StudentUpdateOne {
-	ids := make([]uuid.UUID, len(h))
+// RemoveUpdatedHymns removes "updated_hymns" edges to Hymn entities.
+func (suo *StudentUpdateOne) RemoveUpdatedHymns(h ...*Hymn) *StudentUpdateOne {
+	ids := make([]int64, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
-	return suo.RemoveHymnIDs(ids...)
+	return suo.RemoveUpdatedHymnIDs(ids...)
 }
 
 // Where appends a list predicates to the StudentUpdate builder.
@@ -470,8 +527,36 @@ func (suo *StudentUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (suo *StudentUpdateOne) check() error {
+	if v, ok := suo.mutation.LoginAccount(); ok {
+		if err := student.LoginAccountValidator(v); err != nil {
+			return &ValidationError{Name: "login_account", err: fmt.Errorf(`ent: validator failed for field "Student.login_account": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.Password(); ok {
+		if err := student.PasswordValidator(v); err != nil {
+			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "Student.password": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.Username(); ok {
+		if err := student.UsernameValidator(v); err != nil {
+			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "Student.username": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.Email(); ok {
+		if err := student.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Student.email": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err error) {
-	_spec := sqlgraph.NewUpdateSpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeOther))
+	if err := suo.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64))
 	id, ok := suo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Student.id" for update`)}
@@ -511,34 +596,40 @@ func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err e
 	if value, ok := suo.mutation.Email(); ok {
 		_spec.SetField(student.FieldEmail, field.TypeString, value)
 	}
+	if suo.mutation.EmailCleared() {
+		_spec.ClearField(student.FieldEmail, field.TypeString)
+	}
 	if value, ok := suo.mutation.UpdatedTime(); ok {
 		_spec.SetField(student.FieldUpdatedTime, field.TypeTime, value)
+	}
+	if suo.mutation.UpdatedTimeCleared() {
+		_spec.ClearField(student.FieldUpdatedTime, field.TypeTime)
 	}
 	if value, ok := suo.mutation.VisibleFlg(); ok {
 		_spec.SetField(student.FieldVisibleFlg, field.TypeBool, value)
 	}
-	if suo.mutation.HymnsCleared() {
+	if suo.mutation.UpdatedHymnsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   student.HymnsTable,
-			Columns: []string{student.HymnsColumn},
+			Table:   student.UpdatedHymnsTable,
+			Columns: []string{student.UpdatedHymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.RemovedHymnsIDs(); len(nodes) > 0 && !suo.mutation.HymnsCleared() {
+	if nodes := suo.mutation.RemovedUpdatedHymnsIDs(); len(nodes) > 0 && !suo.mutation.UpdatedHymnsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   student.HymnsTable,
-			Columns: []string{student.HymnsColumn},
+			Table:   student.UpdatedHymnsTable,
+			Columns: []string{student.UpdatedHymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -546,15 +637,15 @@ func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.HymnsIDs(); len(nodes) > 0 {
+	if nodes := suo.mutation.UpdatedHymnsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   student.HymnsTable,
-			Columns: []string{student.HymnsColumn},
+			Table:   student.UpdatedHymnsTable,
+			Columns: []string{student.UpdatedHymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

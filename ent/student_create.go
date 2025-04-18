@@ -12,7 +12,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // StudentCreate is the builder for creating a Student entity.
@@ -52,9 +51,25 @@ func (sc *StudentCreate) SetEmail(s string) *StudentCreate {
 	return sc
 }
 
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (sc *StudentCreate) SetNillableEmail(s *string) *StudentCreate {
+	if s != nil {
+		sc.SetEmail(*s)
+	}
+	return sc
+}
+
 // SetUpdatedTime sets the "updated_time" field.
 func (sc *StudentCreate) SetUpdatedTime(t time.Time) *StudentCreate {
 	sc.mutation.SetUpdatedTime(t)
+	return sc
+}
+
+// SetNillableUpdatedTime sets the "updated_time" field if the given value is not nil.
+func (sc *StudentCreate) SetNillableUpdatedTime(t *time.Time) *StudentCreate {
+	if t != nil {
+		sc.SetUpdatedTime(*t)
+	}
 	return sc
 }
 
@@ -65,24 +80,24 @@ func (sc *StudentCreate) SetVisibleFlg(b bool) *StudentCreate {
 }
 
 // SetID sets the "id" field.
-func (sc *StudentCreate) SetID(u uuid.UUID) *StudentCreate {
-	sc.mutation.SetID(u)
+func (sc *StudentCreate) SetID(i int64) *StudentCreate {
+	sc.mutation.SetID(i)
 	return sc
 }
 
-// AddHymnIDs adds the "hymns" edge to the Hymn entity by IDs.
-func (sc *StudentCreate) AddHymnIDs(ids ...uuid.UUID) *StudentCreate {
-	sc.mutation.AddHymnIDs(ids...)
+// AddUpdatedHymnIDs adds the "updated_hymns" edge to the Hymn entity by IDs.
+func (sc *StudentCreate) AddUpdatedHymnIDs(ids ...int64) *StudentCreate {
+	sc.mutation.AddUpdatedHymnIDs(ids...)
 	return sc
 }
 
-// AddHymns adds the "hymns" edges to the Hymn entity.
-func (sc *StudentCreate) AddHymns(h ...*Hymn) *StudentCreate {
-	ids := make([]uuid.UUID, len(h))
+// AddUpdatedHymns adds the "updated_hymns" edges to the Hymn entity.
+func (sc *StudentCreate) AddUpdatedHymns(h ...*Hymn) *StudentCreate {
+	ids := make([]int64, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
-	return sc.AddHymnIDs(ids...)
+	return sc.AddUpdatedHymnIDs(ids...)
 }
 
 // Mutation returns the StudentMutation object of the builder.
@@ -122,20 +137,34 @@ func (sc *StudentCreate) check() error {
 	if _, ok := sc.mutation.LoginAccount(); !ok {
 		return &ValidationError{Name: "login_account", err: errors.New(`ent: missing required field "Student.login_account"`)}
 	}
+	if v, ok := sc.mutation.LoginAccount(); ok {
+		if err := student.LoginAccountValidator(v); err != nil {
+			return &ValidationError{Name: "login_account", err: fmt.Errorf(`ent: validator failed for field "Student.login_account": %w`, err)}
+		}
+	}
 	if _, ok := sc.mutation.Password(); !ok {
 		return &ValidationError{Name: "password", err: errors.New(`ent: missing required field "Student.password"`)}
+	}
+	if v, ok := sc.mutation.Password(); ok {
+		if err := student.PasswordValidator(v); err != nil {
+			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "Student.password": %w`, err)}
+		}
 	}
 	if _, ok := sc.mutation.Username(); !ok {
 		return &ValidationError{Name: "username", err: errors.New(`ent: missing required field "Student.username"`)}
 	}
+	if v, ok := sc.mutation.Username(); ok {
+		if err := student.UsernameValidator(v); err != nil {
+			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "Student.username": %w`, err)}
+		}
+	}
 	if _, ok := sc.mutation.DateOfBirth(); !ok {
 		return &ValidationError{Name: "date_of_birth", err: errors.New(`ent: missing required field "Student.date_of_birth"`)}
 	}
-	if _, ok := sc.mutation.Email(); !ok {
-		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "Student.email"`)}
-	}
-	if _, ok := sc.mutation.UpdatedTime(); !ok {
-		return &ValidationError{Name: "updated_time", err: errors.New(`ent: missing required field "Student.updated_time"`)}
+	if v, ok := sc.mutation.Email(); ok {
+		if err := student.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Student.email": %w`, err)}
+		}
 	}
 	if _, ok := sc.mutation.VisibleFlg(); !ok {
 		return &ValidationError{Name: "visible_flg", err: errors.New(`ent: missing required field "Student.visible_flg"`)}
@@ -154,12 +183,9 @@ func (sc *StudentCreate) sqlSave(ctx context.Context) (*Student, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int64(id)
 	}
 	sc.mutation.id = &_node.ID
 	sc.mutation.done = true
@@ -169,11 +195,11 @@ func (sc *StudentCreate) sqlSave(ctx context.Context) (*Student, error) {
 func (sc *StudentCreate) createSpec() (*Student, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Student{config: sc.config}
-		_spec = sqlgraph.NewCreateSpec(student.Table, sqlgraph.NewFieldSpec(student.FieldID, field.TypeOther))
+		_spec = sqlgraph.NewCreateSpec(student.Table, sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64))
 	)
 	if id, ok := sc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := sc.mutation.LoginAccount(); ok {
 		_spec.SetField(student.FieldLoginAccount, field.TypeString, value)
@@ -193,25 +219,25 @@ func (sc *StudentCreate) createSpec() (*Student, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := sc.mutation.Email(); ok {
 		_spec.SetField(student.FieldEmail, field.TypeString, value)
-		_node.Email = &value
+		_node.Email = value
 	}
 	if value, ok := sc.mutation.UpdatedTime(); ok {
 		_spec.SetField(student.FieldUpdatedTime, field.TypeTime, value)
-		_node.UpdatedTime = &value
+		_node.UpdatedTime = value
 	}
 	if value, ok := sc.mutation.VisibleFlg(); ok {
 		_spec.SetField(student.FieldVisibleFlg, field.TypeBool, value)
 		_node.VisibleFlg = value
 	}
-	if nodes := sc.mutation.HymnsIDs(); len(nodes) > 0 {
+	if nodes := sc.mutation.UpdatedHymnsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   student.HymnsTable,
-			Columns: []string{student.HymnsColumn},
+			Table:   student.UpdatedHymnsTable,
+			Columns: []string{student.UpdatedHymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -266,6 +292,10 @@ func (scb *StudentCreateBulk) Save(ctx context.Context) ([]*Student, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int64(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})

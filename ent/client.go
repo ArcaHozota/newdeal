@@ -19,7 +19,6 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/google/uuid"
 )
 
 // Client is the client that holds all ent builders.
@@ -280,7 +279,7 @@ func (c *HymnClient) UpdateOne(h *Hymn) *HymnUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *HymnClient) UpdateOneID(id uuid.UUID) *HymnUpdateOne {
+func (c *HymnClient) UpdateOneID(id int64) *HymnUpdateOne {
 	mutation := newHymnMutation(c.config, OpUpdateOne, withHymnID(id))
 	return &HymnUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -297,7 +296,7 @@ func (c *HymnClient) DeleteOne(h *Hymn) *HymnDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *HymnClient) DeleteOneID(id uuid.UUID) *HymnDeleteOne {
+func (c *HymnClient) DeleteOneID(id int64) *HymnDeleteOne {
 	builder := c.Delete().Where(hymn.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -314,12 +313,12 @@ func (c *HymnClient) Query() *HymnQuery {
 }
 
 // Get returns a Hymn entity by its id.
-func (c *HymnClient) Get(ctx context.Context, id uuid.UUID) (*Hymn, error) {
+func (c *HymnClient) Get(ctx context.Context, id int64) (*Hymn, error) {
 	return c.Query().Where(hymn.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *HymnClient) GetX(ctx context.Context, id uuid.UUID) *Hymn {
+func (c *HymnClient) GetX(ctx context.Context, id int64) *Hymn {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -327,15 +326,15 @@ func (c *HymnClient) GetX(ctx context.Context, id uuid.UUID) *Hymn {
 	return obj
 }
 
-// QueryStudents queries the students edge of a Hymn.
-func (c *HymnClient) QueryStudents(h *Hymn) *StudentQuery {
+// QueryUpdatedBy queries the updated_by edge of a Hymn.
+func (c *HymnClient) QueryUpdatedBy(h *Hymn) *StudentQuery {
 	query := (&StudentClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := h.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(hymn.Table, hymn.FieldID, id),
 			sqlgraph.To(student.Table, student.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, hymn.StudentsTable, hymn.StudentsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, hymn.UpdatedByTable, hymn.UpdatedByColumn),
 		)
 		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
 		return fromV, nil
@@ -343,15 +342,15 @@ func (c *HymnClient) QueryStudents(h *Hymn) *StudentQuery {
 	return query
 }
 
-// QueryHymnsWork queries the hymns_work edge of a Hymn.
-func (c *HymnClient) QueryHymnsWork(h *Hymn) *HymnsWorkQuery {
+// QueryWork queries the work edge of a Hymn.
+func (c *HymnClient) QueryWork(h *Hymn) *HymnsWorkQuery {
 	query := (&HymnsWorkClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := h.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(hymn.Table, hymn.FieldID, id),
 			sqlgraph.To(hymnswork.Table, hymnswork.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, hymn.HymnsWorkTable, hymn.HymnsWorkColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, hymn.WorkTable, hymn.WorkColumn),
 		)
 		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
 		return fromV, nil
@@ -492,15 +491,15 @@ func (c *HymnsWorkClient) GetX(ctx context.Context, id int) *HymnsWork {
 	return obj
 }
 
-// QueryHymns queries the hymns edge of a HymnsWork.
-func (c *HymnsWorkClient) QueryHymns(hw *HymnsWork) *HymnQuery {
+// QueryLinkedHymn queries the linked_hymn edge of a HymnsWork.
+func (c *HymnsWorkClient) QueryLinkedHymn(hw *HymnsWork) *HymnQuery {
 	query := (&HymnClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := hw.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(hymnswork.Table, hymnswork.FieldID, id),
 			sqlgraph.To(hymn.Table, hymn.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, hymnswork.HymnsTable, hymnswork.HymnsColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, hymnswork.LinkedHymnTable, hymnswork.LinkedHymnColumn),
 		)
 		fromV = sqlgraph.Neighbors(hw.driver.Dialect(), step)
 		return fromV, nil
@@ -594,7 +593,7 @@ func (c *StudentClient) UpdateOne(s *Student) *StudentUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *StudentClient) UpdateOneID(id uuid.UUID) *StudentUpdateOne {
+func (c *StudentClient) UpdateOneID(id int64) *StudentUpdateOne {
 	mutation := newStudentMutation(c.config, OpUpdateOne, withStudentID(id))
 	return &StudentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -611,7 +610,7 @@ func (c *StudentClient) DeleteOne(s *Student) *StudentDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *StudentClient) DeleteOneID(id uuid.UUID) *StudentDeleteOne {
+func (c *StudentClient) DeleteOneID(id int64) *StudentDeleteOne {
 	builder := c.Delete().Where(student.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -628,12 +627,12 @@ func (c *StudentClient) Query() *StudentQuery {
 }
 
 // Get returns a Student entity by its id.
-func (c *StudentClient) Get(ctx context.Context, id uuid.UUID) (*Student, error) {
+func (c *StudentClient) Get(ctx context.Context, id int64) (*Student, error) {
 	return c.Query().Where(student.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *StudentClient) GetX(ctx context.Context, id uuid.UUID) *Student {
+func (c *StudentClient) GetX(ctx context.Context, id int64) *Student {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -641,15 +640,15 @@ func (c *StudentClient) GetX(ctx context.Context, id uuid.UUID) *Student {
 	return obj
 }
 
-// QueryHymns queries the hymns edge of a Student.
-func (c *StudentClient) QueryHymns(s *Student) *HymnQuery {
+// QueryUpdatedHymns queries the updated_hymns edge of a Student.
+func (c *StudentClient) QueryUpdatedHymns(s *Student) *HymnQuery {
 	query := (&HymnClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := s.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(student.Table, student.FieldID, id),
 			sqlgraph.To(hymn.Table, hymn.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, student.HymnsTable, student.HymnsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, student.UpdatedHymnsTable, student.UpdatedHymnsColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil

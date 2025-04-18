@@ -10,27 +10,27 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 )
 
 // Student is the model entity for the Student schema.
 type Student struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID uuid.UUID `json:"id,omitempty"`
-	// LoginAccount holds the value of the "login_account" field.
+	// ID
+	ID int64 `json:"id,omitempty"`
+	// アカウント
 	LoginAccount string `json:"login_account,omitempty"`
-	// Password holds the value of the "password" field.
+	// パスワード
 	Password string `json:"password,omitempty"`
-	// Username holds the value of the "username" field.
+	// ユーザ名称
 	Username string `json:"username,omitempty"`
-	// DateOfBirth holds the value of the "date_of_birth" field.
+	// 生年月日
 	DateOfBirth time.Time `json:"date_of_birth,omitempty"`
-	// Email holds the value of the "email" field.
-	Email *string `json:"email,omitempty"`
-	// UpdatedTime holds the value of the "updated_time" field.
-	UpdatedTime *time.Time `json:"updated_time,omitempty"`
-	// VisibleFlg holds the value of the "visible_flg" field.
+	// メール
+	Email string `json:"email,omitempty"`
+	// 登録時間
+	UpdatedTime time.Time `json:"updated_time,omitempty"`
+	// 論理削除フラグ
 	VisibleFlg bool `json:"visible_flg,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the StudentQuery when eager-loading is set.
@@ -40,20 +40,20 @@ type Student struct {
 
 // StudentEdges holds the relations/edges for other nodes in the graph.
 type StudentEdges struct {
-	// Hymns holds the value of the hymns edge.
-	Hymns []*Hymn `json:"hymns,omitempty"`
+	// UpdatedHymns holds the value of the updated_hymns edge.
+	UpdatedHymns []*Hymn `json:"updated_hymns,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// HymnsOrErr returns the Hymns value or an error if the edge
+// UpdatedHymnsOrErr returns the UpdatedHymns value or an error if the edge
 // was not loaded in eager-loading.
-func (e StudentEdges) HymnsOrErr() ([]*Hymn, error) {
+func (e StudentEdges) UpdatedHymnsOrErr() ([]*Hymn, error) {
 	if e.loadedTypes[0] {
-		return e.Hymns, nil
+		return e.UpdatedHymns, nil
 	}
-	return nil, &NotLoadedError{edge: "hymns"}
+	return nil, &NotLoadedError{edge: "updated_hymns"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -63,12 +63,12 @@ func (*Student) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case student.FieldVisibleFlg:
 			values[i] = new(sql.NullBool)
+		case student.FieldID:
+			values[i] = new(sql.NullInt64)
 		case student.FieldLoginAccount, student.FieldPassword, student.FieldUsername, student.FieldEmail:
 			values[i] = new(sql.NullString)
 		case student.FieldDateOfBirth, student.FieldUpdatedTime:
 			values[i] = new(sql.NullTime)
-		case student.FieldID:
-			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -85,11 +85,11 @@ func (s *Student) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case student.FieldID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value != nil {
-				s.ID = *value
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			s.ID = int64(value.Int64)
 		case student.FieldLoginAccount:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field login_account", values[i])
@@ -118,15 +118,13 @@ func (s *Student) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
-				s.Email = new(string)
-				*s.Email = value.String
+				s.Email = value.String
 			}
 		case student.FieldUpdatedTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_time", values[i])
 			} else if value.Valid {
-				s.UpdatedTime = new(time.Time)
-				*s.UpdatedTime = value.Time
+				s.UpdatedTime = value.Time
 			}
 		case student.FieldVisibleFlg:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -147,9 +145,9 @@ func (s *Student) Value(name string) (ent.Value, error) {
 	return s.selectValues.Get(name)
 }
 
-// QueryHymns queries the "hymns" edge of the Student entity.
-func (s *Student) QueryHymns() *HymnQuery {
-	return NewStudentClient(s.config).QueryHymns(s)
+// QueryUpdatedHymns queries the "updated_hymns" edge of the Student entity.
+func (s *Student) QueryUpdatedHymns() *HymnQuery {
+	return NewStudentClient(s.config).QueryUpdatedHymns(s)
 }
 
 // Update returns a builder for updating this Student.
@@ -187,15 +185,11 @@ func (s *Student) String() string {
 	builder.WriteString("date_of_birth=")
 	builder.WriteString(s.DateOfBirth.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := s.Email; v != nil {
-		builder.WriteString("email=")
-		builder.WriteString(*v)
-	}
+	builder.WriteString("email=")
+	builder.WriteString(s.Email)
 	builder.WriteString(", ")
-	if v := s.UpdatedTime; v != nil {
-		builder.WriteString("updated_time=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
+	builder.WriteString("updated_time=")
+	builder.WriteString(s.UpdatedTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("visible_flg=")
 	builder.WriteString(fmt.Sprintf("%v", s.VisibleFlg))

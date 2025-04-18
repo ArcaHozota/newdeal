@@ -12,7 +12,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // HymnsWorkCreate is the builder for creating a HymnsWork entity.
@@ -23,8 +22,8 @@ type HymnsWorkCreate struct {
 }
 
 // SetWorkID sets the "work_id" field.
-func (hwc *HymnsWorkCreate) SetWorkID(u uuid.UUID) *HymnsWorkCreate {
-	hwc.mutation.SetWorkID(u)
+func (hwc *HymnsWorkCreate) SetWorkID(i int64) *HymnsWorkCreate {
+	hwc.mutation.SetWorkID(i)
 	return hwc
 }
 
@@ -40,6 +39,14 @@ func (hwc *HymnsWorkCreate) SetNameJpRational(s string) *HymnsWorkCreate {
 	return hwc
 }
 
+// SetNillableNameJpRational sets the "name_jp_rational" field if the given value is not nil.
+func (hwc *HymnsWorkCreate) SetNillableNameJpRational(s *string) *HymnsWorkCreate {
+	if s != nil {
+		hwc.SetNameJpRational(*s)
+	}
+	return hwc
+}
+
 // SetUpdatedTime sets the "updated_time" field.
 func (hwc *HymnsWorkCreate) SetUpdatedTime(t time.Time) *HymnsWorkCreate {
 	hwc.mutation.SetUpdatedTime(t)
@@ -52,15 +59,23 @@ func (hwc *HymnsWorkCreate) SetBiko(s string) *HymnsWorkCreate {
 	return hwc
 }
 
-// SetHymnsID sets the "hymns" edge to the Hymn entity by ID.
-func (hwc *HymnsWorkCreate) SetHymnsID(id uuid.UUID) *HymnsWorkCreate {
-	hwc.mutation.SetHymnsID(id)
+// SetNillableBiko sets the "biko" field if the given value is not nil.
+func (hwc *HymnsWorkCreate) SetNillableBiko(s *string) *HymnsWorkCreate {
+	if s != nil {
+		hwc.SetBiko(*s)
+	}
 	return hwc
 }
 
-// SetHymns sets the "hymns" edge to the Hymn entity.
-func (hwc *HymnsWorkCreate) SetHymns(h *Hymn) *HymnsWorkCreate {
-	return hwc.SetHymnsID(h.ID)
+// SetLinkedHymnID sets the "linked_hymn" edge to the Hymn entity by ID.
+func (hwc *HymnsWorkCreate) SetLinkedHymnID(id int64) *HymnsWorkCreate {
+	hwc.mutation.SetLinkedHymnID(id)
+	return hwc
+}
+
+// SetLinkedHymn sets the "linked_hymn" edge to the Hymn entity.
+func (hwc *HymnsWorkCreate) SetLinkedHymn(h *Hymn) *HymnsWorkCreate {
+	return hwc.SetLinkedHymnID(h.ID)
 }
 
 // Mutation returns the HymnsWorkMutation object of the builder.
@@ -100,20 +115,21 @@ func (hwc *HymnsWorkCreate) check() error {
 	if _, ok := hwc.mutation.WorkID(); !ok {
 		return &ValidationError{Name: "work_id", err: errors.New(`ent: missing required field "HymnsWork.work_id"`)}
 	}
-	if _, ok := hwc.mutation.Score(); !ok {
-		return &ValidationError{Name: "score", err: errors.New(`ent: missing required field "HymnsWork.score"`)}
-	}
-	if _, ok := hwc.mutation.NameJpRational(); !ok {
-		return &ValidationError{Name: "name_jp_rational", err: errors.New(`ent: missing required field "HymnsWork.name_jp_rational"`)}
+	if v, ok := hwc.mutation.NameJpRational(); ok {
+		if err := hymnswork.NameJpRationalValidator(v); err != nil {
+			return &ValidationError{Name: "name_jp_rational", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.name_jp_rational": %w`, err)}
+		}
 	}
 	if _, ok := hwc.mutation.UpdatedTime(); !ok {
 		return &ValidationError{Name: "updated_time", err: errors.New(`ent: missing required field "HymnsWork.updated_time"`)}
 	}
-	if _, ok := hwc.mutation.Biko(); !ok {
-		return &ValidationError{Name: "biko", err: errors.New(`ent: missing required field "HymnsWork.biko"`)}
+	if v, ok := hwc.mutation.Biko(); ok {
+		if err := hymnswork.BikoValidator(v); err != nil {
+			return &ValidationError{Name: "biko", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.biko": %w`, err)}
+		}
 	}
-	if len(hwc.mutation.HymnsIDs()) == 0 {
-		return &ValidationError{Name: "hymns", err: errors.New(`ent: missing required edge "HymnsWork.hymns"`)}
+	if len(hwc.mutation.LinkedHymnIDs()) == 0 {
+		return &ValidationError{Name: "linked_hymn", err: errors.New(`ent: missing required edge "HymnsWork.linked_hymn"`)}
 	}
 	return nil
 }
@@ -141,17 +157,13 @@ func (hwc *HymnsWorkCreate) createSpec() (*HymnsWork, *sqlgraph.CreateSpec) {
 		_node = &HymnsWork{config: hwc.config}
 		_spec = sqlgraph.NewCreateSpec(hymnswork.Table, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt))
 	)
-	if value, ok := hwc.mutation.WorkID(); ok {
-		_spec.SetField(hymnswork.FieldWorkID, field.TypeOther, value)
-		_node.WorkID = value
-	}
 	if value, ok := hwc.mutation.Score(); ok {
 		_spec.SetField(hymnswork.FieldScore, field.TypeBytes, value)
-		_node.Score = &value
+		_node.Score = value
 	}
 	if value, ok := hwc.mutation.NameJpRational(); ok {
 		_spec.SetField(hymnswork.FieldNameJpRational, field.TypeString, value)
-		_node.NameJpRational = &value
+		_node.NameJpRational = value
 	}
 	if value, ok := hwc.mutation.UpdatedTime(); ok {
 		_spec.SetField(hymnswork.FieldUpdatedTime, field.TypeTime, value)
@@ -159,23 +171,23 @@ func (hwc *HymnsWorkCreate) createSpec() (*HymnsWork, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := hwc.mutation.Biko(); ok {
 		_spec.SetField(hymnswork.FieldBiko, field.TypeString, value)
-		_node.Biko = &value
+		_node.Biko = value
 	}
-	if nodes := hwc.mutation.HymnsIDs(); len(nodes) > 0 {
+	if nodes := hwc.mutation.LinkedHymnIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
-			Table:   hymnswork.HymnsTable,
-			Columns: []string{hymnswork.HymnsColumn},
+			Table:   hymnswork.LinkedHymnTable,
+			Columns: []string{hymnswork.LinkedHymnColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.hymn_hymns_work = &nodes[0]
+		_node.WorkID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

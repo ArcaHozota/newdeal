@@ -14,18 +14,16 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // HymnsWorkQuery is the builder for querying HymnsWork entities.
 type HymnsWorkQuery struct {
 	config
-	ctx        *QueryContext
-	order      []hymnswork.OrderOption
-	inters     []Interceptor
-	predicates []predicate.HymnsWork
-	withHymns  *HymnQuery
-	withFKs    bool
+	ctx            *QueryContext
+	order          []hymnswork.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.HymnsWork
+	withLinkedHymn *HymnQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -62,8 +60,8 @@ func (hwq *HymnsWorkQuery) Order(o ...hymnswork.OrderOption) *HymnsWorkQuery {
 	return hwq
 }
 
-// QueryHymns chains the current query on the "hymns" edge.
-func (hwq *HymnsWorkQuery) QueryHymns() *HymnQuery {
+// QueryLinkedHymn chains the current query on the "linked_hymn" edge.
+func (hwq *HymnsWorkQuery) QueryLinkedHymn() *HymnQuery {
 	query := (&HymnClient{config: hwq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := hwq.prepareQuery(ctx); err != nil {
@@ -76,7 +74,7 @@ func (hwq *HymnsWorkQuery) QueryHymns() *HymnQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(hymnswork.Table, hymnswork.FieldID, selector),
 			sqlgraph.To(hymn.Table, hymn.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, hymnswork.HymnsTable, hymnswork.HymnsColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, hymnswork.LinkedHymnTable, hymnswork.LinkedHymnColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(hwq.driver.Dialect(), step)
 		return fromU, nil
@@ -271,26 +269,26 @@ func (hwq *HymnsWorkQuery) Clone() *HymnsWorkQuery {
 		return nil
 	}
 	return &HymnsWorkQuery{
-		config:     hwq.config,
-		ctx:        hwq.ctx.Clone(),
-		order:      append([]hymnswork.OrderOption{}, hwq.order...),
-		inters:     append([]Interceptor{}, hwq.inters...),
-		predicates: append([]predicate.HymnsWork{}, hwq.predicates...),
-		withHymns:  hwq.withHymns.Clone(),
+		config:         hwq.config,
+		ctx:            hwq.ctx.Clone(),
+		order:          append([]hymnswork.OrderOption{}, hwq.order...),
+		inters:         append([]Interceptor{}, hwq.inters...),
+		predicates:     append([]predicate.HymnsWork{}, hwq.predicates...),
+		withLinkedHymn: hwq.withLinkedHymn.Clone(),
 		// clone intermediate query.
 		sql:  hwq.sql.Clone(),
 		path: hwq.path,
 	}
 }
 
-// WithHymns tells the query-builder to eager-load the nodes that are connected to
-// the "hymns" edge. The optional arguments are used to configure the query builder of the edge.
-func (hwq *HymnsWorkQuery) WithHymns(opts ...func(*HymnQuery)) *HymnsWorkQuery {
+// WithLinkedHymn tells the query-builder to eager-load the nodes that are connected to
+// the "linked_hymn" edge. The optional arguments are used to configure the query builder of the edge.
+func (hwq *HymnsWorkQuery) WithLinkedHymn(opts ...func(*HymnQuery)) *HymnsWorkQuery {
 	query := (&HymnClient{config: hwq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	hwq.withHymns = query
+	hwq.withLinkedHymn = query
 	return hwq
 }
 
@@ -300,7 +298,7 @@ func (hwq *HymnsWorkQuery) WithHymns(opts ...func(*HymnQuery)) *HymnsWorkQuery {
 // Example:
 //
 //	var v []struct {
-//		WorkID uuid.UUID `json:"work_id,omitempty"`
+//		WorkID int64 `json:"work_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -323,7 +321,7 @@ func (hwq *HymnsWorkQuery) GroupBy(field string, fields ...string) *HymnsWorkGro
 // Example:
 //
 //	var v []struct {
-//		WorkID uuid.UUID `json:"work_id,omitempty"`
+//		WorkID int64 `json:"work_id,omitempty"`
 //	}
 //
 //	client.HymnsWork.Query().
@@ -371,18 +369,11 @@ func (hwq *HymnsWorkQuery) prepareQuery(ctx context.Context) error {
 func (hwq *HymnsWorkQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*HymnsWork, error) {
 	var (
 		nodes       = []*HymnsWork{}
-		withFKs     = hwq.withFKs
 		_spec       = hwq.querySpec()
 		loadedTypes = [1]bool{
-			hwq.withHymns != nil,
+			hwq.withLinkedHymn != nil,
 		}
 	)
-	if hwq.withHymns != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, hymnswork.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*HymnsWork).scanValues(nil, columns)
 	}
@@ -401,23 +392,20 @@ func (hwq *HymnsWorkQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*H
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := hwq.withHymns; query != nil {
-		if err := hwq.loadHymns(ctx, query, nodes, nil,
-			func(n *HymnsWork, e *Hymn) { n.Edges.Hymns = e }); err != nil {
+	if query := hwq.withLinkedHymn; query != nil {
+		if err := hwq.loadLinkedHymn(ctx, query, nodes, nil,
+			func(n *HymnsWork, e *Hymn) { n.Edges.LinkedHymn = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (hwq *HymnsWorkQuery) loadHymns(ctx context.Context, query *HymnQuery, nodes []*HymnsWork, init func(*HymnsWork), assign func(*HymnsWork, *Hymn)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*HymnsWork)
+func (hwq *HymnsWorkQuery) loadLinkedHymn(ctx context.Context, query *HymnQuery, nodes []*HymnsWork, init func(*HymnsWork), assign func(*HymnsWork, *Hymn)) error {
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*HymnsWork)
 	for i := range nodes {
-		if nodes[i].hymn_hymns_work == nil {
-			continue
-		}
-		fk := *nodes[i].hymn_hymns_work
+		fk := nodes[i].WorkID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -434,7 +422,7 @@ func (hwq *HymnsWorkQuery) loadHymns(ctx context.Context, query *HymnQuery, node
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "hymn_hymns_work" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "work_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -467,6 +455,9 @@ func (hwq *HymnsWorkQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != hymnswork.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if hwq.withLinkedHymn != nil {
+			_spec.Node.AddColumnOnce(hymnswork.FieldWorkID)
 		}
 	}
 	if ps := hwq.predicates; len(ps) > 0 {

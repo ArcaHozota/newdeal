@@ -18,34 +18,34 @@ const (
 	FieldNameKr = "name_kr"
 	// FieldLink holds the string denoting the link field in the database.
 	FieldLink = "link"
-	// FieldUpdatedTime holds the string denoting the updated_time field in the database.
-	FieldUpdatedTime = "updated_time"
 	// FieldUpdatedUser holds the string denoting the updated_user field in the database.
 	FieldUpdatedUser = "updated_user"
+	// FieldUpdatedTime holds the string denoting the updated_time field in the database.
+	FieldUpdatedTime = "updated_time"
 	// FieldSerif holds the string denoting the serif field in the database.
 	FieldSerif = "serif"
 	// FieldVisibleFlg holds the string denoting the visible_flg field in the database.
 	FieldVisibleFlg = "visible_flg"
-	// EdgeStudents holds the string denoting the students edge name in mutations.
-	EdgeStudents = "students"
-	// EdgeHymnsWork holds the string denoting the hymns_work edge name in mutations.
-	EdgeHymnsWork = "hymns_work"
+	// EdgeUpdatedBy holds the string denoting the updated_by edge name in mutations.
+	EdgeUpdatedBy = "updated_by"
+	// EdgeWork holds the string denoting the work edge name in mutations.
+	EdgeWork = "work"
 	// Table holds the table name of the hymn in the database.
 	Table = "hymns"
-	// StudentsTable is the table that holds the students relation/edge.
-	StudentsTable = "hymns"
-	// StudentsInverseTable is the table name for the Student entity.
+	// UpdatedByTable is the table that holds the updated_by relation/edge.
+	UpdatedByTable = "hymns"
+	// UpdatedByInverseTable is the table name for the Student entity.
 	// It exists in this package in order to avoid circular dependency with the "student" package.
-	StudentsInverseTable = "students"
-	// StudentsColumn is the table column denoting the students relation/edge.
-	StudentsColumn = "student_hymns"
-	// HymnsWorkTable is the table that holds the hymns_work relation/edge.
-	HymnsWorkTable = "hymns_works"
-	// HymnsWorkInverseTable is the table name for the HymnsWork entity.
+	UpdatedByInverseTable = "students"
+	// UpdatedByColumn is the table column denoting the updated_by relation/edge.
+	UpdatedByColumn = "updated_user"
+	// WorkTable is the table that holds the work relation/edge.
+	WorkTable = "hymns_work"
+	// WorkInverseTable is the table name for the HymnsWork entity.
 	// It exists in this package in order to avoid circular dependency with the "hymnswork" package.
-	HymnsWorkInverseTable = "hymns_works"
-	// HymnsWorkColumn is the table column denoting the hymns_work relation/edge.
-	HymnsWorkColumn = "hymn_hymns_work"
+	WorkInverseTable = "hymns_work"
+	// WorkColumn is the table column denoting the work relation/edge.
+	WorkColumn = "work_id"
 )
 
 // Columns holds all SQL columns for hymn fields.
@@ -54,16 +54,10 @@ var Columns = []string{
 	FieldNameJp,
 	FieldNameKr,
 	FieldLink,
-	FieldUpdatedTime,
 	FieldUpdatedUser,
+	FieldUpdatedTime,
 	FieldSerif,
 	FieldVisibleFlg,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "hymns"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"student_hymns",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -73,17 +67,16 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
 
 var (
-	// UpdatedUserValidator is a validator for the "updated_user" field. It is called by the builders before save.
-	UpdatedUserValidator func(int64) error
+	// NameJpValidator is a validator for the "name_jp" field. It is called by the builders before save.
+	NameJpValidator func(string) error
+	// NameKrValidator is a validator for the "name_kr" field. It is called by the builders before save.
+	NameKrValidator func(string) error
+	// LinkValidator is a validator for the "link" field. It is called by the builders before save.
+	LinkValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the Hymn queries.
@@ -109,14 +102,14 @@ func ByLink(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLink, opts...).ToFunc()
 }
 
-// ByUpdatedTime orders the results by the updated_time field.
-func ByUpdatedTime(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUpdatedTime, opts...).ToFunc()
-}
-
 // ByUpdatedUser orders the results by the updated_user field.
 func ByUpdatedUser(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedUser, opts...).ToFunc()
+}
+
+// ByUpdatedTime orders the results by the updated_time field.
+func ByUpdatedTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedTime, opts...).ToFunc()
 }
 
 // BySerif orders the results by the serif field.
@@ -129,30 +122,30 @@ func ByVisibleFlg(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVisibleFlg, opts...).ToFunc()
 }
 
-// ByStudentsField orders the results by students field.
-func ByStudentsField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByUpdatedByField orders the results by updated_by field.
+func ByUpdatedByField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newStudentsStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newUpdatedByStep(), sql.OrderByField(field, opts...))
 	}
 }
 
-// ByHymnsWorkField orders the results by hymns_work field.
-func ByHymnsWorkField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByWorkField orders the results by work field.
+func ByWorkField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newHymnsWorkStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newWorkStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newStudentsStep() *sqlgraph.Step {
+func newUpdatedByStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(StudentsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, StudentsTable, StudentsColumn),
+		sqlgraph.To(UpdatedByInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, UpdatedByTable, UpdatedByColumn),
 	)
 }
-func newHymnsWorkStep() *sqlgraph.Step {
+func newWorkStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(HymnsWorkInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, HymnsWorkTable, HymnsWorkColumn),
+		sqlgraph.To(WorkInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, WorkTable, WorkColumn),
 	)
 }

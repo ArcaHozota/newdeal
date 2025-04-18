@@ -15,7 +15,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 )
 
 const (
@@ -37,20 +36,18 @@ type HymnMutation struct {
 	config
 	op                Op
 	typ               string
-	id                *uuid.UUID
+	id                *int64
 	name_jp           *string
 	name_kr           *string
 	link              *string
 	updated_time      *time.Time
-	updated_user      *int64
-	addupdated_user   *int64
 	serif             *string
 	visible_flg       *bool
 	clearedFields     map[string]struct{}
-	students          *uuid.UUID
-	clearedstudents   bool
-	hymns_work        *int
-	clearedhymns_work bool
+	updated_by        *int64
+	clearedupdated_by bool
+	work              *int
+	clearedwork       bool
 	done              bool
 	oldValue          func(context.Context) (*Hymn, error)
 	predicates        []predicate.Hymn
@@ -76,7 +73,7 @@ func newHymnMutation(c config, op Op, opts ...hymnOption) *HymnMutation {
 }
 
 // withHymnID sets the ID field of the mutation.
-func withHymnID(id uuid.UUID) hymnOption {
+func withHymnID(id int64) hymnOption {
 	return func(m *HymnMutation) {
 		var (
 			err   error
@@ -128,13 +125,13 @@ func (m HymnMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Hymn entities.
-func (m *HymnMutation) SetID(id uuid.UUID) {
+func (m *HymnMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *HymnMutation) ID() (id uuid.UUID, exists bool) {
+func (m *HymnMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -145,12 +142,12 @@ func (m *HymnMutation) ID() (id uuid.UUID, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *HymnMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+func (m *HymnMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []uuid.UUID{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -249,7 +246,7 @@ func (m *HymnMutation) Link() (r string, exists bool) {
 // OldLink returns the old "link" field's value of the Hymn entity.
 // If the Hymn object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HymnMutation) OldLink(ctx context.Context) (v *string, err error) {
+func (m *HymnMutation) OldLink(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldLink is only allowed on UpdateOne operations")
 	}
@@ -263,9 +260,58 @@ func (m *HymnMutation) OldLink(ctx context.Context) (v *string, err error) {
 	return oldValue.Link, nil
 }
 
+// ClearLink clears the value of the "link" field.
+func (m *HymnMutation) ClearLink() {
+	m.link = nil
+	m.clearedFields[hymn.FieldLink] = struct{}{}
+}
+
+// LinkCleared returns if the "link" field was cleared in this mutation.
+func (m *HymnMutation) LinkCleared() bool {
+	_, ok := m.clearedFields[hymn.FieldLink]
+	return ok
+}
+
 // ResetLink resets all changes to the "link" field.
 func (m *HymnMutation) ResetLink() {
 	m.link = nil
+	delete(m.clearedFields, hymn.FieldLink)
+}
+
+// SetUpdatedUser sets the "updated_user" field.
+func (m *HymnMutation) SetUpdatedUser(i int64) {
+	m.updated_by = &i
+}
+
+// UpdatedUser returns the value of the "updated_user" field in the mutation.
+func (m *HymnMutation) UpdatedUser() (r int64, exists bool) {
+	v := m.updated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedUser returns the old "updated_user" field's value of the Hymn entity.
+// If the Hymn object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HymnMutation) OldUpdatedUser(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedUser is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedUser requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedUser: %w", err)
+	}
+	return oldValue.UpdatedUser, nil
+}
+
+// ResetUpdatedUser resets all changes to the "updated_user" field.
+func (m *HymnMutation) ResetUpdatedUser() {
+	m.updated_by = nil
 }
 
 // SetUpdatedTime sets the "updated_time" field.
@@ -304,62 +350,6 @@ func (m *HymnMutation) ResetUpdatedTime() {
 	m.updated_time = nil
 }
 
-// SetUpdatedUser sets the "updated_user" field.
-func (m *HymnMutation) SetUpdatedUser(i int64) {
-	m.updated_user = &i
-	m.addupdated_user = nil
-}
-
-// UpdatedUser returns the value of the "updated_user" field in the mutation.
-func (m *HymnMutation) UpdatedUser() (r int64, exists bool) {
-	v := m.updated_user
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedUser returns the old "updated_user" field's value of the Hymn entity.
-// If the Hymn object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HymnMutation) OldUpdatedUser(ctx context.Context) (v int64, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedUser is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedUser requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedUser: %w", err)
-	}
-	return oldValue.UpdatedUser, nil
-}
-
-// AddUpdatedUser adds i to the "updated_user" field.
-func (m *HymnMutation) AddUpdatedUser(i int64) {
-	if m.addupdated_user != nil {
-		*m.addupdated_user += i
-	} else {
-		m.addupdated_user = &i
-	}
-}
-
-// AddedUpdatedUser returns the value that was added to the "updated_user" field in this mutation.
-func (m *HymnMutation) AddedUpdatedUser() (r int64, exists bool) {
-	v := m.addupdated_user
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetUpdatedUser resets all changes to the "updated_user" field.
-func (m *HymnMutation) ResetUpdatedUser() {
-	m.updated_user = nil
-	m.addupdated_user = nil
-}
-
 // SetSerif sets the "serif" field.
 func (m *HymnMutation) SetSerif(s string) {
 	m.serif = &s
@@ -377,7 +367,7 @@ func (m *HymnMutation) Serif() (r string, exists bool) {
 // OldSerif returns the old "serif" field's value of the Hymn entity.
 // If the Hymn object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HymnMutation) OldSerif(ctx context.Context) (v *string, err error) {
+func (m *HymnMutation) OldSerif(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSerif is only allowed on UpdateOne operations")
 	}
@@ -391,9 +381,22 @@ func (m *HymnMutation) OldSerif(ctx context.Context) (v *string, err error) {
 	return oldValue.Serif, nil
 }
 
+// ClearSerif clears the value of the "serif" field.
+func (m *HymnMutation) ClearSerif() {
+	m.serif = nil
+	m.clearedFields[hymn.FieldSerif] = struct{}{}
+}
+
+// SerifCleared returns if the "serif" field was cleared in this mutation.
+func (m *HymnMutation) SerifCleared() bool {
+	_, ok := m.clearedFields[hymn.FieldSerif]
+	return ok
+}
+
 // ResetSerif resets all changes to the "serif" field.
 func (m *HymnMutation) ResetSerif() {
 	m.serif = nil
+	delete(m.clearedFields, hymn.FieldSerif)
 }
 
 // SetVisibleFlg sets the "visible_flg" field.
@@ -432,82 +435,83 @@ func (m *HymnMutation) ResetVisibleFlg() {
 	m.visible_flg = nil
 }
 
-// SetStudentsID sets the "students" edge to the Student entity by id.
-func (m *HymnMutation) SetStudentsID(id uuid.UUID) {
-	m.students = &id
+// SetUpdatedByID sets the "updated_by" edge to the Student entity by id.
+func (m *HymnMutation) SetUpdatedByID(id int64) {
+	m.updated_by = &id
 }
 
-// ClearStudents clears the "students" edge to the Student entity.
-func (m *HymnMutation) ClearStudents() {
-	m.clearedstudents = true
+// ClearUpdatedBy clears the "updated_by" edge to the Student entity.
+func (m *HymnMutation) ClearUpdatedBy() {
+	m.clearedupdated_by = true
+	m.clearedFields[hymn.FieldUpdatedUser] = struct{}{}
 }
 
-// StudentsCleared reports if the "students" edge to the Student entity was cleared.
-func (m *HymnMutation) StudentsCleared() bool {
-	return m.clearedstudents
+// UpdatedByCleared reports if the "updated_by" edge to the Student entity was cleared.
+func (m *HymnMutation) UpdatedByCleared() bool {
+	return m.clearedupdated_by
 }
 
-// StudentsID returns the "students" edge ID in the mutation.
-func (m *HymnMutation) StudentsID() (id uuid.UUID, exists bool) {
-	if m.students != nil {
-		return *m.students, true
+// UpdatedByID returns the "updated_by" edge ID in the mutation.
+func (m *HymnMutation) UpdatedByID() (id int64, exists bool) {
+	if m.updated_by != nil {
+		return *m.updated_by, true
 	}
 	return
 }
 
-// StudentsIDs returns the "students" edge IDs in the mutation.
+// UpdatedByIDs returns the "updated_by" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// StudentsID instead. It exists only for internal usage by the builders.
-func (m *HymnMutation) StudentsIDs() (ids []uuid.UUID) {
-	if id := m.students; id != nil {
+// UpdatedByID instead. It exists only for internal usage by the builders.
+func (m *HymnMutation) UpdatedByIDs() (ids []int64) {
+	if id := m.updated_by; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetStudents resets all changes to the "students" edge.
-func (m *HymnMutation) ResetStudents() {
-	m.students = nil
-	m.clearedstudents = false
+// ResetUpdatedBy resets all changes to the "updated_by" edge.
+func (m *HymnMutation) ResetUpdatedBy() {
+	m.updated_by = nil
+	m.clearedupdated_by = false
 }
 
-// SetHymnsWorkID sets the "hymns_work" edge to the HymnsWork entity by id.
-func (m *HymnMutation) SetHymnsWorkID(id int) {
-	m.hymns_work = &id
+// SetWorkID sets the "work" edge to the HymnsWork entity by id.
+func (m *HymnMutation) SetWorkID(id int) {
+	m.work = &id
 }
 
-// ClearHymnsWork clears the "hymns_work" edge to the HymnsWork entity.
-func (m *HymnMutation) ClearHymnsWork() {
-	m.clearedhymns_work = true
+// ClearWork clears the "work" edge to the HymnsWork entity.
+func (m *HymnMutation) ClearWork() {
+	m.clearedwork = true
 }
 
-// HymnsWorkCleared reports if the "hymns_work" edge to the HymnsWork entity was cleared.
-func (m *HymnMutation) HymnsWorkCleared() bool {
-	return m.clearedhymns_work
+// WorkCleared reports if the "work" edge to the HymnsWork entity was cleared.
+func (m *HymnMutation) WorkCleared() bool {
+	return m.clearedwork
 }
 
-// HymnsWorkID returns the "hymns_work" edge ID in the mutation.
-func (m *HymnMutation) HymnsWorkID() (id int, exists bool) {
-	if m.hymns_work != nil {
-		return *m.hymns_work, true
+// WorkID returns the "work" edge ID in the mutation.
+func (m *HymnMutation) WorkID() (id int, exists bool) {
+	if m.work != nil {
+		return *m.work, true
 	}
 	return
 }
 
-// HymnsWorkIDs returns the "hymns_work" edge IDs in the mutation.
+// WorkIDs returns the "work" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// HymnsWorkID instead. It exists only for internal usage by the builders.
-func (m *HymnMutation) HymnsWorkIDs() (ids []int) {
-	if id := m.hymns_work; id != nil {
+// WorkID instead. It exists only for internal usage by the builders.
+func (m *HymnMutation) WorkIDs() (ids []int) {
+	if id := m.work; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetHymnsWork resets all changes to the "hymns_work" edge.
-func (m *HymnMutation) ResetHymnsWork() {
-	m.hymns_work = nil
-	m.clearedhymns_work = false
+// ResetWork resets all changes to the "work" edge.
+func (m *HymnMutation) ResetWork() {
+	m.work = nil
+	m.clearedwork = false
 }
 
 // Where appends a list predicates to the HymnMutation builder.
@@ -554,11 +558,11 @@ func (m *HymnMutation) Fields() []string {
 	if m.link != nil {
 		fields = append(fields, hymn.FieldLink)
 	}
+	if m.updated_by != nil {
+		fields = append(fields, hymn.FieldUpdatedUser)
+	}
 	if m.updated_time != nil {
 		fields = append(fields, hymn.FieldUpdatedTime)
-	}
-	if m.updated_user != nil {
-		fields = append(fields, hymn.FieldUpdatedUser)
 	}
 	if m.serif != nil {
 		fields = append(fields, hymn.FieldSerif)
@@ -580,10 +584,10 @@ func (m *HymnMutation) Field(name string) (ent.Value, bool) {
 		return m.NameKr()
 	case hymn.FieldLink:
 		return m.Link()
-	case hymn.FieldUpdatedTime:
-		return m.UpdatedTime()
 	case hymn.FieldUpdatedUser:
 		return m.UpdatedUser()
+	case hymn.FieldUpdatedTime:
+		return m.UpdatedTime()
 	case hymn.FieldSerif:
 		return m.Serif()
 	case hymn.FieldVisibleFlg:
@@ -603,10 +607,10 @@ func (m *HymnMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldNameKr(ctx)
 	case hymn.FieldLink:
 		return m.OldLink(ctx)
-	case hymn.FieldUpdatedTime:
-		return m.OldUpdatedTime(ctx)
 	case hymn.FieldUpdatedUser:
 		return m.OldUpdatedUser(ctx)
+	case hymn.FieldUpdatedTime:
+		return m.OldUpdatedTime(ctx)
 	case hymn.FieldSerif:
 		return m.OldSerif(ctx)
 	case hymn.FieldVisibleFlg:
@@ -641,19 +645,19 @@ func (m *HymnMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetLink(v)
 		return nil
-	case hymn.FieldUpdatedTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedTime(v)
-		return nil
 	case hymn.FieldUpdatedUser:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedUser(v)
+		return nil
+	case hymn.FieldUpdatedTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedTime(v)
 		return nil
 	case hymn.FieldSerif:
 		v, ok := value.(string)
@@ -677,9 +681,6 @@ func (m *HymnMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *HymnMutation) AddedFields() []string {
 	var fields []string
-	if m.addupdated_user != nil {
-		fields = append(fields, hymn.FieldUpdatedUser)
-	}
 	return fields
 }
 
@@ -688,8 +689,6 @@ func (m *HymnMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *HymnMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case hymn.FieldUpdatedUser:
-		return m.AddedUpdatedUser()
 	}
 	return nil, false
 }
@@ -699,13 +698,6 @@ func (m *HymnMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *HymnMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case hymn.FieldUpdatedUser:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddUpdatedUser(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Hymn numeric field %s", name)
 }
@@ -713,7 +705,14 @@ func (m *HymnMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *HymnMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(hymn.FieldLink) {
+		fields = append(fields, hymn.FieldLink)
+	}
+	if m.FieldCleared(hymn.FieldSerif) {
+		fields = append(fields, hymn.FieldSerif)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -726,6 +725,14 @@ func (m *HymnMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *HymnMutation) ClearField(name string) error {
+	switch name {
+	case hymn.FieldLink:
+		m.ClearLink()
+		return nil
+	case hymn.FieldSerif:
+		m.ClearSerif()
+		return nil
+	}
 	return fmt.Errorf("unknown Hymn nullable field %s", name)
 }
 
@@ -742,11 +749,11 @@ func (m *HymnMutation) ResetField(name string) error {
 	case hymn.FieldLink:
 		m.ResetLink()
 		return nil
-	case hymn.FieldUpdatedTime:
-		m.ResetUpdatedTime()
-		return nil
 	case hymn.FieldUpdatedUser:
 		m.ResetUpdatedUser()
+		return nil
+	case hymn.FieldUpdatedTime:
+		m.ResetUpdatedTime()
 		return nil
 	case hymn.FieldSerif:
 		m.ResetSerif()
@@ -761,11 +768,11 @@ func (m *HymnMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *HymnMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.students != nil {
-		edges = append(edges, hymn.EdgeStudents)
+	if m.updated_by != nil {
+		edges = append(edges, hymn.EdgeUpdatedBy)
 	}
-	if m.hymns_work != nil {
-		edges = append(edges, hymn.EdgeHymnsWork)
+	if m.work != nil {
+		edges = append(edges, hymn.EdgeWork)
 	}
 	return edges
 }
@@ -774,12 +781,12 @@ func (m *HymnMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *HymnMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case hymn.EdgeStudents:
-		if id := m.students; id != nil {
+	case hymn.EdgeUpdatedBy:
+		if id := m.updated_by; id != nil {
 			return []ent.Value{*id}
 		}
-	case hymn.EdgeHymnsWork:
-		if id := m.hymns_work; id != nil {
+	case hymn.EdgeWork:
+		if id := m.work; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -801,11 +808,11 @@ func (m *HymnMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *HymnMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.clearedstudents {
-		edges = append(edges, hymn.EdgeStudents)
+	if m.clearedupdated_by {
+		edges = append(edges, hymn.EdgeUpdatedBy)
 	}
-	if m.clearedhymns_work {
-		edges = append(edges, hymn.EdgeHymnsWork)
+	if m.clearedwork {
+		edges = append(edges, hymn.EdgeWork)
 	}
 	return edges
 }
@@ -814,10 +821,10 @@ func (m *HymnMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *HymnMutation) EdgeCleared(name string) bool {
 	switch name {
-	case hymn.EdgeStudents:
-		return m.clearedstudents
-	case hymn.EdgeHymnsWork:
-		return m.clearedhymns_work
+	case hymn.EdgeUpdatedBy:
+		return m.clearedupdated_by
+	case hymn.EdgeWork:
+		return m.clearedwork
 	}
 	return false
 }
@@ -826,11 +833,11 @@ func (m *HymnMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *HymnMutation) ClearEdge(name string) error {
 	switch name {
-	case hymn.EdgeStudents:
-		m.ClearStudents()
+	case hymn.EdgeUpdatedBy:
+		m.ClearUpdatedBy()
 		return nil
-	case hymn.EdgeHymnsWork:
-		m.ClearHymnsWork()
+	case hymn.EdgeWork:
+		m.ClearWork()
 		return nil
 	}
 	return fmt.Errorf("unknown Hymn unique edge %s", name)
@@ -840,11 +847,11 @@ func (m *HymnMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *HymnMutation) ResetEdge(name string) error {
 	switch name {
-	case hymn.EdgeStudents:
-		m.ResetStudents()
+	case hymn.EdgeUpdatedBy:
+		m.ResetUpdatedBy()
 		return nil
-	case hymn.EdgeHymnsWork:
-		m.ResetHymnsWork()
+	case hymn.EdgeWork:
+		m.ResetWork()
 		return nil
 	}
 	return fmt.Errorf("unknown Hymn edge %s", name)
@@ -853,20 +860,19 @@ func (m *HymnMutation) ResetEdge(name string) error {
 // HymnsWorkMutation represents an operation that mutates the HymnsWork nodes in the graph.
 type HymnsWorkMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *int
-	work_id          *uuid.UUID
-	score            *[]byte
-	name_jp_rational *string
-	updated_time     *time.Time
-	biko             *string
-	clearedFields    map[string]struct{}
-	hymns            *uuid.UUID
-	clearedhymns     bool
-	done             bool
-	oldValue         func(context.Context) (*HymnsWork, error)
-	predicates       []predicate.HymnsWork
+	op                 Op
+	typ                string
+	id                 *int
+	score              *[]byte
+	name_jp_rational   *string
+	updated_time       *time.Time
+	biko               *string
+	clearedFields      map[string]struct{}
+	linked_hymn        *int64
+	clearedlinked_hymn bool
+	done               bool
+	oldValue           func(context.Context) (*HymnsWork, error)
+	predicates         []predicate.HymnsWork
 }
 
 var _ ent.Mutation = (*HymnsWorkMutation)(nil)
@@ -968,13 +974,13 @@ func (m *HymnsWorkMutation) IDs(ctx context.Context) ([]int, error) {
 }
 
 // SetWorkID sets the "work_id" field.
-func (m *HymnsWorkMutation) SetWorkID(u uuid.UUID) {
-	m.work_id = &u
+func (m *HymnsWorkMutation) SetWorkID(i int64) {
+	m.linked_hymn = &i
 }
 
 // WorkID returns the value of the "work_id" field in the mutation.
-func (m *HymnsWorkMutation) WorkID() (r uuid.UUID, exists bool) {
-	v := m.work_id
+func (m *HymnsWorkMutation) WorkID() (r int64, exists bool) {
+	v := m.linked_hymn
 	if v == nil {
 		return
 	}
@@ -984,7 +990,7 @@ func (m *HymnsWorkMutation) WorkID() (r uuid.UUID, exists bool) {
 // OldWorkID returns the old "work_id" field's value of the HymnsWork entity.
 // If the HymnsWork object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HymnsWorkMutation) OldWorkID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *HymnsWorkMutation) OldWorkID(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldWorkID is only allowed on UpdateOne operations")
 	}
@@ -1000,7 +1006,7 @@ func (m *HymnsWorkMutation) OldWorkID(ctx context.Context) (v uuid.UUID, err err
 
 // ResetWorkID resets all changes to the "work_id" field.
 func (m *HymnsWorkMutation) ResetWorkID() {
-	m.work_id = nil
+	m.linked_hymn = nil
 }
 
 // SetScore sets the "score" field.
@@ -1020,7 +1026,7 @@ func (m *HymnsWorkMutation) Score() (r []byte, exists bool) {
 // OldScore returns the old "score" field's value of the HymnsWork entity.
 // If the HymnsWork object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HymnsWorkMutation) OldScore(ctx context.Context) (v *[]byte, err error) {
+func (m *HymnsWorkMutation) OldScore(ctx context.Context) (v []byte, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldScore is only allowed on UpdateOne operations")
 	}
@@ -1034,9 +1040,22 @@ func (m *HymnsWorkMutation) OldScore(ctx context.Context) (v *[]byte, err error)
 	return oldValue.Score, nil
 }
 
+// ClearScore clears the value of the "score" field.
+func (m *HymnsWorkMutation) ClearScore() {
+	m.score = nil
+	m.clearedFields[hymnswork.FieldScore] = struct{}{}
+}
+
+// ScoreCleared returns if the "score" field was cleared in this mutation.
+func (m *HymnsWorkMutation) ScoreCleared() bool {
+	_, ok := m.clearedFields[hymnswork.FieldScore]
+	return ok
+}
+
 // ResetScore resets all changes to the "score" field.
 func (m *HymnsWorkMutation) ResetScore() {
 	m.score = nil
+	delete(m.clearedFields, hymnswork.FieldScore)
 }
 
 // SetNameJpRational sets the "name_jp_rational" field.
@@ -1056,7 +1075,7 @@ func (m *HymnsWorkMutation) NameJpRational() (r string, exists bool) {
 // OldNameJpRational returns the old "name_jp_rational" field's value of the HymnsWork entity.
 // If the HymnsWork object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HymnsWorkMutation) OldNameJpRational(ctx context.Context) (v *string, err error) {
+func (m *HymnsWorkMutation) OldNameJpRational(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldNameJpRational is only allowed on UpdateOne operations")
 	}
@@ -1070,9 +1089,22 @@ func (m *HymnsWorkMutation) OldNameJpRational(ctx context.Context) (v *string, e
 	return oldValue.NameJpRational, nil
 }
 
+// ClearNameJpRational clears the value of the "name_jp_rational" field.
+func (m *HymnsWorkMutation) ClearNameJpRational() {
+	m.name_jp_rational = nil
+	m.clearedFields[hymnswork.FieldNameJpRational] = struct{}{}
+}
+
+// NameJpRationalCleared returns if the "name_jp_rational" field was cleared in this mutation.
+func (m *HymnsWorkMutation) NameJpRationalCleared() bool {
+	_, ok := m.clearedFields[hymnswork.FieldNameJpRational]
+	return ok
+}
+
 // ResetNameJpRational resets all changes to the "name_jp_rational" field.
 func (m *HymnsWorkMutation) ResetNameJpRational() {
 	m.name_jp_rational = nil
+	delete(m.clearedFields, hymnswork.FieldNameJpRational)
 }
 
 // SetUpdatedTime sets the "updated_time" field.
@@ -1128,7 +1160,7 @@ func (m *HymnsWorkMutation) Biko() (r string, exists bool) {
 // OldBiko returns the old "biko" field's value of the HymnsWork entity.
 // If the HymnsWork object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HymnsWorkMutation) OldBiko(ctx context.Context) (v *string, err error) {
+func (m *HymnsWorkMutation) OldBiko(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldBiko is only allowed on UpdateOne operations")
 	}
@@ -1142,48 +1174,62 @@ func (m *HymnsWorkMutation) OldBiko(ctx context.Context) (v *string, err error) 
 	return oldValue.Biko, nil
 }
 
+// ClearBiko clears the value of the "biko" field.
+func (m *HymnsWorkMutation) ClearBiko() {
+	m.biko = nil
+	m.clearedFields[hymnswork.FieldBiko] = struct{}{}
+}
+
+// BikoCleared returns if the "biko" field was cleared in this mutation.
+func (m *HymnsWorkMutation) BikoCleared() bool {
+	_, ok := m.clearedFields[hymnswork.FieldBiko]
+	return ok
+}
+
 // ResetBiko resets all changes to the "biko" field.
 func (m *HymnsWorkMutation) ResetBiko() {
 	m.biko = nil
+	delete(m.clearedFields, hymnswork.FieldBiko)
 }
 
-// SetHymnsID sets the "hymns" edge to the Hymn entity by id.
-func (m *HymnsWorkMutation) SetHymnsID(id uuid.UUID) {
-	m.hymns = &id
+// SetLinkedHymnID sets the "linked_hymn" edge to the Hymn entity by id.
+func (m *HymnsWorkMutation) SetLinkedHymnID(id int64) {
+	m.linked_hymn = &id
 }
 
-// ClearHymns clears the "hymns" edge to the Hymn entity.
-func (m *HymnsWorkMutation) ClearHymns() {
-	m.clearedhymns = true
+// ClearLinkedHymn clears the "linked_hymn" edge to the Hymn entity.
+func (m *HymnsWorkMutation) ClearLinkedHymn() {
+	m.clearedlinked_hymn = true
+	m.clearedFields[hymnswork.FieldWorkID] = struct{}{}
 }
 
-// HymnsCleared reports if the "hymns" edge to the Hymn entity was cleared.
-func (m *HymnsWorkMutation) HymnsCleared() bool {
-	return m.clearedhymns
+// LinkedHymnCleared reports if the "linked_hymn" edge to the Hymn entity was cleared.
+func (m *HymnsWorkMutation) LinkedHymnCleared() bool {
+	return m.clearedlinked_hymn
 }
 
-// HymnsID returns the "hymns" edge ID in the mutation.
-func (m *HymnsWorkMutation) HymnsID() (id uuid.UUID, exists bool) {
-	if m.hymns != nil {
-		return *m.hymns, true
+// LinkedHymnID returns the "linked_hymn" edge ID in the mutation.
+func (m *HymnsWorkMutation) LinkedHymnID() (id int64, exists bool) {
+	if m.linked_hymn != nil {
+		return *m.linked_hymn, true
 	}
 	return
 }
 
-// HymnsIDs returns the "hymns" edge IDs in the mutation.
+// LinkedHymnIDs returns the "linked_hymn" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// HymnsID instead. It exists only for internal usage by the builders.
-func (m *HymnsWorkMutation) HymnsIDs() (ids []uuid.UUID) {
-	if id := m.hymns; id != nil {
+// LinkedHymnID instead. It exists only for internal usage by the builders.
+func (m *HymnsWorkMutation) LinkedHymnIDs() (ids []int64) {
+	if id := m.linked_hymn; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetHymns resets all changes to the "hymns" edge.
-func (m *HymnsWorkMutation) ResetHymns() {
-	m.hymns = nil
-	m.clearedhymns = false
+// ResetLinkedHymn resets all changes to the "linked_hymn" edge.
+func (m *HymnsWorkMutation) ResetLinkedHymn() {
+	m.linked_hymn = nil
+	m.clearedlinked_hymn = false
 }
 
 // Where appends a list predicates to the HymnsWorkMutation builder.
@@ -1221,7 +1267,7 @@ func (m *HymnsWorkMutation) Type() string {
 // AddedFields().
 func (m *HymnsWorkMutation) Fields() []string {
 	fields := make([]string, 0, 5)
-	if m.work_id != nil {
+	if m.linked_hymn != nil {
 		fields = append(fields, hymnswork.FieldWorkID)
 	}
 	if m.score != nil {
@@ -1283,7 +1329,7 @@ func (m *HymnsWorkMutation) OldField(ctx context.Context, name string) (ent.Valu
 func (m *HymnsWorkMutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case hymnswork.FieldWorkID:
-		v, ok := value.(uuid.UUID)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1324,13 +1370,16 @@ func (m *HymnsWorkMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *HymnsWorkMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *HymnsWorkMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
 	return nil, false
 }
 
@@ -1346,7 +1395,17 @@ func (m *HymnsWorkMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *HymnsWorkMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(hymnswork.FieldScore) {
+		fields = append(fields, hymnswork.FieldScore)
+	}
+	if m.FieldCleared(hymnswork.FieldNameJpRational) {
+		fields = append(fields, hymnswork.FieldNameJpRational)
+	}
+	if m.FieldCleared(hymnswork.FieldBiko) {
+		fields = append(fields, hymnswork.FieldBiko)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1359,6 +1418,17 @@ func (m *HymnsWorkMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *HymnsWorkMutation) ClearField(name string) error {
+	switch name {
+	case hymnswork.FieldScore:
+		m.ClearScore()
+		return nil
+	case hymnswork.FieldNameJpRational:
+		m.ClearNameJpRational()
+		return nil
+	case hymnswork.FieldBiko:
+		m.ClearBiko()
+		return nil
+	}
 	return fmt.Errorf("unknown HymnsWork nullable field %s", name)
 }
 
@@ -1388,8 +1458,8 @@ func (m *HymnsWorkMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *HymnsWorkMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.hymns != nil {
-		edges = append(edges, hymnswork.EdgeHymns)
+	if m.linked_hymn != nil {
+		edges = append(edges, hymnswork.EdgeLinkedHymn)
 	}
 	return edges
 }
@@ -1398,8 +1468,8 @@ func (m *HymnsWorkMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *HymnsWorkMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case hymnswork.EdgeHymns:
-		if id := m.hymns; id != nil {
+	case hymnswork.EdgeLinkedHymn:
+		if id := m.linked_hymn; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -1421,8 +1491,8 @@ func (m *HymnsWorkMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *HymnsWorkMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.clearedhymns {
-		edges = append(edges, hymnswork.EdgeHymns)
+	if m.clearedlinked_hymn {
+		edges = append(edges, hymnswork.EdgeLinkedHymn)
 	}
 	return edges
 }
@@ -1431,8 +1501,8 @@ func (m *HymnsWorkMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *HymnsWorkMutation) EdgeCleared(name string) bool {
 	switch name {
-	case hymnswork.EdgeHymns:
-		return m.clearedhymns
+	case hymnswork.EdgeLinkedHymn:
+		return m.clearedlinked_hymn
 	}
 	return false
 }
@@ -1441,8 +1511,8 @@ func (m *HymnsWorkMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *HymnsWorkMutation) ClearEdge(name string) error {
 	switch name {
-	case hymnswork.EdgeHymns:
-		m.ClearHymns()
+	case hymnswork.EdgeLinkedHymn:
+		m.ClearLinkedHymn()
 		return nil
 	}
 	return fmt.Errorf("unknown HymnsWork unique edge %s", name)
@@ -1452,8 +1522,8 @@ func (m *HymnsWorkMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *HymnsWorkMutation) ResetEdge(name string) error {
 	switch name {
-	case hymnswork.EdgeHymns:
-		m.ResetHymns()
+	case hymnswork.EdgeLinkedHymn:
+		m.ResetLinkedHymn()
 		return nil
 	}
 	return fmt.Errorf("unknown HymnsWork edge %s", name)
@@ -1462,23 +1532,23 @@ func (m *HymnsWorkMutation) ResetEdge(name string) error {
 // StudentMutation represents an operation that mutates the Student nodes in the graph.
 type StudentMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	login_account *string
-	password      *string
-	username      *string
-	date_of_birth *time.Time
-	email         *string
-	updated_time  *time.Time
-	visible_flg   *bool
-	clearedFields map[string]struct{}
-	hymns         map[uuid.UUID]struct{}
-	removedhymns  map[uuid.UUID]struct{}
-	clearedhymns  bool
-	done          bool
-	oldValue      func(context.Context) (*Student, error)
-	predicates    []predicate.Student
+	op                   Op
+	typ                  string
+	id                   *int64
+	login_account        *string
+	password             *string
+	username             *string
+	date_of_birth        *time.Time
+	email                *string
+	updated_time         *time.Time
+	visible_flg          *bool
+	clearedFields        map[string]struct{}
+	updated_hymns        map[int64]struct{}
+	removedupdated_hymns map[int64]struct{}
+	clearedupdated_hymns bool
+	done                 bool
+	oldValue             func(context.Context) (*Student, error)
+	predicates           []predicate.Student
 }
 
 var _ ent.Mutation = (*StudentMutation)(nil)
@@ -1501,7 +1571,7 @@ func newStudentMutation(c config, op Op, opts ...studentOption) *StudentMutation
 }
 
 // withStudentID sets the ID field of the mutation.
-func withStudentID(id uuid.UUID) studentOption {
+func withStudentID(id int64) studentOption {
 	return func(m *StudentMutation) {
 		var (
 			err   error
@@ -1553,13 +1623,13 @@ func (m StudentMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Student entities.
-func (m *StudentMutation) SetID(id uuid.UUID) {
+func (m *StudentMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *StudentMutation) ID() (id uuid.UUID, exists bool) {
+func (m *StudentMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -1570,12 +1640,12 @@ func (m *StudentMutation) ID() (id uuid.UUID, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *StudentMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+func (m *StudentMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []uuid.UUID{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -1746,7 +1816,7 @@ func (m *StudentMutation) Email() (r string, exists bool) {
 // OldEmail returns the old "email" field's value of the Student entity.
 // If the Student object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StudentMutation) OldEmail(ctx context.Context) (v *string, err error) {
+func (m *StudentMutation) OldEmail(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldEmail is only allowed on UpdateOne operations")
 	}
@@ -1760,9 +1830,22 @@ func (m *StudentMutation) OldEmail(ctx context.Context) (v *string, err error) {
 	return oldValue.Email, nil
 }
 
+// ClearEmail clears the value of the "email" field.
+func (m *StudentMutation) ClearEmail() {
+	m.email = nil
+	m.clearedFields[student.FieldEmail] = struct{}{}
+}
+
+// EmailCleared returns if the "email" field was cleared in this mutation.
+func (m *StudentMutation) EmailCleared() bool {
+	_, ok := m.clearedFields[student.FieldEmail]
+	return ok
+}
+
 // ResetEmail resets all changes to the "email" field.
 func (m *StudentMutation) ResetEmail() {
 	m.email = nil
+	delete(m.clearedFields, student.FieldEmail)
 }
 
 // SetUpdatedTime sets the "updated_time" field.
@@ -1782,7 +1865,7 @@ func (m *StudentMutation) UpdatedTime() (r time.Time, exists bool) {
 // OldUpdatedTime returns the old "updated_time" field's value of the Student entity.
 // If the Student object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StudentMutation) OldUpdatedTime(ctx context.Context) (v *time.Time, err error) {
+func (m *StudentMutation) OldUpdatedTime(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUpdatedTime is only allowed on UpdateOne operations")
 	}
@@ -1796,9 +1879,22 @@ func (m *StudentMutation) OldUpdatedTime(ctx context.Context) (v *time.Time, err
 	return oldValue.UpdatedTime, nil
 }
 
+// ClearUpdatedTime clears the value of the "updated_time" field.
+func (m *StudentMutation) ClearUpdatedTime() {
+	m.updated_time = nil
+	m.clearedFields[student.FieldUpdatedTime] = struct{}{}
+}
+
+// UpdatedTimeCleared returns if the "updated_time" field was cleared in this mutation.
+func (m *StudentMutation) UpdatedTimeCleared() bool {
+	_, ok := m.clearedFields[student.FieldUpdatedTime]
+	return ok
+}
+
 // ResetUpdatedTime resets all changes to the "updated_time" field.
 func (m *StudentMutation) ResetUpdatedTime() {
 	m.updated_time = nil
+	delete(m.clearedFields, student.FieldUpdatedTime)
 }
 
 // SetVisibleFlg sets the "visible_flg" field.
@@ -1837,58 +1933,58 @@ func (m *StudentMutation) ResetVisibleFlg() {
 	m.visible_flg = nil
 }
 
-// AddHymnIDs adds the "hymns" edge to the Hymn entity by ids.
-func (m *StudentMutation) AddHymnIDs(ids ...uuid.UUID) {
-	if m.hymns == nil {
-		m.hymns = make(map[uuid.UUID]struct{})
+// AddUpdatedHymnIDs adds the "updated_hymns" edge to the Hymn entity by ids.
+func (m *StudentMutation) AddUpdatedHymnIDs(ids ...int64) {
+	if m.updated_hymns == nil {
+		m.updated_hymns = make(map[int64]struct{})
 	}
 	for i := range ids {
-		m.hymns[ids[i]] = struct{}{}
+		m.updated_hymns[ids[i]] = struct{}{}
 	}
 }
 
-// ClearHymns clears the "hymns" edge to the Hymn entity.
-func (m *StudentMutation) ClearHymns() {
-	m.clearedhymns = true
+// ClearUpdatedHymns clears the "updated_hymns" edge to the Hymn entity.
+func (m *StudentMutation) ClearUpdatedHymns() {
+	m.clearedupdated_hymns = true
 }
 
-// HymnsCleared reports if the "hymns" edge to the Hymn entity was cleared.
-func (m *StudentMutation) HymnsCleared() bool {
-	return m.clearedhymns
+// UpdatedHymnsCleared reports if the "updated_hymns" edge to the Hymn entity was cleared.
+func (m *StudentMutation) UpdatedHymnsCleared() bool {
+	return m.clearedupdated_hymns
 }
 
-// RemoveHymnIDs removes the "hymns" edge to the Hymn entity by IDs.
-func (m *StudentMutation) RemoveHymnIDs(ids ...uuid.UUID) {
-	if m.removedhymns == nil {
-		m.removedhymns = make(map[uuid.UUID]struct{})
+// RemoveUpdatedHymnIDs removes the "updated_hymns" edge to the Hymn entity by IDs.
+func (m *StudentMutation) RemoveUpdatedHymnIDs(ids ...int64) {
+	if m.removedupdated_hymns == nil {
+		m.removedupdated_hymns = make(map[int64]struct{})
 	}
 	for i := range ids {
-		delete(m.hymns, ids[i])
-		m.removedhymns[ids[i]] = struct{}{}
+		delete(m.updated_hymns, ids[i])
+		m.removedupdated_hymns[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedHymns returns the removed IDs of the "hymns" edge to the Hymn entity.
-func (m *StudentMutation) RemovedHymnsIDs() (ids []uuid.UUID) {
-	for id := range m.removedhymns {
+// RemovedUpdatedHymns returns the removed IDs of the "updated_hymns" edge to the Hymn entity.
+func (m *StudentMutation) RemovedUpdatedHymnsIDs() (ids []int64) {
+	for id := range m.removedupdated_hymns {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// HymnsIDs returns the "hymns" edge IDs in the mutation.
-func (m *StudentMutation) HymnsIDs() (ids []uuid.UUID) {
-	for id := range m.hymns {
+// UpdatedHymnsIDs returns the "updated_hymns" edge IDs in the mutation.
+func (m *StudentMutation) UpdatedHymnsIDs() (ids []int64) {
+	for id := range m.updated_hymns {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetHymns resets all changes to the "hymns" edge.
-func (m *StudentMutation) ResetHymns() {
-	m.hymns = nil
-	m.clearedhymns = false
-	m.removedhymns = nil
+// ResetUpdatedHymns resets all changes to the "updated_hymns" edge.
+func (m *StudentMutation) ResetUpdatedHymns() {
+	m.updated_hymns = nil
+	m.clearedupdated_hymns = false
+	m.removedupdated_hymns = nil
 }
 
 // Where appends a list predicates to the StudentMutation builder.
@@ -2079,7 +2175,14 @@ func (m *StudentMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *StudentMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(student.FieldEmail) {
+		fields = append(fields, student.FieldEmail)
+	}
+	if m.FieldCleared(student.FieldUpdatedTime) {
+		fields = append(fields, student.FieldUpdatedTime)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2092,6 +2195,14 @@ func (m *StudentMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *StudentMutation) ClearField(name string) error {
+	switch name {
+	case student.FieldEmail:
+		m.ClearEmail()
+		return nil
+	case student.FieldUpdatedTime:
+		m.ClearUpdatedTime()
+		return nil
+	}
 	return fmt.Errorf("unknown Student nullable field %s", name)
 }
 
@@ -2127,8 +2238,8 @@ func (m *StudentMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StudentMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.hymns != nil {
-		edges = append(edges, student.EdgeHymns)
+	if m.updated_hymns != nil {
+		edges = append(edges, student.EdgeUpdatedHymns)
 	}
 	return edges
 }
@@ -2137,9 +2248,9 @@ func (m *StudentMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *StudentMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case student.EdgeHymns:
-		ids := make([]ent.Value, 0, len(m.hymns))
-		for id := range m.hymns {
+	case student.EdgeUpdatedHymns:
+		ids := make([]ent.Value, 0, len(m.updated_hymns))
+		for id := range m.updated_hymns {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2150,8 +2261,8 @@ func (m *StudentMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StudentMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedhymns != nil {
-		edges = append(edges, student.EdgeHymns)
+	if m.removedupdated_hymns != nil {
+		edges = append(edges, student.EdgeUpdatedHymns)
 	}
 	return edges
 }
@@ -2160,9 +2271,9 @@ func (m *StudentMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *StudentMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case student.EdgeHymns:
-		ids := make([]ent.Value, 0, len(m.removedhymns))
-		for id := range m.removedhymns {
+	case student.EdgeUpdatedHymns:
+		ids := make([]ent.Value, 0, len(m.removedupdated_hymns))
+		for id := range m.removedupdated_hymns {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2173,8 +2284,8 @@ func (m *StudentMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StudentMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.clearedhymns {
-		edges = append(edges, student.EdgeHymns)
+	if m.clearedupdated_hymns {
+		edges = append(edges, student.EdgeUpdatedHymns)
 	}
 	return edges
 }
@@ -2183,8 +2294,8 @@ func (m *StudentMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *StudentMutation) EdgeCleared(name string) bool {
 	switch name {
-	case student.EdgeHymns:
-		return m.clearedhymns
+	case student.EdgeUpdatedHymns:
+		return m.clearedupdated_hymns
 	}
 	return false
 }
@@ -2201,8 +2312,8 @@ func (m *StudentMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *StudentMutation) ResetEdge(name string) error {
 	switch name {
-	case student.EdgeHymns:
-		m.ResetHymns()
+	case student.EdgeUpdatedHymns:
+		m.ResetUpdatedHymns()
 		return nil
 	}
 	return fmt.Errorf("unknown Student edge %s", name)

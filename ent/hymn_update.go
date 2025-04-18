@@ -15,7 +15,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // HymnUpdate is the builder for updating Hymn entities.
@@ -73,23 +72,14 @@ func (hu *HymnUpdate) SetNillableLink(s *string) *HymnUpdate {
 	return hu
 }
 
-// SetUpdatedTime sets the "updated_time" field.
-func (hu *HymnUpdate) SetUpdatedTime(t time.Time) *HymnUpdate {
-	hu.mutation.SetUpdatedTime(t)
-	return hu
-}
-
-// SetNillableUpdatedTime sets the "updated_time" field if the given value is not nil.
-func (hu *HymnUpdate) SetNillableUpdatedTime(t *time.Time) *HymnUpdate {
-	if t != nil {
-		hu.SetUpdatedTime(*t)
-	}
+// ClearLink clears the value of the "link" field.
+func (hu *HymnUpdate) ClearLink() *HymnUpdate {
+	hu.mutation.ClearLink()
 	return hu
 }
 
 // SetUpdatedUser sets the "updated_user" field.
 func (hu *HymnUpdate) SetUpdatedUser(i int64) *HymnUpdate {
-	hu.mutation.ResetUpdatedUser()
 	hu.mutation.SetUpdatedUser(i)
 	return hu
 }
@@ -102,9 +92,17 @@ func (hu *HymnUpdate) SetNillableUpdatedUser(i *int64) *HymnUpdate {
 	return hu
 }
 
-// AddUpdatedUser adds i to the "updated_user" field.
-func (hu *HymnUpdate) AddUpdatedUser(i int64) *HymnUpdate {
-	hu.mutation.AddUpdatedUser(i)
+// SetUpdatedTime sets the "updated_time" field.
+func (hu *HymnUpdate) SetUpdatedTime(t time.Time) *HymnUpdate {
+	hu.mutation.SetUpdatedTime(t)
+	return hu
+}
+
+// SetNillableUpdatedTime sets the "updated_time" field if the given value is not nil.
+func (hu *HymnUpdate) SetNillableUpdatedTime(t *time.Time) *HymnUpdate {
+	if t != nil {
+		hu.SetUpdatedTime(*t)
+	}
 	return hu
 }
 
@@ -122,6 +120,12 @@ func (hu *HymnUpdate) SetNillableSerif(s *string) *HymnUpdate {
 	return hu
 }
 
+// ClearSerif clears the value of the "serif" field.
+func (hu *HymnUpdate) ClearSerif() *HymnUpdate {
+	hu.mutation.ClearSerif()
+	return hu
+}
+
 // SetVisibleFlg sets the "visible_flg" field.
 func (hu *HymnUpdate) SetVisibleFlg(b bool) *HymnUpdate {
 	hu.mutation.SetVisibleFlg(b)
@@ -136,42 +140,34 @@ func (hu *HymnUpdate) SetNillableVisibleFlg(b *bool) *HymnUpdate {
 	return hu
 }
 
-// SetStudentsID sets the "students" edge to the Student entity by ID.
-func (hu *HymnUpdate) SetStudentsID(id uuid.UUID) *HymnUpdate {
-	hu.mutation.SetStudentsID(id)
+// SetUpdatedByID sets the "updated_by" edge to the Student entity by ID.
+func (hu *HymnUpdate) SetUpdatedByID(id int64) *HymnUpdate {
+	hu.mutation.SetUpdatedByID(id)
 	return hu
 }
 
-// SetNillableStudentsID sets the "students" edge to the Student entity by ID if the given value is not nil.
-func (hu *HymnUpdate) SetNillableStudentsID(id *uuid.UUID) *HymnUpdate {
+// SetUpdatedBy sets the "updated_by" edge to the Student entity.
+func (hu *HymnUpdate) SetUpdatedBy(s *Student) *HymnUpdate {
+	return hu.SetUpdatedByID(s.ID)
+}
+
+// SetWorkID sets the "work" edge to the HymnsWork entity by ID.
+func (hu *HymnUpdate) SetWorkID(id int) *HymnUpdate {
+	hu.mutation.SetWorkID(id)
+	return hu
+}
+
+// SetNillableWorkID sets the "work" edge to the HymnsWork entity by ID if the given value is not nil.
+func (hu *HymnUpdate) SetNillableWorkID(id *int) *HymnUpdate {
 	if id != nil {
-		hu = hu.SetStudentsID(*id)
+		hu = hu.SetWorkID(*id)
 	}
 	return hu
 }
 
-// SetStudents sets the "students" edge to the Student entity.
-func (hu *HymnUpdate) SetStudents(s *Student) *HymnUpdate {
-	return hu.SetStudentsID(s.ID)
-}
-
-// SetHymnsWorkID sets the "hymns_work" edge to the HymnsWork entity by ID.
-func (hu *HymnUpdate) SetHymnsWorkID(id int) *HymnUpdate {
-	hu.mutation.SetHymnsWorkID(id)
-	return hu
-}
-
-// SetNillableHymnsWorkID sets the "hymns_work" edge to the HymnsWork entity by ID if the given value is not nil.
-func (hu *HymnUpdate) SetNillableHymnsWorkID(id *int) *HymnUpdate {
-	if id != nil {
-		hu = hu.SetHymnsWorkID(*id)
-	}
-	return hu
-}
-
-// SetHymnsWork sets the "hymns_work" edge to the HymnsWork entity.
-func (hu *HymnUpdate) SetHymnsWork(h *HymnsWork) *HymnUpdate {
-	return hu.SetHymnsWorkID(h.ID)
+// SetWork sets the "work" edge to the HymnsWork entity.
+func (hu *HymnUpdate) SetWork(h *HymnsWork) *HymnUpdate {
+	return hu.SetWorkID(h.ID)
 }
 
 // Mutation returns the HymnMutation object of the builder.
@@ -179,15 +175,15 @@ func (hu *HymnUpdate) Mutation() *HymnMutation {
 	return hu.mutation
 }
 
-// ClearStudents clears the "students" edge to the Student entity.
-func (hu *HymnUpdate) ClearStudents() *HymnUpdate {
-	hu.mutation.ClearStudents()
+// ClearUpdatedBy clears the "updated_by" edge to the Student entity.
+func (hu *HymnUpdate) ClearUpdatedBy() *HymnUpdate {
+	hu.mutation.ClearUpdatedBy()
 	return hu
 }
 
-// ClearHymnsWork clears the "hymns_work" edge to the HymnsWork entity.
-func (hu *HymnUpdate) ClearHymnsWork() *HymnUpdate {
-	hu.mutation.ClearHymnsWork()
+// ClearWork clears the "work" edge to the HymnsWork entity.
+func (hu *HymnUpdate) ClearWork() *HymnUpdate {
+	hu.mutation.ClearWork()
 	return hu
 }
 
@@ -220,10 +216,23 @@ func (hu *HymnUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (hu *HymnUpdate) check() error {
-	if v, ok := hu.mutation.UpdatedUser(); ok {
-		if err := hymn.UpdatedUserValidator(v); err != nil {
-			return &ValidationError{Name: "updated_user", err: fmt.Errorf(`ent: validator failed for field "Hymn.updated_user": %w`, err)}
+	if v, ok := hu.mutation.NameJp(); ok {
+		if err := hymn.NameJpValidator(v); err != nil {
+			return &ValidationError{Name: "name_jp", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_jp": %w`, err)}
 		}
+	}
+	if v, ok := hu.mutation.NameKr(); ok {
+		if err := hymn.NameKrValidator(v); err != nil {
+			return &ValidationError{Name: "name_kr", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_kr": %w`, err)}
+		}
+	}
+	if v, ok := hu.mutation.Link(); ok {
+		if err := hymn.LinkValidator(v); err != nil {
+			return &ValidationError{Name: "link", err: fmt.Errorf(`ent: validator failed for field "Hymn.link": %w`, err)}
+		}
+	}
+	if hu.mutation.UpdatedByCleared() && len(hu.mutation.UpdatedByIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Hymn.updated_by"`)
 	}
 	return nil
 }
@@ -232,7 +241,7 @@ func (hu *HymnUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := hu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(hymn.Table, hymn.Columns, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther))
+	_spec := sqlgraph.NewUpdateSpec(hymn.Table, hymn.Columns, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64))
 	if ps := hu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -249,43 +258,43 @@ func (hu *HymnUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := hu.mutation.Link(); ok {
 		_spec.SetField(hymn.FieldLink, field.TypeString, value)
 	}
+	if hu.mutation.LinkCleared() {
+		_spec.ClearField(hymn.FieldLink, field.TypeString)
+	}
 	if value, ok := hu.mutation.UpdatedTime(); ok {
 		_spec.SetField(hymn.FieldUpdatedTime, field.TypeTime, value)
-	}
-	if value, ok := hu.mutation.UpdatedUser(); ok {
-		_spec.SetField(hymn.FieldUpdatedUser, field.TypeInt64, value)
-	}
-	if value, ok := hu.mutation.AddedUpdatedUser(); ok {
-		_spec.AddField(hymn.FieldUpdatedUser, field.TypeInt64, value)
 	}
 	if value, ok := hu.mutation.Serif(); ok {
 		_spec.SetField(hymn.FieldSerif, field.TypeString, value)
 	}
+	if hu.mutation.SerifCleared() {
+		_spec.ClearField(hymn.FieldSerif, field.TypeString)
+	}
 	if value, ok := hu.mutation.VisibleFlg(); ok {
 		_spec.SetField(hymn.FieldVisibleFlg, field.TypeBool, value)
 	}
-	if hu.mutation.StudentsCleared() {
+	if hu.mutation.UpdatedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   hymn.StudentsTable,
-			Columns: []string{hymn.StudentsColumn},
+			Table:   hymn.UpdatedByTable,
+			Columns: []string{hymn.UpdatedByColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := hu.mutation.StudentsIDs(); len(nodes) > 0 {
+	if nodes := hu.mutation.UpdatedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   hymn.StudentsTable,
-			Columns: []string{hymn.StudentsColumn},
+			Table:   hymn.UpdatedByTable,
+			Columns: []string{hymn.UpdatedByColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -293,12 +302,12 @@ func (hu *HymnUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if hu.mutation.HymnsWorkCleared() {
+	if hu.mutation.WorkCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   hymn.HymnsWorkTable,
-			Columns: []string{hymn.HymnsWorkColumn},
+			Table:   hymn.WorkTable,
+			Columns: []string{hymn.WorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt),
@@ -306,12 +315,12 @@ func (hu *HymnUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := hu.mutation.HymnsWorkIDs(); len(nodes) > 0 {
+	if nodes := hu.mutation.WorkIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   hymn.HymnsWorkTable,
-			Columns: []string{hymn.HymnsWorkColumn},
+			Table:   hymn.WorkTable,
+			Columns: []string{hymn.WorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt),
@@ -384,23 +393,14 @@ func (huo *HymnUpdateOne) SetNillableLink(s *string) *HymnUpdateOne {
 	return huo
 }
 
-// SetUpdatedTime sets the "updated_time" field.
-func (huo *HymnUpdateOne) SetUpdatedTime(t time.Time) *HymnUpdateOne {
-	huo.mutation.SetUpdatedTime(t)
-	return huo
-}
-
-// SetNillableUpdatedTime sets the "updated_time" field if the given value is not nil.
-func (huo *HymnUpdateOne) SetNillableUpdatedTime(t *time.Time) *HymnUpdateOne {
-	if t != nil {
-		huo.SetUpdatedTime(*t)
-	}
+// ClearLink clears the value of the "link" field.
+func (huo *HymnUpdateOne) ClearLink() *HymnUpdateOne {
+	huo.mutation.ClearLink()
 	return huo
 }
 
 // SetUpdatedUser sets the "updated_user" field.
 func (huo *HymnUpdateOne) SetUpdatedUser(i int64) *HymnUpdateOne {
-	huo.mutation.ResetUpdatedUser()
 	huo.mutation.SetUpdatedUser(i)
 	return huo
 }
@@ -413,9 +413,17 @@ func (huo *HymnUpdateOne) SetNillableUpdatedUser(i *int64) *HymnUpdateOne {
 	return huo
 }
 
-// AddUpdatedUser adds i to the "updated_user" field.
-func (huo *HymnUpdateOne) AddUpdatedUser(i int64) *HymnUpdateOne {
-	huo.mutation.AddUpdatedUser(i)
+// SetUpdatedTime sets the "updated_time" field.
+func (huo *HymnUpdateOne) SetUpdatedTime(t time.Time) *HymnUpdateOne {
+	huo.mutation.SetUpdatedTime(t)
+	return huo
+}
+
+// SetNillableUpdatedTime sets the "updated_time" field if the given value is not nil.
+func (huo *HymnUpdateOne) SetNillableUpdatedTime(t *time.Time) *HymnUpdateOne {
+	if t != nil {
+		huo.SetUpdatedTime(*t)
+	}
 	return huo
 }
 
@@ -433,6 +441,12 @@ func (huo *HymnUpdateOne) SetNillableSerif(s *string) *HymnUpdateOne {
 	return huo
 }
 
+// ClearSerif clears the value of the "serif" field.
+func (huo *HymnUpdateOne) ClearSerif() *HymnUpdateOne {
+	huo.mutation.ClearSerif()
+	return huo
+}
+
 // SetVisibleFlg sets the "visible_flg" field.
 func (huo *HymnUpdateOne) SetVisibleFlg(b bool) *HymnUpdateOne {
 	huo.mutation.SetVisibleFlg(b)
@@ -447,42 +461,34 @@ func (huo *HymnUpdateOne) SetNillableVisibleFlg(b *bool) *HymnUpdateOne {
 	return huo
 }
 
-// SetStudentsID sets the "students" edge to the Student entity by ID.
-func (huo *HymnUpdateOne) SetStudentsID(id uuid.UUID) *HymnUpdateOne {
-	huo.mutation.SetStudentsID(id)
+// SetUpdatedByID sets the "updated_by" edge to the Student entity by ID.
+func (huo *HymnUpdateOne) SetUpdatedByID(id int64) *HymnUpdateOne {
+	huo.mutation.SetUpdatedByID(id)
 	return huo
 }
 
-// SetNillableStudentsID sets the "students" edge to the Student entity by ID if the given value is not nil.
-func (huo *HymnUpdateOne) SetNillableStudentsID(id *uuid.UUID) *HymnUpdateOne {
+// SetUpdatedBy sets the "updated_by" edge to the Student entity.
+func (huo *HymnUpdateOne) SetUpdatedBy(s *Student) *HymnUpdateOne {
+	return huo.SetUpdatedByID(s.ID)
+}
+
+// SetWorkID sets the "work" edge to the HymnsWork entity by ID.
+func (huo *HymnUpdateOne) SetWorkID(id int) *HymnUpdateOne {
+	huo.mutation.SetWorkID(id)
+	return huo
+}
+
+// SetNillableWorkID sets the "work" edge to the HymnsWork entity by ID if the given value is not nil.
+func (huo *HymnUpdateOne) SetNillableWorkID(id *int) *HymnUpdateOne {
 	if id != nil {
-		huo = huo.SetStudentsID(*id)
+		huo = huo.SetWorkID(*id)
 	}
 	return huo
 }
 
-// SetStudents sets the "students" edge to the Student entity.
-func (huo *HymnUpdateOne) SetStudents(s *Student) *HymnUpdateOne {
-	return huo.SetStudentsID(s.ID)
-}
-
-// SetHymnsWorkID sets the "hymns_work" edge to the HymnsWork entity by ID.
-func (huo *HymnUpdateOne) SetHymnsWorkID(id int) *HymnUpdateOne {
-	huo.mutation.SetHymnsWorkID(id)
-	return huo
-}
-
-// SetNillableHymnsWorkID sets the "hymns_work" edge to the HymnsWork entity by ID if the given value is not nil.
-func (huo *HymnUpdateOne) SetNillableHymnsWorkID(id *int) *HymnUpdateOne {
-	if id != nil {
-		huo = huo.SetHymnsWorkID(*id)
-	}
-	return huo
-}
-
-// SetHymnsWork sets the "hymns_work" edge to the HymnsWork entity.
-func (huo *HymnUpdateOne) SetHymnsWork(h *HymnsWork) *HymnUpdateOne {
-	return huo.SetHymnsWorkID(h.ID)
+// SetWork sets the "work" edge to the HymnsWork entity.
+func (huo *HymnUpdateOne) SetWork(h *HymnsWork) *HymnUpdateOne {
+	return huo.SetWorkID(h.ID)
 }
 
 // Mutation returns the HymnMutation object of the builder.
@@ -490,15 +496,15 @@ func (huo *HymnUpdateOne) Mutation() *HymnMutation {
 	return huo.mutation
 }
 
-// ClearStudents clears the "students" edge to the Student entity.
-func (huo *HymnUpdateOne) ClearStudents() *HymnUpdateOne {
-	huo.mutation.ClearStudents()
+// ClearUpdatedBy clears the "updated_by" edge to the Student entity.
+func (huo *HymnUpdateOne) ClearUpdatedBy() *HymnUpdateOne {
+	huo.mutation.ClearUpdatedBy()
 	return huo
 }
 
-// ClearHymnsWork clears the "hymns_work" edge to the HymnsWork entity.
-func (huo *HymnUpdateOne) ClearHymnsWork() *HymnUpdateOne {
-	huo.mutation.ClearHymnsWork()
+// ClearWork clears the "work" edge to the HymnsWork entity.
+func (huo *HymnUpdateOne) ClearWork() *HymnUpdateOne {
+	huo.mutation.ClearWork()
 	return huo
 }
 
@@ -544,10 +550,23 @@ func (huo *HymnUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (huo *HymnUpdateOne) check() error {
-	if v, ok := huo.mutation.UpdatedUser(); ok {
-		if err := hymn.UpdatedUserValidator(v); err != nil {
-			return &ValidationError{Name: "updated_user", err: fmt.Errorf(`ent: validator failed for field "Hymn.updated_user": %w`, err)}
+	if v, ok := huo.mutation.NameJp(); ok {
+		if err := hymn.NameJpValidator(v); err != nil {
+			return &ValidationError{Name: "name_jp", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_jp": %w`, err)}
 		}
+	}
+	if v, ok := huo.mutation.NameKr(); ok {
+		if err := hymn.NameKrValidator(v); err != nil {
+			return &ValidationError{Name: "name_kr", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_kr": %w`, err)}
+		}
+	}
+	if v, ok := huo.mutation.Link(); ok {
+		if err := hymn.LinkValidator(v); err != nil {
+			return &ValidationError{Name: "link", err: fmt.Errorf(`ent: validator failed for field "Hymn.link": %w`, err)}
+		}
+	}
+	if huo.mutation.UpdatedByCleared() && len(huo.mutation.UpdatedByIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Hymn.updated_by"`)
 	}
 	return nil
 }
@@ -556,7 +575,7 @@ func (huo *HymnUpdateOne) sqlSave(ctx context.Context) (_node *Hymn, err error) 
 	if err := huo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(hymn.Table, hymn.Columns, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther))
+	_spec := sqlgraph.NewUpdateSpec(hymn.Table, hymn.Columns, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64))
 	id, ok := huo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Hymn.id" for update`)}
@@ -590,43 +609,43 @@ func (huo *HymnUpdateOne) sqlSave(ctx context.Context) (_node *Hymn, err error) 
 	if value, ok := huo.mutation.Link(); ok {
 		_spec.SetField(hymn.FieldLink, field.TypeString, value)
 	}
+	if huo.mutation.LinkCleared() {
+		_spec.ClearField(hymn.FieldLink, field.TypeString)
+	}
 	if value, ok := huo.mutation.UpdatedTime(); ok {
 		_spec.SetField(hymn.FieldUpdatedTime, field.TypeTime, value)
-	}
-	if value, ok := huo.mutation.UpdatedUser(); ok {
-		_spec.SetField(hymn.FieldUpdatedUser, field.TypeInt64, value)
-	}
-	if value, ok := huo.mutation.AddedUpdatedUser(); ok {
-		_spec.AddField(hymn.FieldUpdatedUser, field.TypeInt64, value)
 	}
 	if value, ok := huo.mutation.Serif(); ok {
 		_spec.SetField(hymn.FieldSerif, field.TypeString, value)
 	}
+	if huo.mutation.SerifCleared() {
+		_spec.ClearField(hymn.FieldSerif, field.TypeString)
+	}
 	if value, ok := huo.mutation.VisibleFlg(); ok {
 		_spec.SetField(hymn.FieldVisibleFlg, field.TypeBool, value)
 	}
-	if huo.mutation.StudentsCleared() {
+	if huo.mutation.UpdatedByCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   hymn.StudentsTable,
-			Columns: []string{hymn.StudentsColumn},
+			Table:   hymn.UpdatedByTable,
+			Columns: []string{hymn.UpdatedByColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := huo.mutation.StudentsIDs(); len(nodes) > 0 {
+	if nodes := huo.mutation.UpdatedByIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   hymn.StudentsTable,
-			Columns: []string{hymn.StudentsColumn},
+			Table:   hymn.UpdatedByTable,
+			Columns: []string{hymn.UpdatedByColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -634,12 +653,12 @@ func (huo *HymnUpdateOne) sqlSave(ctx context.Context) (_node *Hymn, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if huo.mutation.HymnsWorkCleared() {
+	if huo.mutation.WorkCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   hymn.HymnsWorkTable,
-			Columns: []string{hymn.HymnsWorkColumn},
+			Table:   hymn.WorkTable,
+			Columns: []string{hymn.WorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt),
@@ -647,12 +666,12 @@ func (huo *HymnUpdateOne) sqlSave(ctx context.Context) (_node *Hymn, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := huo.mutation.HymnsWorkIDs(); len(nodes) > 0 {
+	if nodes := huo.mutation.WorkIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   hymn.HymnsWorkTable,
-			Columns: []string{hymn.HymnsWorkColumn},
+			Table:   hymn.WorkTable,
+			Columns: []string{hymn.WorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt),

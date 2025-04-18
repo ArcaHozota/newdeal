@@ -8,51 +8,50 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id uuid.UUID) predicate.Student {
+func ID(id int64) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id uuid.UUID) predicate.Student {
+func IDEQ(id int64) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id uuid.UUID) predicate.Student {
+func IDNEQ(id int64) predicate.Student {
 	return predicate.Student(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...uuid.UUID) predicate.Student {
+func IDIn(ids ...int64) predicate.Student {
 	return predicate.Student(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...uuid.UUID) predicate.Student {
+func IDNotIn(ids ...int64) predicate.Student {
 	return predicate.Student(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id uuid.UUID) predicate.Student {
+func IDGT(id int64) predicate.Student {
 	return predicate.Student(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id uuid.UUID) predicate.Student {
+func IDGTE(id int64) predicate.Student {
 	return predicate.Student(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id uuid.UUID) predicate.Student {
+func IDLT(id int64) predicate.Student {
 	return predicate.Student(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id uuid.UUID) predicate.Student {
+func IDLTE(id int64) predicate.Student {
 	return predicate.Student(sql.FieldLTE(FieldID, id))
 }
 
@@ -381,6 +380,16 @@ func EmailHasSuffix(v string) predicate.Student {
 	return predicate.Student(sql.FieldHasSuffix(FieldEmail, v))
 }
 
+// EmailIsNil applies the IsNil predicate on the "email" field.
+func EmailIsNil() predicate.Student {
+	return predicate.Student(sql.FieldIsNull(FieldEmail))
+}
+
+// EmailNotNil applies the NotNil predicate on the "email" field.
+func EmailNotNil() predicate.Student {
+	return predicate.Student(sql.FieldNotNull(FieldEmail))
+}
+
 // EmailEqualFold applies the EqualFold predicate on the "email" field.
 func EmailEqualFold(v string) predicate.Student {
 	return predicate.Student(sql.FieldEqualFold(FieldEmail, v))
@@ -431,6 +440,16 @@ func UpdatedTimeLTE(v time.Time) predicate.Student {
 	return predicate.Student(sql.FieldLTE(FieldUpdatedTime, v))
 }
 
+// UpdatedTimeIsNil applies the IsNil predicate on the "updated_time" field.
+func UpdatedTimeIsNil() predicate.Student {
+	return predicate.Student(sql.FieldIsNull(FieldUpdatedTime))
+}
+
+// UpdatedTimeNotNil applies the NotNil predicate on the "updated_time" field.
+func UpdatedTimeNotNil() predicate.Student {
+	return predicate.Student(sql.FieldNotNull(FieldUpdatedTime))
+}
+
 // VisibleFlgEQ applies the EQ predicate on the "visible_flg" field.
 func VisibleFlgEQ(v bool) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldVisibleFlg, v))
@@ -441,21 +460,21 @@ func VisibleFlgNEQ(v bool) predicate.Student {
 	return predicate.Student(sql.FieldNEQ(FieldVisibleFlg, v))
 }
 
-// HasHymns applies the HasEdge predicate on the "hymns" edge.
-func HasHymns() predicate.Student {
+// HasUpdatedHymns applies the HasEdge predicate on the "updated_hymns" edge.
+func HasUpdatedHymns() predicate.Student {
 	return predicate.Student(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, HymnsTable, HymnsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, UpdatedHymnsTable, UpdatedHymnsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasHymnsWith applies the HasEdge predicate on the "hymns" edge with a given conditions (other predicates).
-func HasHymnsWith(preds ...predicate.Hymn) predicate.Student {
+// HasUpdatedHymnsWith applies the HasEdge predicate on the "updated_hymns" edge with a given conditions (other predicates).
+func HasUpdatedHymnsWith(preds ...predicate.Hymn) predicate.Student {
 	return predicate.Student(func(s *sql.Selector) {
-		step := newHymnsStep()
+		step := newUpdatedHymnsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

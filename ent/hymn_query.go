@@ -16,7 +16,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // HymnQuery is the builder for querying Hymn entities.
@@ -26,9 +25,8 @@ type HymnQuery struct {
 	order         []hymn.OrderOption
 	inters        []Interceptor
 	predicates    []predicate.Hymn
-	withStudents  *StudentQuery
-	withHymnsWork *HymnsWorkQuery
-	withFKs       bool
+	withUpdatedBy *StudentQuery
+	withWork      *HymnsWorkQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -65,8 +63,8 @@ func (hq *HymnQuery) Order(o ...hymn.OrderOption) *HymnQuery {
 	return hq
 }
 
-// QueryStudents chains the current query on the "students" edge.
-func (hq *HymnQuery) QueryStudents() *StudentQuery {
+// QueryUpdatedBy chains the current query on the "updated_by" edge.
+func (hq *HymnQuery) QueryUpdatedBy() *StudentQuery {
 	query := (&StudentClient{config: hq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := hq.prepareQuery(ctx); err != nil {
@@ -79,7 +77,7 @@ func (hq *HymnQuery) QueryStudents() *StudentQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(hymn.Table, hymn.FieldID, selector),
 			sqlgraph.To(student.Table, student.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, hymn.StudentsTable, hymn.StudentsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, hymn.UpdatedByTable, hymn.UpdatedByColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
 		return fromU, nil
@@ -87,8 +85,8 @@ func (hq *HymnQuery) QueryStudents() *StudentQuery {
 	return query
 }
 
-// QueryHymnsWork chains the current query on the "hymns_work" edge.
-func (hq *HymnQuery) QueryHymnsWork() *HymnsWorkQuery {
+// QueryWork chains the current query on the "work" edge.
+func (hq *HymnQuery) QueryWork() *HymnsWorkQuery {
 	query := (&HymnsWorkClient{config: hq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := hq.prepareQuery(ctx); err != nil {
@@ -101,7 +99,7 @@ func (hq *HymnQuery) QueryHymnsWork() *HymnsWorkQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(hymn.Table, hymn.FieldID, selector),
 			sqlgraph.To(hymnswork.Table, hymnswork.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, hymn.HymnsWorkTable, hymn.HymnsWorkColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, hymn.WorkTable, hymn.WorkColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
 		return fromU, nil
@@ -133,8 +131,8 @@ func (hq *HymnQuery) FirstX(ctx context.Context) *Hymn {
 
 // FirstID returns the first Hymn ID from the query.
 // Returns a *NotFoundError when no Hymn ID was found.
-func (hq *HymnQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (hq *HymnQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = hq.Limit(1).IDs(setContextOp(ctx, hq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -146,7 +144,7 @@ func (hq *HymnQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (hq *HymnQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (hq *HymnQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := hq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -184,8 +182,8 @@ func (hq *HymnQuery) OnlyX(ctx context.Context) *Hymn {
 // OnlyID is like Only, but returns the only Hymn ID in the query.
 // Returns a *NotSingularError when more than one Hymn ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (hq *HymnQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (hq *HymnQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = hq.Limit(2).IDs(setContextOp(ctx, hq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -201,7 +199,7 @@ func (hq *HymnQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (hq *HymnQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (hq *HymnQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := hq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -229,7 +227,7 @@ func (hq *HymnQuery) AllX(ctx context.Context) []*Hymn {
 }
 
 // IDs executes the query and returns a list of Hymn IDs.
-func (hq *HymnQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+func (hq *HymnQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if hq.ctx.Unique == nil && hq.path != nil {
 		hq.Unique(true)
 	}
@@ -241,7 +239,7 @@ func (hq *HymnQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (hq *HymnQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (hq *HymnQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := hq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -301,33 +299,33 @@ func (hq *HymnQuery) Clone() *HymnQuery {
 		order:         append([]hymn.OrderOption{}, hq.order...),
 		inters:        append([]Interceptor{}, hq.inters...),
 		predicates:    append([]predicate.Hymn{}, hq.predicates...),
-		withStudents:  hq.withStudents.Clone(),
-		withHymnsWork: hq.withHymnsWork.Clone(),
+		withUpdatedBy: hq.withUpdatedBy.Clone(),
+		withWork:      hq.withWork.Clone(),
 		// clone intermediate query.
 		sql:  hq.sql.Clone(),
 		path: hq.path,
 	}
 }
 
-// WithStudents tells the query-builder to eager-load the nodes that are connected to
-// the "students" edge. The optional arguments are used to configure the query builder of the edge.
-func (hq *HymnQuery) WithStudents(opts ...func(*StudentQuery)) *HymnQuery {
+// WithUpdatedBy tells the query-builder to eager-load the nodes that are connected to
+// the "updated_by" edge. The optional arguments are used to configure the query builder of the edge.
+func (hq *HymnQuery) WithUpdatedBy(opts ...func(*StudentQuery)) *HymnQuery {
 	query := (&StudentClient{config: hq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	hq.withStudents = query
+	hq.withUpdatedBy = query
 	return hq
 }
 
-// WithHymnsWork tells the query-builder to eager-load the nodes that are connected to
-// the "hymns_work" edge. The optional arguments are used to configure the query builder of the edge.
-func (hq *HymnQuery) WithHymnsWork(opts ...func(*HymnsWorkQuery)) *HymnQuery {
+// WithWork tells the query-builder to eager-load the nodes that are connected to
+// the "work" edge. The optional arguments are used to configure the query builder of the edge.
+func (hq *HymnQuery) WithWork(opts ...func(*HymnsWorkQuery)) *HymnQuery {
 	query := (&HymnsWorkClient{config: hq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	hq.withHymnsWork = query
+	hq.withWork = query
 	return hq
 }
 
@@ -408,19 +406,12 @@ func (hq *HymnQuery) prepareQuery(ctx context.Context) error {
 func (hq *HymnQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Hymn, error) {
 	var (
 		nodes       = []*Hymn{}
-		withFKs     = hq.withFKs
 		_spec       = hq.querySpec()
 		loadedTypes = [2]bool{
-			hq.withStudents != nil,
-			hq.withHymnsWork != nil,
+			hq.withUpdatedBy != nil,
+			hq.withWork != nil,
 		}
 	)
-	if hq.withStudents != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, hymn.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Hymn).scanValues(nil, columns)
 	}
@@ -439,29 +430,26 @@ func (hq *HymnQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Hymn, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := hq.withStudents; query != nil {
-		if err := hq.loadStudents(ctx, query, nodes, nil,
-			func(n *Hymn, e *Student) { n.Edges.Students = e }); err != nil {
+	if query := hq.withUpdatedBy; query != nil {
+		if err := hq.loadUpdatedBy(ctx, query, nodes, nil,
+			func(n *Hymn, e *Student) { n.Edges.UpdatedBy = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := hq.withHymnsWork; query != nil {
-		if err := hq.loadHymnsWork(ctx, query, nodes, nil,
-			func(n *Hymn, e *HymnsWork) { n.Edges.HymnsWork = e }); err != nil {
+	if query := hq.withWork; query != nil {
+		if err := hq.loadWork(ctx, query, nodes, nil,
+			func(n *Hymn, e *HymnsWork) { n.Edges.Work = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (hq *HymnQuery) loadStudents(ctx context.Context, query *StudentQuery, nodes []*Hymn, init func(*Hymn), assign func(*Hymn, *Student)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Hymn)
+func (hq *HymnQuery) loadUpdatedBy(ctx context.Context, query *StudentQuery, nodes []*Hymn, init func(*Hymn), assign func(*Hymn, *Student)) error {
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*Hymn)
 	for i := range nodes {
-		if nodes[i].student_hymns == nil {
-			continue
-		}
-		fk := *nodes[i].student_hymns
+		fk := nodes[i].UpdatedUser
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -478,7 +466,7 @@ func (hq *HymnQuery) loadStudents(ctx context.Context, query *StudentQuery, node
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "student_hymns" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "updated_user" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -486,29 +474,28 @@ func (hq *HymnQuery) loadStudents(ctx context.Context, query *StudentQuery, node
 	}
 	return nil
 }
-func (hq *HymnQuery) loadHymnsWork(ctx context.Context, query *HymnsWorkQuery, nodes []*Hymn, init func(*Hymn), assign func(*Hymn, *HymnsWork)) error {
+func (hq *HymnQuery) loadWork(ctx context.Context, query *HymnsWorkQuery, nodes []*Hymn, init func(*Hymn), assign func(*Hymn, *HymnsWork)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Hymn)
+	nodeids := make(map[int64]*Hymn)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(hymnswork.FieldWorkID)
+	}
 	query.Where(predicate.HymnsWork(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(hymn.HymnsWorkColumn), fks...))
+		s.Where(sql.InValues(s.C(hymn.WorkColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.hymn_hymns_work
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "hymn_hymns_work" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.WorkID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "hymn_hymns_work" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "work_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -525,7 +512,7 @@ func (hq *HymnQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (hq *HymnQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(hymn.Table, hymn.Columns, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther))
+	_spec := sqlgraph.NewQuerySpec(hymn.Table, hymn.Columns, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64))
 	_spec.From = hq.sql
 	if unique := hq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -539,6 +526,9 @@ func (hq *HymnQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != hymn.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if hq.withUpdatedBy != nil {
+			_spec.Node.AddColumnOnce(hymn.FieldUpdatedUser)
 		}
 	}
 	if ps := hq.predicates; len(ps) > 0 {

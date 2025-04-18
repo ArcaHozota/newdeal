@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // HymnsWorkUpdate is the builder for updating HymnsWork entities.
@@ -30,9 +29,29 @@ func (hwu *HymnsWorkUpdate) Where(ps ...predicate.HymnsWork) *HymnsWorkUpdate {
 	return hwu
 }
 
+// SetWorkID sets the "work_id" field.
+func (hwu *HymnsWorkUpdate) SetWorkID(i int64) *HymnsWorkUpdate {
+	hwu.mutation.SetWorkID(i)
+	return hwu
+}
+
+// SetNillableWorkID sets the "work_id" field if the given value is not nil.
+func (hwu *HymnsWorkUpdate) SetNillableWorkID(i *int64) *HymnsWorkUpdate {
+	if i != nil {
+		hwu.SetWorkID(*i)
+	}
+	return hwu
+}
+
 // SetScore sets the "score" field.
 func (hwu *HymnsWorkUpdate) SetScore(b []byte) *HymnsWorkUpdate {
 	hwu.mutation.SetScore(b)
+	return hwu
+}
+
+// ClearScore clears the value of the "score" field.
+func (hwu *HymnsWorkUpdate) ClearScore() *HymnsWorkUpdate {
+	hwu.mutation.ClearScore()
 	return hwu
 }
 
@@ -47,6 +66,12 @@ func (hwu *HymnsWorkUpdate) SetNillableNameJpRational(s *string) *HymnsWorkUpdat
 	if s != nil {
 		hwu.SetNameJpRational(*s)
 	}
+	return hwu
+}
+
+// ClearNameJpRational clears the value of the "name_jp_rational" field.
+func (hwu *HymnsWorkUpdate) ClearNameJpRational() *HymnsWorkUpdate {
+	hwu.mutation.ClearNameJpRational()
 	return hwu
 }
 
@@ -78,15 +103,21 @@ func (hwu *HymnsWorkUpdate) SetNillableBiko(s *string) *HymnsWorkUpdate {
 	return hwu
 }
 
-// SetHymnsID sets the "hymns" edge to the Hymn entity by ID.
-func (hwu *HymnsWorkUpdate) SetHymnsID(id uuid.UUID) *HymnsWorkUpdate {
-	hwu.mutation.SetHymnsID(id)
+// ClearBiko clears the value of the "biko" field.
+func (hwu *HymnsWorkUpdate) ClearBiko() *HymnsWorkUpdate {
+	hwu.mutation.ClearBiko()
 	return hwu
 }
 
-// SetHymns sets the "hymns" edge to the Hymn entity.
-func (hwu *HymnsWorkUpdate) SetHymns(h *Hymn) *HymnsWorkUpdate {
-	return hwu.SetHymnsID(h.ID)
+// SetLinkedHymnID sets the "linked_hymn" edge to the Hymn entity by ID.
+func (hwu *HymnsWorkUpdate) SetLinkedHymnID(id int64) *HymnsWorkUpdate {
+	hwu.mutation.SetLinkedHymnID(id)
+	return hwu
+}
+
+// SetLinkedHymn sets the "linked_hymn" edge to the Hymn entity.
+func (hwu *HymnsWorkUpdate) SetLinkedHymn(h *Hymn) *HymnsWorkUpdate {
+	return hwu.SetLinkedHymnID(h.ID)
 }
 
 // Mutation returns the HymnsWorkMutation object of the builder.
@@ -94,9 +125,9 @@ func (hwu *HymnsWorkUpdate) Mutation() *HymnsWorkMutation {
 	return hwu.mutation
 }
 
-// ClearHymns clears the "hymns" edge to the Hymn entity.
-func (hwu *HymnsWorkUpdate) ClearHymns() *HymnsWorkUpdate {
-	hwu.mutation.ClearHymns()
+// ClearLinkedHymn clears the "linked_hymn" edge to the Hymn entity.
+func (hwu *HymnsWorkUpdate) ClearLinkedHymn() *HymnsWorkUpdate {
+	hwu.mutation.ClearLinkedHymn()
 	return hwu
 }
 
@@ -129,8 +160,18 @@ func (hwu *HymnsWorkUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (hwu *HymnsWorkUpdate) check() error {
-	if hwu.mutation.HymnsCleared() && len(hwu.mutation.HymnsIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "HymnsWork.hymns"`)
+	if v, ok := hwu.mutation.NameJpRational(); ok {
+		if err := hymnswork.NameJpRationalValidator(v); err != nil {
+			return &ValidationError{Name: "name_jp_rational", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.name_jp_rational": %w`, err)}
+		}
+	}
+	if v, ok := hwu.mutation.Biko(); ok {
+		if err := hymnswork.BikoValidator(v); err != nil {
+			return &ValidationError{Name: "biko", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.biko": %w`, err)}
+		}
+	}
+	if hwu.mutation.LinkedHymnCleared() && len(hwu.mutation.LinkedHymnIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "HymnsWork.linked_hymn"`)
 	}
 	return nil
 }
@@ -150,8 +191,14 @@ func (hwu *HymnsWorkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := hwu.mutation.Score(); ok {
 		_spec.SetField(hymnswork.FieldScore, field.TypeBytes, value)
 	}
+	if hwu.mutation.ScoreCleared() {
+		_spec.ClearField(hymnswork.FieldScore, field.TypeBytes)
+	}
 	if value, ok := hwu.mutation.NameJpRational(); ok {
 		_spec.SetField(hymnswork.FieldNameJpRational, field.TypeString, value)
+	}
+	if hwu.mutation.NameJpRationalCleared() {
+		_spec.ClearField(hymnswork.FieldNameJpRational, field.TypeString)
 	}
 	if value, ok := hwu.mutation.UpdatedTime(); ok {
 		_spec.SetField(hymnswork.FieldUpdatedTime, field.TypeTime, value)
@@ -159,28 +206,31 @@ func (hwu *HymnsWorkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := hwu.mutation.Biko(); ok {
 		_spec.SetField(hymnswork.FieldBiko, field.TypeString, value)
 	}
-	if hwu.mutation.HymnsCleared() {
+	if hwu.mutation.BikoCleared() {
+		_spec.ClearField(hymnswork.FieldBiko, field.TypeString)
+	}
+	if hwu.mutation.LinkedHymnCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
-			Table:   hymnswork.HymnsTable,
-			Columns: []string{hymnswork.HymnsColumn},
+			Table:   hymnswork.LinkedHymnTable,
+			Columns: []string{hymnswork.LinkedHymnColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := hwu.mutation.HymnsIDs(); len(nodes) > 0 {
+	if nodes := hwu.mutation.LinkedHymnIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
-			Table:   hymnswork.HymnsTable,
-			Columns: []string{hymnswork.HymnsColumn},
+			Table:   hymnswork.LinkedHymnTable,
+			Columns: []string{hymnswork.LinkedHymnColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -208,9 +258,29 @@ type HymnsWorkUpdateOne struct {
 	mutation *HymnsWorkMutation
 }
 
+// SetWorkID sets the "work_id" field.
+func (hwuo *HymnsWorkUpdateOne) SetWorkID(i int64) *HymnsWorkUpdateOne {
+	hwuo.mutation.SetWorkID(i)
+	return hwuo
+}
+
+// SetNillableWorkID sets the "work_id" field if the given value is not nil.
+func (hwuo *HymnsWorkUpdateOne) SetNillableWorkID(i *int64) *HymnsWorkUpdateOne {
+	if i != nil {
+		hwuo.SetWorkID(*i)
+	}
+	return hwuo
+}
+
 // SetScore sets the "score" field.
 func (hwuo *HymnsWorkUpdateOne) SetScore(b []byte) *HymnsWorkUpdateOne {
 	hwuo.mutation.SetScore(b)
+	return hwuo
+}
+
+// ClearScore clears the value of the "score" field.
+func (hwuo *HymnsWorkUpdateOne) ClearScore() *HymnsWorkUpdateOne {
+	hwuo.mutation.ClearScore()
 	return hwuo
 }
 
@@ -225,6 +295,12 @@ func (hwuo *HymnsWorkUpdateOne) SetNillableNameJpRational(s *string) *HymnsWorkU
 	if s != nil {
 		hwuo.SetNameJpRational(*s)
 	}
+	return hwuo
+}
+
+// ClearNameJpRational clears the value of the "name_jp_rational" field.
+func (hwuo *HymnsWorkUpdateOne) ClearNameJpRational() *HymnsWorkUpdateOne {
+	hwuo.mutation.ClearNameJpRational()
 	return hwuo
 }
 
@@ -256,15 +332,21 @@ func (hwuo *HymnsWorkUpdateOne) SetNillableBiko(s *string) *HymnsWorkUpdateOne {
 	return hwuo
 }
 
-// SetHymnsID sets the "hymns" edge to the Hymn entity by ID.
-func (hwuo *HymnsWorkUpdateOne) SetHymnsID(id uuid.UUID) *HymnsWorkUpdateOne {
-	hwuo.mutation.SetHymnsID(id)
+// ClearBiko clears the value of the "biko" field.
+func (hwuo *HymnsWorkUpdateOne) ClearBiko() *HymnsWorkUpdateOne {
+	hwuo.mutation.ClearBiko()
 	return hwuo
 }
 
-// SetHymns sets the "hymns" edge to the Hymn entity.
-func (hwuo *HymnsWorkUpdateOne) SetHymns(h *Hymn) *HymnsWorkUpdateOne {
-	return hwuo.SetHymnsID(h.ID)
+// SetLinkedHymnID sets the "linked_hymn" edge to the Hymn entity by ID.
+func (hwuo *HymnsWorkUpdateOne) SetLinkedHymnID(id int64) *HymnsWorkUpdateOne {
+	hwuo.mutation.SetLinkedHymnID(id)
+	return hwuo
+}
+
+// SetLinkedHymn sets the "linked_hymn" edge to the Hymn entity.
+func (hwuo *HymnsWorkUpdateOne) SetLinkedHymn(h *Hymn) *HymnsWorkUpdateOne {
+	return hwuo.SetLinkedHymnID(h.ID)
 }
 
 // Mutation returns the HymnsWorkMutation object of the builder.
@@ -272,9 +354,9 @@ func (hwuo *HymnsWorkUpdateOne) Mutation() *HymnsWorkMutation {
 	return hwuo.mutation
 }
 
-// ClearHymns clears the "hymns" edge to the Hymn entity.
-func (hwuo *HymnsWorkUpdateOne) ClearHymns() *HymnsWorkUpdateOne {
-	hwuo.mutation.ClearHymns()
+// ClearLinkedHymn clears the "linked_hymn" edge to the Hymn entity.
+func (hwuo *HymnsWorkUpdateOne) ClearLinkedHymn() *HymnsWorkUpdateOne {
+	hwuo.mutation.ClearLinkedHymn()
 	return hwuo
 }
 
@@ -320,8 +402,18 @@ func (hwuo *HymnsWorkUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (hwuo *HymnsWorkUpdateOne) check() error {
-	if hwuo.mutation.HymnsCleared() && len(hwuo.mutation.HymnsIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "HymnsWork.hymns"`)
+	if v, ok := hwuo.mutation.NameJpRational(); ok {
+		if err := hymnswork.NameJpRationalValidator(v); err != nil {
+			return &ValidationError{Name: "name_jp_rational", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.name_jp_rational": %w`, err)}
+		}
+	}
+	if v, ok := hwuo.mutation.Biko(); ok {
+		if err := hymnswork.BikoValidator(v); err != nil {
+			return &ValidationError{Name: "biko", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.biko": %w`, err)}
+		}
+	}
+	if hwuo.mutation.LinkedHymnCleared() && len(hwuo.mutation.LinkedHymnIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "HymnsWork.linked_hymn"`)
 	}
 	return nil
 }
@@ -358,8 +450,14 @@ func (hwuo *HymnsWorkUpdateOne) sqlSave(ctx context.Context) (_node *HymnsWork, 
 	if value, ok := hwuo.mutation.Score(); ok {
 		_spec.SetField(hymnswork.FieldScore, field.TypeBytes, value)
 	}
+	if hwuo.mutation.ScoreCleared() {
+		_spec.ClearField(hymnswork.FieldScore, field.TypeBytes)
+	}
 	if value, ok := hwuo.mutation.NameJpRational(); ok {
 		_spec.SetField(hymnswork.FieldNameJpRational, field.TypeString, value)
+	}
+	if hwuo.mutation.NameJpRationalCleared() {
+		_spec.ClearField(hymnswork.FieldNameJpRational, field.TypeString)
 	}
 	if value, ok := hwuo.mutation.UpdatedTime(); ok {
 		_spec.SetField(hymnswork.FieldUpdatedTime, field.TypeTime, value)
@@ -367,28 +465,31 @@ func (hwuo *HymnsWorkUpdateOne) sqlSave(ctx context.Context) (_node *HymnsWork, 
 	if value, ok := hwuo.mutation.Biko(); ok {
 		_spec.SetField(hymnswork.FieldBiko, field.TypeString, value)
 	}
-	if hwuo.mutation.HymnsCleared() {
+	if hwuo.mutation.BikoCleared() {
+		_spec.ClearField(hymnswork.FieldBiko, field.TypeString)
+	}
+	if hwuo.mutation.LinkedHymnCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
-			Table:   hymnswork.HymnsTable,
-			Columns: []string{hymnswork.HymnsColumn},
+			Table:   hymnswork.LinkedHymnTable,
+			Columns: []string{hymnswork.LinkedHymnColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := hwuo.mutation.HymnsIDs(); len(nodes) > 0 {
+	if nodes := hwuo.mutation.LinkedHymnIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
-			Table:   hymnswork.HymnsTable,
-			Columns: []string{hymnswork.HymnsColumn},
+			Table:   hymnswork.LinkedHymnTable,
+			Columns: []string{hymnswork.LinkedHymnColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

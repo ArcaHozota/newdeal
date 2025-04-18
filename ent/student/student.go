@@ -26,17 +26,17 @@ const (
 	FieldUpdatedTime = "updated_time"
 	// FieldVisibleFlg holds the string denoting the visible_flg field in the database.
 	FieldVisibleFlg = "visible_flg"
-	// EdgeHymns holds the string denoting the hymns edge name in mutations.
-	EdgeHymns = "hymns"
+	// EdgeUpdatedHymns holds the string denoting the updated_hymns edge name in mutations.
+	EdgeUpdatedHymns = "updated_hymns"
 	// Table holds the table name of the student in the database.
 	Table = "students"
-	// HymnsTable is the table that holds the hymns relation/edge.
-	HymnsTable = "hymns"
-	// HymnsInverseTable is the table name for the Hymn entity.
+	// UpdatedHymnsTable is the table that holds the updated_hymns relation/edge.
+	UpdatedHymnsTable = "hymns"
+	// UpdatedHymnsInverseTable is the table name for the Hymn entity.
 	// It exists in this package in order to avoid circular dependency with the "hymn" package.
-	HymnsInverseTable = "hymns"
-	// HymnsColumn is the table column denoting the hymns relation/edge.
-	HymnsColumn = "student_hymns"
+	UpdatedHymnsInverseTable = "hymns"
+	// UpdatedHymnsColumn is the table column denoting the updated_hymns relation/edge.
+	UpdatedHymnsColumn = "updated_user"
 )
 
 // Columns holds all SQL columns for student fields.
@@ -60,6 +60,17 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// LoginAccountValidator is a validator for the "login_account" field. It is called by the builders before save.
+	LoginAccountValidator func(string) error
+	// PasswordValidator is a validator for the "password" field. It is called by the builders before save.
+	PasswordValidator func(string) error
+	// UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	UsernameValidator func(string) error
+	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	EmailValidator func(string) error
+)
 
 // OrderOption defines the ordering options for the Student queries.
 type OrderOption func(*sql.Selector)
@@ -104,23 +115,23 @@ func ByVisibleFlg(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVisibleFlg, opts...).ToFunc()
 }
 
-// ByHymnsCount orders the results by hymns count.
-func ByHymnsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByUpdatedHymnsCount orders the results by updated_hymns count.
+func ByUpdatedHymnsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newHymnsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newUpdatedHymnsStep(), opts...)
 	}
 }
 
-// ByHymns orders the results by hymns terms.
-func ByHymns(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByUpdatedHymns orders the results by updated_hymns terms.
+func ByUpdatedHymns(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newHymnsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newUpdatedHymnsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newHymnsStep() *sqlgraph.Step {
+func newUpdatedHymnsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(HymnsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, HymnsTable, HymnsColumn),
+		sqlgraph.To(UpdatedHymnsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UpdatedHymnsTable, UpdatedHymnsColumn),
 	)
 }
