@@ -1,8 +1,11 @@
 package tools
 
 import (
+	"hash/fnv"
 	"newdeal/common"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func Unix2DateTime(timestamp int64) string {
@@ -36,4 +39,10 @@ func PtString2String(str *string) string {
 		return common.EmptyString
 	}
 	return *str
+}
+
+func UUIDToInt64(u uuid.UUID) int64 {
+	h := fnv.New64a()
+	h.Write(u[:]) // 全体を使う
+	return int64(h.Sum64())
 }

@@ -54,7 +54,7 @@ func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
 		Offset(offset).All(ctx)
 	return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
 		return pojos.HymnDTO{
-			ID:          hm.ID,
+			ID:          tools.UUIDToInt64(hm.ID),
 			NameJP:      hm.NameJp,
 			NameKR:      hm.NameKr,
 			Serif:       tools.PtString2String(hm.Serif),

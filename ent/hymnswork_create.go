@@ -12,6 +12,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // HymnsWorkCreate is the builder for creating a HymnsWork entity.
@@ -22,8 +23,8 @@ type HymnsWorkCreate struct {
 }
 
 // SetWorkID sets the "work_id" field.
-func (hwc *HymnsWorkCreate) SetWorkID(i int64) *HymnsWorkCreate {
-	hwc.mutation.SetWorkID(i)
+func (hwc *HymnsWorkCreate) SetWorkID(u uuid.UUID) *HymnsWorkCreate {
+	hwc.mutation.SetWorkID(u)
 	return hwc
 }
 
@@ -52,7 +53,7 @@ func (hwc *HymnsWorkCreate) SetBiko(s string) *HymnsWorkCreate {
 }
 
 // SetHymnsID sets the "hymns" edge to the Hymn entity by ID.
-func (hwc *HymnsWorkCreate) SetHymnsID(id int64) *HymnsWorkCreate {
+func (hwc *HymnsWorkCreate) SetHymnsID(id uuid.UUID) *HymnsWorkCreate {
 	hwc.mutation.SetHymnsID(id)
 	return hwc
 }
@@ -99,11 +100,6 @@ func (hwc *HymnsWorkCreate) check() error {
 	if _, ok := hwc.mutation.WorkID(); !ok {
 		return &ValidationError{Name: "work_id", err: errors.New(`ent: missing required field "HymnsWork.work_id"`)}
 	}
-	if v, ok := hwc.mutation.WorkID(); ok {
-		if err := hymnswork.WorkIDValidator(v); err != nil {
-			return &ValidationError{Name: "work_id", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.work_id": %w`, err)}
-		}
-	}
 	if _, ok := hwc.mutation.Score(); !ok {
 		return &ValidationError{Name: "score", err: errors.New(`ent: missing required field "HymnsWork.score"`)}
 	}
@@ -146,7 +142,7 @@ func (hwc *HymnsWorkCreate) createSpec() (*HymnsWork, *sqlgraph.CreateSpec) {
 		_spec = sqlgraph.NewCreateSpec(hymnswork.Table, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt))
 	)
 	if value, ok := hwc.mutation.WorkID(); ok {
-		_spec.SetField(hymnswork.FieldWorkID, field.TypeInt64, value)
+		_spec.SetField(hymnswork.FieldWorkID, field.TypeUUID, value)
 		_node.WorkID = value
 	}
 	if value, ok := hwc.mutation.Score(); ok {
@@ -173,7 +169,7 @@ func (hwc *HymnsWorkCreate) createSpec() (*HymnsWork, *sqlgraph.CreateSpec) {
 			Columns: []string{hymnswork.HymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

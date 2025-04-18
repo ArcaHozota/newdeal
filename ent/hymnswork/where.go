@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
@@ -56,7 +57,7 @@ func IDLTE(id int) predicate.HymnsWork {
 }
 
 // WorkID applies equality check predicate on the "work_id" field. It's identical to WorkIDEQ.
-func WorkID(v int64) predicate.HymnsWork {
+func WorkID(v uuid.UUID) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldEQ(FieldWorkID, v))
 }
 
@@ -81,42 +82,42 @@ func Biko(v string) predicate.HymnsWork {
 }
 
 // WorkIDEQ applies the EQ predicate on the "work_id" field.
-func WorkIDEQ(v int64) predicate.HymnsWork {
+func WorkIDEQ(v uuid.UUID) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldEQ(FieldWorkID, v))
 }
 
 // WorkIDNEQ applies the NEQ predicate on the "work_id" field.
-func WorkIDNEQ(v int64) predicate.HymnsWork {
+func WorkIDNEQ(v uuid.UUID) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldNEQ(FieldWorkID, v))
 }
 
 // WorkIDIn applies the In predicate on the "work_id" field.
-func WorkIDIn(vs ...int64) predicate.HymnsWork {
+func WorkIDIn(vs ...uuid.UUID) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldIn(FieldWorkID, vs...))
 }
 
 // WorkIDNotIn applies the NotIn predicate on the "work_id" field.
-func WorkIDNotIn(vs ...int64) predicate.HymnsWork {
+func WorkIDNotIn(vs ...uuid.UUID) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldNotIn(FieldWorkID, vs...))
 }
 
 // WorkIDGT applies the GT predicate on the "work_id" field.
-func WorkIDGT(v int64) predicate.HymnsWork {
+func WorkIDGT(v uuid.UUID) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldGT(FieldWorkID, v))
 }
 
 // WorkIDGTE applies the GTE predicate on the "work_id" field.
-func WorkIDGTE(v int64) predicate.HymnsWork {
+func WorkIDGTE(v uuid.UUID) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldGTE(FieldWorkID, v))
 }
 
 // WorkIDLT applies the LT predicate on the "work_id" field.
-func WorkIDLT(v int64) predicate.HymnsWork {
+func WorkIDLT(v uuid.UUID) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldLT(FieldWorkID, v))
 }
 
 // WorkIDLTE applies the LTE predicate on the "work_id" field.
-func WorkIDLTE(v int64) predicate.HymnsWork {
+func WorkIDLTE(v uuid.UUID) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldLTE(FieldWorkID, v))
 }
 

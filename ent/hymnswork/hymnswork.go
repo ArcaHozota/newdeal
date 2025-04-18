@@ -66,11 +66,6 @@ func ValidColumn(column string) bool {
 	return false
 }
 
-var (
-	// WorkIDValidator is a validator for the "work_id" field. It is called by the builders before save.
-	WorkIDValidator func(int64) error
-)
-
 // OrderOption defines the ordering options for the HymnsWork queries.
 type OrderOption func(*sql.Selector)
 

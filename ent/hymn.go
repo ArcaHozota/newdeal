@@ -12,13 +12,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Hymn is the model entity for the Hymn schema.
 type Hymn struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int64 `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// NameJp holds the value of the "name_jp" field.
 	NameJp string `json:"name_jp,omitempty"`
 	// NameKr holds the value of the "name_kr" field.
@@ -36,7 +37,7 @@ type Hymn struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the HymnQuery when eager-loading is set.
 	Edges         HymnEdges `json:"edges"`
-	student_hymns *int64
+	student_hymns *uuid.UUID
 	selectValues  sql.SelectValues
 }
 
@@ -80,14 +81,16 @@ func (*Hymn) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case hymn.FieldVisibleFlg:
 			values[i] = new(sql.NullBool)
-		case hymn.FieldID, hymn.FieldUpdatedUser:
+		case hymn.FieldUpdatedUser:
 			values[i] = new(sql.NullInt64)
 		case hymn.FieldNameJp, hymn.FieldNameKr, hymn.FieldLink, hymn.FieldSerif:
 			values[i] = new(sql.NullString)
 		case hymn.FieldUpdatedTime:
 			values[i] = new(sql.NullTime)
+		case hymn.FieldID:
+			values[i] = new(uuid.UUID)
 		case hymn.ForeignKeys[0]: // student_hymns
-			values[i] = new(sql.NullInt64)
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -104,11 +107,11 @@ func (h *Hymn) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case hymn.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				h.ID = *value
 			}
-			h.ID = int64(value.Int64)
 		case hymn.FieldNameJp:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name_jp", values[i])
@@ -154,11 +157,11 @@ func (h *Hymn) assignValues(columns []string, values []any) error {
 				h.VisibleFlg = value.Bool
 			}
 		case hymn.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field student_hymns", value)
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field student_hymns", values[i])
 			} else if value.Valid {
-				h.student_hymns = new(int64)
-				*h.student_hymns = int64(value.Int64)
+				h.student_hymns = new(uuid.UUID)
+				*h.student_hymns = *value.S.(*uuid.UUID)
 			}
 		default:
 			h.selectValues.Set(columns[i], values[i])

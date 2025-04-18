@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // HymnsWorkQuery is the builder for querying HymnsWork entities.
@@ -299,7 +300,7 @@ func (hwq *HymnsWorkQuery) WithHymns(opts ...func(*HymnQuery)) *HymnsWorkQuery {
 // Example:
 //
 //	var v []struct {
-//		WorkID int64 `json:"work_id,omitempty"`
+//		WorkID uuid.UUID `json:"work_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -322,7 +323,7 @@ func (hwq *HymnsWorkQuery) GroupBy(field string, fields ...string) *HymnsWorkGro
 // Example:
 //
 //	var v []struct {
-//		WorkID int64 `json:"work_id,omitempty"`
+//		WorkID uuid.UUID `json:"work_id,omitempty"`
 //	}
 //
 //	client.HymnsWork.Query().
@@ -410,8 +411,8 @@ func (hwq *HymnsWorkQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*H
 }
 
 func (hwq *HymnsWorkQuery) loadHymns(ctx context.Context, query *HymnQuery, nodes []*HymnsWork, init func(*HymnsWork), assign func(*HymnsWork, *Hymn)) error {
-	ids := make([]int64, 0, len(nodes))
-	nodeids := make(map[int64][]*HymnsWork)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*HymnsWork)
 	for i := range nodes {
 		if nodes[i].hymn_hymns_work == nil {
 			continue

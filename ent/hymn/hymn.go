@@ -84,8 +84,6 @@ func ValidColumn(column string) bool {
 var (
 	// UpdatedUserValidator is a validator for the "updated_user" field. It is called by the builders before save.
 	UpdatedUserValidator func(int64) error
-	// IDValidator is a validator for the "id" field. It is called by the builders before save.
-	IDValidator func(int64) error
 )
 
 // OrderOption defines the ordering options for the Hymn queries.

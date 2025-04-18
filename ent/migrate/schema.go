@@ -10,7 +10,7 @@ import (
 var (
 	// HymnsColumns holds the columns for the "hymns" table.
 	HymnsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt64, Increment: true, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "id", Type: field.TypeUUID, SchemaType: map[string]string{"postgres": "bigint"}},
 		{Name: "name_jp", Type: field.TypeString},
 		{Name: "name_kr", Type: field.TypeString},
 		{Name: "link", Type: field.TypeString},
@@ -18,7 +18,7 @@ var (
 		{Name: "updated_user", Type: field.TypeInt64, SchemaType: map[string]string{"postgres": "bigint"}},
 		{Name: "serif", Type: field.TypeString, Size: 2147483647},
 		{Name: "visible_flg", Type: field.TypeBool},
-		{Name: "student_hymns", Type: field.TypeInt64, Nullable: true, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "student_hymns", Type: field.TypeUUID, Nullable: true, SchemaType: map[string]string{"postgres": "bigint"}},
 	}
 	// HymnsTable holds the schema information for the "hymns" table.
 	HymnsTable = &schema.Table{
@@ -35,21 +35,21 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "hymn_id_link_name_jp_name_kr",
+				Name:    "hymn_link_name_jp_name_kr",
 				Unique:  true,
-				Columns: []*schema.Column{HymnsColumns[0], HymnsColumns[3], HymnsColumns[1], HymnsColumns[2]},
+				Columns: []*schema.Column{HymnsColumns[3], HymnsColumns[1], HymnsColumns[2]},
 			},
 		},
 	}
 	// HymnsWorksColumns holds the columns for the "hymns_works" table.
 	HymnsWorksColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "work_id", Type: field.TypeInt64, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "work_id", Type: field.TypeUUID, SchemaType: map[string]string{"postgres": "bigint"}},
 		{Name: "score", Type: field.TypeBytes},
 		{Name: "name_jp_rational", Type: field.TypeString},
 		{Name: "updated_time", Type: field.TypeTime},
 		{Name: "biko", Type: field.TypeString},
-		{Name: "hymn_hymns_work", Type: field.TypeInt64, Unique: true, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "hymn_hymns_work", Type: field.TypeUUID, Unique: true, SchemaType: map[string]string{"postgres": "bigint"}},
 	}
 	// HymnsWorksTable holds the schema information for the "hymns_works" table.
 	HymnsWorksTable = &schema.Table{
@@ -64,17 +64,10 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "hymnswork_work_id",
-				Unique:  true,
-				Columns: []*schema.Column{HymnsWorksColumns[1]},
-			},
-		},
 	}
 	// StudentsColumns holds the columns for the "students" table.
 	StudentsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt64, Increment: true, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "id", Type: field.TypeUUID, SchemaType: map[string]string{"postgres": "bigint"}},
 		{Name: "login_account", Type: field.TypeString},
 		{Name: "password", Type: field.TypeString},
 		{Name: "username", Type: field.TypeString},
@@ -90,9 +83,9 @@ var (
 		PrimaryKey: []*schema.Column{StudentsColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "student_id_login_account_email",
+				Name:    "student_login_account_email",
 				Unique:  true,
-				Columns: []*schema.Column{StudentsColumns[0], StudentsColumns[1], StudentsColumns[5]},
+				Columns: []*schema.Column{StudentsColumns[1], StudentsColumns[5]},
 			},
 		},
 	}
