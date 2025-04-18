@@ -160,11 +160,6 @@ func (hwu *HymnsWorkUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (hwu *HymnsWorkUpdate) check() error {
-	if v, ok := hwu.mutation.NameJpRational(); ok {
-		if err := hymnswork.NameJpRationalValidator(v); err != nil {
-			return &ValidationError{Name: "name_jp_rational", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.name_jp_rational": %w`, err)}
-		}
-	}
 	if hwu.mutation.LinkedHymnCleared() && len(hwu.mutation.LinkedHymnIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "HymnsWork.linked_hymn"`)
 	}
@@ -397,11 +392,6 @@ func (hwuo *HymnsWorkUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (hwuo *HymnsWorkUpdateOne) check() error {
-	if v, ok := hwuo.mutation.NameJpRational(); ok {
-		if err := hymnswork.NameJpRationalValidator(v); err != nil {
-			return &ValidationError{Name: "name_jp_rational", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.name_jp_rational": %w`, err)}
-		}
-	}
 	if hwuo.mutation.LinkedHymnCleared() && len(hwuo.mutation.LinkedHymnIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "HymnsWork.linked_hymn"`)
 	}

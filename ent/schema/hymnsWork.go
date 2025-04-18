@@ -29,7 +29,6 @@ func (HymnsWork) Fields() []ent.Field {
 			Comment("楽譜").
 			Optional(),
 		field.String("name_jp_rational").
-			MaxLen(120).
 			Comment("日本語名称").
 			Optional().
 			SchemaType(map[string]string{

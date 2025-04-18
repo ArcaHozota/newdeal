@@ -121,11 +121,6 @@ func (hwc *HymnsWorkCreate) check() error {
 	if _, ok := hwc.mutation.WorkID(); !ok {
 		return &ValidationError{Name: "work_id", err: errors.New(`ent: missing required field "HymnsWork.work_id"`)}
 	}
-	if v, ok := hwc.mutation.NameJpRational(); ok {
-		if err := hymnswork.NameJpRationalValidator(v); err != nil {
-			return &ValidationError{Name: "name_jp_rational", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.name_jp_rational": %w`, err)}
-		}
-	}
 	if _, ok := hwc.mutation.UpdatedTime(); !ok {
 		return &ValidationError{Name: "updated_time", err: errors.New(`ent: missing required field "HymnsWork.updated_time"`)}
 	}

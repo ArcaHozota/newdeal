@@ -2,19 +2,8 @@
 
 package ent
 
-import (
-	"newdeal/ent/hymnswork"
-	"newdeal/ent/schema"
-)
-
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	hymnsworkFields := schema.HymnsWork{}.Fields()
-	_ = hymnsworkFields
-	// hymnsworkDescNameJpRational is the schema descriptor for name_jp_rational field.
-	hymnsworkDescNameJpRational := hymnsworkFields[3].Descriptor()
-	// hymnswork.NameJpRationalValidator is a validator for the "name_jp_rational" field. It is called by the builders before save.
-	hymnswork.NameJpRationalValidator = hymnsworkDescNameJpRational.Validators[0].(func(string) error)
 }
