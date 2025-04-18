@@ -2,6 +2,7 @@ package tools
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"sync"
 	"time"
@@ -114,15 +115,19 @@ func (s *SnowflakeIDGenerator) NextID() (uint64, error) {
 
 // SnowflakeID is a convenience wrapper mirroring Java's SnowflakeUtils.snowflakeId().
 // It picks random worker/datacenter IDs (0‑31) each call and returns a unique ID.
-func SnowflakeID() (uint64, error) {
+func SnowflakeID() uint64 {
 	worker := rand.Int63n(maxWorkerID + 1)
 	dc := rand.Int63n(maxDatacenterID + 1)
 
 	gen, err := NewSnowflakeIDGenerator(worker, dc)
 	if err != nil {
-		return 0, err
+		log.Fatalf("failed generate Snowflake key: %v", err)
 	}
-	return gen.NextID()
+	id, err := gen.NextID()
+	if err != nil {
+		log.Fatalf("failed generate Snowflake id: %v", err)
+	}
+	return id
 }
 
 func (s *SnowflakeIDGenerator) waitNextMillis() int64 {

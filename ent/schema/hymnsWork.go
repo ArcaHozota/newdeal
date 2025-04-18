@@ -1,11 +1,14 @@
 package schema
 
 import (
+	"newdeal/common/tools"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/google/uuid"
 )
 
 type HymnsWork struct {
@@ -14,8 +17,8 @@ type HymnsWork struct {
 
 func (HymnsWork) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int64("work_id").Immutable().
-			Positive().
+		field.UUID("work_id", uuid.UUID{}).
+			Default(tools.SnowflakeID()).
 			SchemaType(map[string]string{
 				dialect.Postgres: "bigint",
 			}),
