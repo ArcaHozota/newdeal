@@ -28,7 +28,7 @@ type Hymn struct {
 	// UpdatedTime holds the value of the "updated_time" field.
 	UpdatedTime time.Time `json:"updated_time,omitempty"`
 	// UpdatedUser holds the value of the "updated_user" field.
-	UpdatedUser string `json:"updated_user,omitempty"`
+	UpdatedUser int64 `json:"updated_user,omitempty"`
 	// Serif holds the value of the "serif" field.
 	Serif *string `json:"serif,omitempty"`
 	// VisibleFlg holds the value of the "visible_flg" field.
@@ -80,9 +80,9 @@ func (*Hymn) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case hymn.FieldVisibleFlg:
 			values[i] = new(sql.NullBool)
-		case hymn.FieldID:
+		case hymn.FieldID, hymn.FieldUpdatedUser:
 			values[i] = new(sql.NullInt64)
-		case hymn.FieldNameJp, hymn.FieldNameKr, hymn.FieldLink, hymn.FieldUpdatedUser, hymn.FieldSerif:
+		case hymn.FieldNameJp, hymn.FieldNameKr, hymn.FieldLink, hymn.FieldSerif:
 			values[i] = new(sql.NullString)
 		case hymn.FieldUpdatedTime:
 			values[i] = new(sql.NullTime)
@@ -135,10 +135,10 @@ func (h *Hymn) assignValues(columns []string, values []any) error {
 				h.UpdatedTime = value.Time
 			}
 		case hymn.FieldUpdatedUser:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_user", values[i])
 			} else if value.Valid {
-				h.UpdatedUser = value.String
+				h.UpdatedUser = value.Int64
 			}
 		case hymn.FieldSerif:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -221,7 +221,7 @@ func (h *Hymn) String() string {
 	builder.WriteString(h.UpdatedTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_user=")
-	builder.WriteString(h.UpdatedUser)
+	builder.WriteString(fmt.Sprintf("%v", h.UpdatedUser))
 	builder.WriteString(", ")
 	if v := h.Serif; v != nil {
 		builder.WriteString("serif=")

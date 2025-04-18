@@ -87,16 +87,23 @@ func (hu *HymnUpdate) SetNillableUpdatedTime(t *time.Time) *HymnUpdate {
 }
 
 // SetUpdatedUser sets the "updated_user" field.
-func (hu *HymnUpdate) SetUpdatedUser(s string) *HymnUpdate {
-	hu.mutation.SetUpdatedUser(s)
+func (hu *HymnUpdate) SetUpdatedUser(i int64) *HymnUpdate {
+	hu.mutation.ResetUpdatedUser()
+	hu.mutation.SetUpdatedUser(i)
 	return hu
 }
 
 // SetNillableUpdatedUser sets the "updated_user" field if the given value is not nil.
-func (hu *HymnUpdate) SetNillableUpdatedUser(s *string) *HymnUpdate {
-	if s != nil {
-		hu.SetUpdatedUser(*s)
+func (hu *HymnUpdate) SetNillableUpdatedUser(i *int64) *HymnUpdate {
+	if i != nil {
+		hu.SetUpdatedUser(*i)
 	}
+	return hu
+}
+
+// AddUpdatedUser adds i to the "updated_user" field.
+func (hu *HymnUpdate) AddUpdatedUser(i int64) *HymnUpdate {
+	hu.mutation.AddUpdatedUser(i)
 	return hu
 }
 
@@ -232,7 +239,10 @@ func (hu *HymnUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(hymn.FieldUpdatedTime, field.TypeTime, value)
 	}
 	if value, ok := hu.mutation.UpdatedUser(); ok {
-		_spec.SetField(hymn.FieldUpdatedUser, field.TypeString, value)
+		_spec.SetField(hymn.FieldUpdatedUser, field.TypeInt64, value)
+	}
+	if value, ok := hu.mutation.AddedUpdatedUser(); ok {
+		_spec.AddField(hymn.FieldUpdatedUser, field.TypeInt64, value)
 	}
 	if value, ok := hu.mutation.Serif(); ok {
 		_spec.SetField(hymn.FieldSerif, field.TypeString, value)
@@ -375,16 +385,23 @@ func (huo *HymnUpdateOne) SetNillableUpdatedTime(t *time.Time) *HymnUpdateOne {
 }
 
 // SetUpdatedUser sets the "updated_user" field.
-func (huo *HymnUpdateOne) SetUpdatedUser(s string) *HymnUpdateOne {
-	huo.mutation.SetUpdatedUser(s)
+func (huo *HymnUpdateOne) SetUpdatedUser(i int64) *HymnUpdateOne {
+	huo.mutation.ResetUpdatedUser()
+	huo.mutation.SetUpdatedUser(i)
 	return huo
 }
 
 // SetNillableUpdatedUser sets the "updated_user" field if the given value is not nil.
-func (huo *HymnUpdateOne) SetNillableUpdatedUser(s *string) *HymnUpdateOne {
-	if s != nil {
-		huo.SetUpdatedUser(*s)
+func (huo *HymnUpdateOne) SetNillableUpdatedUser(i *int64) *HymnUpdateOne {
+	if i != nil {
+		huo.SetUpdatedUser(*i)
 	}
+	return huo
+}
+
+// AddUpdatedUser adds i to the "updated_user" field.
+func (huo *HymnUpdateOne) AddUpdatedUser(i int64) *HymnUpdateOne {
+	huo.mutation.AddUpdatedUser(i)
 	return huo
 }
 
@@ -550,7 +567,10 @@ func (huo *HymnUpdateOne) sqlSave(ctx context.Context) (_node *Hymn, err error) 
 		_spec.SetField(hymn.FieldUpdatedTime, field.TypeTime, value)
 	}
 	if value, ok := huo.mutation.UpdatedUser(); ok {
-		_spec.SetField(hymn.FieldUpdatedUser, field.TypeString, value)
+		_spec.SetField(hymn.FieldUpdatedUser, field.TypeInt64, value)
+	}
+	if value, ok := huo.mutation.AddedUpdatedUser(); ok {
+		_spec.AddField(hymn.FieldUpdatedUser, field.TypeInt64, value)
 	}
 	if value, ok := huo.mutation.Serif(); ok {
 		_spec.SetField(hymn.FieldSerif, field.TypeString, value)

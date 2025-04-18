@@ -47,8 +47,8 @@ func (hc *HymnCreate) SetUpdatedTime(t time.Time) *HymnCreate {
 }
 
 // SetUpdatedUser sets the "updated_user" field.
-func (hc *HymnCreate) SetUpdatedUser(s string) *HymnCreate {
-	hc.mutation.SetUpdatedUser(s)
+func (hc *HymnCreate) SetUpdatedUser(i int64) *HymnCreate {
+	hc.mutation.SetUpdatedUser(i)
 	return hc
 }
 
@@ -212,7 +212,7 @@ func (hc *HymnCreate) createSpec() (*Hymn, *sqlgraph.CreateSpec) {
 		_node.UpdatedTime = value
 	}
 	if value, ok := hc.mutation.UpdatedUser(); ok {
-		_spec.SetField(hymn.FieldUpdatedUser, field.TypeString, value)
+		_spec.SetField(hymn.FieldUpdatedUser, field.TypeInt64, value)
 		_node.UpdatedUser = value
 	}
 	if value, ok := hc.mutation.Serif(); ok {

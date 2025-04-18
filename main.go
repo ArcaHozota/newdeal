@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"newdeal/common"
 	"newdeal/routers"
 	"text/template"
@@ -10,6 +9,8 @@ import (
 )
 
 func main() {
+
+	// Ginを配置する
 	r := gin.Default()
 	r.SetFuncMap(template.FuncMap{
 		"Substr": common.Substr,
@@ -21,10 +22,6 @@ func main() {
 	routers.CategoryHandlerInit(r)
 	routers.HymnsHandlerInit(r)
 
-	err := r.Run(":8277")
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
+	r.Run(":8277")
 
 }

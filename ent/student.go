@@ -24,7 +24,7 @@ type Student struct {
 	// Username holds the value of the "username" field.
 	Username string `json:"username,omitempty"`
 	// DateOfBirth holds the value of the "date_of_birth" field.
-	DateOfBirth string `json:"date_of_birth,omitempty"`
+	DateOfBirth time.Time `json:"date_of_birth,omitempty"`
 	// Email holds the value of the "email" field.
 	Email *string `json:"email,omitempty"`
 	// UpdatedTime holds the value of the "updated_time" field.
@@ -64,9 +64,9 @@ func (*Student) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case student.FieldID:
 			values[i] = new(sql.NullInt64)
-		case student.FieldLoginAccount, student.FieldPassword, student.FieldUsername, student.FieldDateOfBirth, student.FieldEmail:
+		case student.FieldLoginAccount, student.FieldPassword, student.FieldUsername, student.FieldEmail:
 			values[i] = new(sql.NullString)
-		case student.FieldUpdatedTime:
+		case student.FieldDateOfBirth, student.FieldUpdatedTime:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -108,10 +108,10 @@ func (s *Student) assignValues(columns []string, values []any) error {
 				s.Username = value.String
 			}
 		case student.FieldDateOfBirth:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field date_of_birth", values[i])
 			} else if value.Valid {
-				s.DateOfBirth = value.String
+				s.DateOfBirth = value.Time
 			}
 		case student.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -184,7 +184,7 @@ func (s *Student) String() string {
 	builder.WriteString(s.Username)
 	builder.WriteString(", ")
 	builder.WriteString("date_of_birth=")
-	builder.WriteString(s.DateOfBirth)
+	builder.WriteString(s.DateOfBirth.Format(time.ANSIC))
 	builder.WriteString(", ")
 	if v := s.Email; v != nil {
 		builder.WriteString("email=")

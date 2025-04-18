@@ -41,7 +41,8 @@ type HymnMutation struct {
 	name_kr           *string
 	link              *string
 	updated_time      *time.Time
-	updated_user      *string
+	updated_user      *int64
+	addupdated_user   *int64
 	serif             *string
 	visible_flg       *bool
 	clearedFields     map[string]struct{}
@@ -303,12 +304,13 @@ func (m *HymnMutation) ResetUpdatedTime() {
 }
 
 // SetUpdatedUser sets the "updated_user" field.
-func (m *HymnMutation) SetUpdatedUser(s string) {
-	m.updated_user = &s
+func (m *HymnMutation) SetUpdatedUser(i int64) {
+	m.updated_user = &i
+	m.addupdated_user = nil
 }
 
 // UpdatedUser returns the value of the "updated_user" field in the mutation.
-func (m *HymnMutation) UpdatedUser() (r string, exists bool) {
+func (m *HymnMutation) UpdatedUser() (r int64, exists bool) {
 	v := m.updated_user
 	if v == nil {
 		return
@@ -319,7 +321,7 @@ func (m *HymnMutation) UpdatedUser() (r string, exists bool) {
 // OldUpdatedUser returns the old "updated_user" field's value of the Hymn entity.
 // If the Hymn object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HymnMutation) OldUpdatedUser(ctx context.Context) (v string, err error) {
+func (m *HymnMutation) OldUpdatedUser(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUpdatedUser is only allowed on UpdateOne operations")
 	}
@@ -333,9 +335,28 @@ func (m *HymnMutation) OldUpdatedUser(ctx context.Context) (v string, err error)
 	return oldValue.UpdatedUser, nil
 }
 
+// AddUpdatedUser adds i to the "updated_user" field.
+func (m *HymnMutation) AddUpdatedUser(i int64) {
+	if m.addupdated_user != nil {
+		*m.addupdated_user += i
+	} else {
+		m.addupdated_user = &i
+	}
+}
+
+// AddedUpdatedUser returns the value that was added to the "updated_user" field in this mutation.
+func (m *HymnMutation) AddedUpdatedUser() (r int64, exists bool) {
+	v := m.addupdated_user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
 // ResetUpdatedUser resets all changes to the "updated_user" field.
 func (m *HymnMutation) ResetUpdatedUser() {
 	m.updated_user = nil
+	m.addupdated_user = nil
 }
 
 // SetSerif sets the "serif" field.
@@ -627,7 +648,7 @@ func (m *HymnMutation) SetField(name string, value ent.Value) error {
 		m.SetUpdatedTime(v)
 		return nil
 	case hymn.FieldUpdatedUser:
-		v, ok := value.(string)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -654,13 +675,21 @@ func (m *HymnMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *HymnMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addupdated_user != nil {
+		fields = append(fields, hymn.FieldUpdatedUser)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *HymnMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case hymn.FieldUpdatedUser:
+		return m.AddedUpdatedUser()
+	}
 	return nil, false
 }
 
@@ -669,6 +698,13 @@ func (m *HymnMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *HymnMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case hymn.FieldUpdatedUser:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpdatedUser(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Hymn numeric field %s", name)
 }
@@ -1467,7 +1503,7 @@ type StudentMutation struct {
 	login_account *string
 	password      *string
 	username      *string
-	date_of_birth *string
+	date_of_birth *time.Time
 	email         *string
 	updated_time  *time.Time
 	visible_flg   *bool
@@ -1693,12 +1729,12 @@ func (m *StudentMutation) ResetUsername() {
 }
 
 // SetDateOfBirth sets the "date_of_birth" field.
-func (m *StudentMutation) SetDateOfBirth(s string) {
-	m.date_of_birth = &s
+func (m *StudentMutation) SetDateOfBirth(t time.Time) {
+	m.date_of_birth = &t
 }
 
 // DateOfBirth returns the value of the "date_of_birth" field in the mutation.
-func (m *StudentMutation) DateOfBirth() (r string, exists bool) {
+func (m *StudentMutation) DateOfBirth() (r time.Time, exists bool) {
 	v := m.date_of_birth
 	if v == nil {
 		return
@@ -1709,7 +1745,7 @@ func (m *StudentMutation) DateOfBirth() (r string, exists bool) {
 // OldDateOfBirth returns the old "date_of_birth" field's value of the Student entity.
 // If the Student object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StudentMutation) OldDateOfBirth(ctx context.Context) (v string, err error) {
+func (m *StudentMutation) OldDateOfBirth(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDateOfBirth is only allowed on UpdateOne operations")
 	}
@@ -2022,7 +2058,7 @@ func (m *StudentMutation) SetField(name string, value ent.Value) error {
 		m.SetUsername(v)
 		return nil
 	case student.FieldDateOfBirth:
-		v, ok := value.(string)
+		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

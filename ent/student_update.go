@@ -72,15 +72,15 @@ func (su *StudentUpdate) SetNillableUsername(s *string) *StudentUpdate {
 }
 
 // SetDateOfBirth sets the "date_of_birth" field.
-func (su *StudentUpdate) SetDateOfBirth(s string) *StudentUpdate {
-	su.mutation.SetDateOfBirth(s)
+func (su *StudentUpdate) SetDateOfBirth(t time.Time) *StudentUpdate {
+	su.mutation.SetDateOfBirth(t)
 	return su
 }
 
 // SetNillableDateOfBirth sets the "date_of_birth" field if the given value is not nil.
-func (su *StudentUpdate) SetNillableDateOfBirth(s *string) *StudentUpdate {
-	if s != nil {
-		su.SetDateOfBirth(*s)
+func (su *StudentUpdate) SetNillableDateOfBirth(t *time.Time) *StudentUpdate {
+	if t != nil {
+		su.SetDateOfBirth(*t)
 	}
 	return su
 }
@@ -214,7 +214,7 @@ func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(student.FieldUsername, field.TypeString, value)
 	}
 	if value, ok := su.mutation.DateOfBirth(); ok {
-		_spec.SetField(student.FieldDateOfBirth, field.TypeString, value)
+		_spec.SetField(student.FieldDateOfBirth, field.TypeTime, value)
 	}
 	if value, ok := su.mutation.Email(); ok {
 		_spec.SetField(student.FieldEmail, field.TypeString, value)
@@ -333,15 +333,15 @@ func (suo *StudentUpdateOne) SetNillableUsername(s *string) *StudentUpdateOne {
 }
 
 // SetDateOfBirth sets the "date_of_birth" field.
-func (suo *StudentUpdateOne) SetDateOfBirth(s string) *StudentUpdateOne {
-	suo.mutation.SetDateOfBirth(s)
+func (suo *StudentUpdateOne) SetDateOfBirth(t time.Time) *StudentUpdateOne {
+	suo.mutation.SetDateOfBirth(t)
 	return suo
 }
 
 // SetNillableDateOfBirth sets the "date_of_birth" field if the given value is not nil.
-func (suo *StudentUpdateOne) SetNillableDateOfBirth(s *string) *StudentUpdateOne {
-	if s != nil {
-		suo.SetDateOfBirth(*s)
+func (suo *StudentUpdateOne) SetNillableDateOfBirth(t *time.Time) *StudentUpdateOne {
+	if t != nil {
+		suo.SetDateOfBirth(*t)
 	}
 	return suo
 }
@@ -505,7 +505,7 @@ func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err e
 		_spec.SetField(student.FieldUsername, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.DateOfBirth(); ok {
-		_spec.SetField(student.FieldDateOfBirth, field.TypeString, value)
+		_spec.SetField(student.FieldDateOfBirth, field.TypeTime, value)
 	}
 	if value, ok := suo.mutation.Email(); ok {
 		_spec.SetField(student.FieldEmail, field.TypeString, value)

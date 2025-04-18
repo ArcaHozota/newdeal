@@ -18,7 +18,7 @@ func (Hymn) Fields() []ent.Field {
 		field.String("name_kr"),
 		field.String("link").Nillable(),
 		field.Time("updated_time"),
-		field.String("updated_user"),
+		field.Int64("updated_user"),
 		field.String("serif").Nillable(),
 		field.Bool("visible_flg"),
 	}

@@ -4,14 +4,14 @@ import (
 	"log"
 	"net/http"
 	"newdeal/common"
-	"newdeal/repository"
+	"newdeal/service"
 
 	"github.com/gin-gonic/gin"
 )
 
 func HomeHandlerInit(r *gin.Engine) {
 
-	count, err := repository.CountHymnsAll()
+	count, err := service.CountHymnsAll()
 
 	if err != nil {
 		log.Println(err)

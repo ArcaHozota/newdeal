@@ -40,8 +40,8 @@ func (sc *StudentCreate) SetUsername(s string) *StudentCreate {
 }
 
 // SetDateOfBirth sets the "date_of_birth" field.
-func (sc *StudentCreate) SetDateOfBirth(s string) *StudentCreate {
-	sc.mutation.SetDateOfBirth(s)
+func (sc *StudentCreate) SetDateOfBirth(t time.Time) *StudentCreate {
+	sc.mutation.SetDateOfBirth(t)
 	return sc
 }
 
@@ -184,7 +184,7 @@ func (sc *StudentCreate) createSpec() (*Student, *sqlgraph.CreateSpec) {
 		_node.Username = value
 	}
 	if value, ok := sc.mutation.DateOfBirth(); ok {
-		_spec.SetField(student.FieldDateOfBirth, field.TypeString, value)
+		_spec.SetField(student.FieldDateOfBirth, field.TypeTime, value)
 		_node.DateOfBirth = value
 	}
 	if value, ok := sc.mutation.Email(); ok {

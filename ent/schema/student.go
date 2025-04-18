@@ -17,7 +17,7 @@ func (Student) Fields() []ent.Field {
 		field.String("login_account"),
 		field.String("password"),
 		field.String("username"),
-		field.String("date_of_birth"),
+		field.Time("date_of_birth"),
 		field.String("email").Nillable(),
 		field.Time("updated_time").Nillable(),
 		field.Bool("visible_flg"),

@@ -76,7 +76,7 @@ func UpdatedTime(v time.Time) predicate.Hymn {
 }
 
 // UpdatedUser applies equality check predicate on the "updated_user" field. It's identical to UpdatedUserEQ.
-func UpdatedUser(v string) predicate.Hymn {
+func UpdatedUser(v int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldEQ(FieldUpdatedUser, v))
 }
 
@@ -326,68 +326,43 @@ func UpdatedTimeLTE(v time.Time) predicate.Hymn {
 }
 
 // UpdatedUserEQ applies the EQ predicate on the "updated_user" field.
-func UpdatedUserEQ(v string) predicate.Hymn {
+func UpdatedUserEQ(v int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldEQ(FieldUpdatedUser, v))
 }
 
 // UpdatedUserNEQ applies the NEQ predicate on the "updated_user" field.
-func UpdatedUserNEQ(v string) predicate.Hymn {
+func UpdatedUserNEQ(v int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldNEQ(FieldUpdatedUser, v))
 }
 
 // UpdatedUserIn applies the In predicate on the "updated_user" field.
-func UpdatedUserIn(vs ...string) predicate.Hymn {
+func UpdatedUserIn(vs ...int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldIn(FieldUpdatedUser, vs...))
 }
 
 // UpdatedUserNotIn applies the NotIn predicate on the "updated_user" field.
-func UpdatedUserNotIn(vs ...string) predicate.Hymn {
+func UpdatedUserNotIn(vs ...int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldNotIn(FieldUpdatedUser, vs...))
 }
 
 // UpdatedUserGT applies the GT predicate on the "updated_user" field.
-func UpdatedUserGT(v string) predicate.Hymn {
+func UpdatedUserGT(v int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldGT(FieldUpdatedUser, v))
 }
 
 // UpdatedUserGTE applies the GTE predicate on the "updated_user" field.
-func UpdatedUserGTE(v string) predicate.Hymn {
+func UpdatedUserGTE(v int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldGTE(FieldUpdatedUser, v))
 }
 
 // UpdatedUserLT applies the LT predicate on the "updated_user" field.
-func UpdatedUserLT(v string) predicate.Hymn {
+func UpdatedUserLT(v int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldLT(FieldUpdatedUser, v))
 }
 
 // UpdatedUserLTE applies the LTE predicate on the "updated_user" field.
-func UpdatedUserLTE(v string) predicate.Hymn {
+func UpdatedUserLTE(v int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldLTE(FieldUpdatedUser, v))
-}
-
-// UpdatedUserContains applies the Contains predicate on the "updated_user" field.
-func UpdatedUserContains(v string) predicate.Hymn {
-	return predicate.Hymn(sql.FieldContains(FieldUpdatedUser, v))
-}
-
-// UpdatedUserHasPrefix applies the HasPrefix predicate on the "updated_user" field.
-func UpdatedUserHasPrefix(v string) predicate.Hymn {
-	return predicate.Hymn(sql.FieldHasPrefix(FieldUpdatedUser, v))
-}
-
-// UpdatedUserHasSuffix applies the HasSuffix predicate on the "updated_user" field.
-func UpdatedUserHasSuffix(v string) predicate.Hymn {
-	return predicate.Hymn(sql.FieldHasSuffix(FieldUpdatedUser, v))
-}
-
-// UpdatedUserEqualFold applies the EqualFold predicate on the "updated_user" field.
-func UpdatedUserEqualFold(v string) predicate.Hymn {
-	return predicate.Hymn(sql.FieldEqualFold(FieldUpdatedUser, v))
-}
-
-// UpdatedUserContainsFold applies the ContainsFold predicate on the "updated_user" field.
-func UpdatedUserContainsFold(v string) predicate.Hymn {
-	return predicate.Hymn(sql.FieldContainsFold(FieldUpdatedUser, v))
 }
 
 // SerifEQ applies the EQ predicate on the "serif" field.
