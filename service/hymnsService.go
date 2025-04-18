@@ -8,13 +8,14 @@ import (
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
 	"newdeal/pojos"
+	"time"
 
 	"github.com/samber/lo"
 )
 
-var ctx context.Context = context.Background()
-
 func CountHymnsAll() (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 	kennsu, err := EntCore.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
@@ -23,6 +24,8 @@ func CountHymnsAll() (int, error) {
 }
 
 func CountHymnsByKeyword(keyword string) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 	kennsu, err := EntCore.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
@@ -38,6 +41,8 @@ func CountHymnsByKeyword(keyword string) (int, error) {
 }
 
 func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 	offset := (pageNum - 1) * int(common.DefaultPageSize)
 	hymns, err := EntCore.Hymn.Query().
 		Where(
