@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"newdeal/common"
-	"newdeal/common/tools"
 	"newdeal/ent"
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
@@ -32,7 +31,7 @@ func CountHymnsByKeyword(keyword string) (int, error) {
 			hymn.Or(
 				hymn.NameJpContains(keyword),
 				hymn.NameKrContains(keyword),
-				hymn.HasHymnsWorkWith(
+				hymn.HasWorkWith(
 					hymnswork.NameJpRationalContains(keyword),
 				),
 			),
@@ -50,7 +49,7 @@ func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
 			hymn.Or(
 				hymn.NameJpContains(keyword),
 				hymn.NameKrContains(keyword),
-				hymn.HasHymnsWorkWith(
+				hymn.HasWorkWith(
 					hymnswork.NameJpRationalContains(keyword),
 				),
 			),
@@ -59,11 +58,11 @@ func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
 		Offset(offset).All(ctx)
 	return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
 		return pojos.HymnDTO{
-			ID:          tools.UUIDToInt64(hm.ID),
+			ID:          hm.ID,
 			NameJP:      hm.NameJp,
 			NameKR:      hm.NameKr,
-			Serif:       tools.PtString2String(hm.Serif),
-			Link:        tools.PtString2String(hm.Link),
+			Serif:       hm.Serif,
+			Link:        hm.Link,
 			Score:       nil,
 			Biko:        common.EmptyString,
 			UpdatedUser: hm.UpdatedUser,
