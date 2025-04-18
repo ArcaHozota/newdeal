@@ -1,11 +1,14 @@
 package tools
 
 import (
+	"encoding/binary"
 	"fmt"
 	"log"
 	"math/rand"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // Snowflake ID generator implemented in Go.
@@ -140,4 +143,12 @@ func (s *SnowflakeIDGenerator) waitNextMillis() int64 {
 
 func currentMillis() int64 {
 	return time.Now().UnixNano() / int64(time.Millisecond)
+}
+
+// ✅ ent が期待するシグネチャ
+func SnowflakeUUID() uuid.UUID {
+	id := SnowflakeID() // uint64
+	var buf [8]byte
+	binary.BigEndian.PutUint64(buf[:], id)
+	return uuid.NewSHA1(uuid.Nil, buf[:])
 }

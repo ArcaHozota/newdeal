@@ -8,7 +8,6 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"github.com/google/uuid"
 )
 
 type Student struct {
@@ -17,8 +16,7 @@ type Student struct {
 
 func (Student) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.UUID{}).
-			Default(tools.SnowflakeID()).
+		field.UUID("id", tools.SnowflakeUUID()).
 			SchemaType(map[string]string{
 				dialect.Postgres: "bigint",
 			}),
@@ -43,7 +41,7 @@ func (Student) Edges() []ent.Edge {
 
 func (Student) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("id", "login_account", "email").
+		index.Fields("login_account", "email").
 			Unique(),
 	}
 }

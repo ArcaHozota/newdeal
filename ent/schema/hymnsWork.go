@@ -7,8 +7,6 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/index"
-	"github.com/google/uuid"
 )
 
 type HymnsWork struct {
@@ -17,8 +15,7 @@ type HymnsWork struct {
 
 func (HymnsWork) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("work_id", uuid.UUID{}).
-			Default(tools.SnowflakeID()).
+		field.UUID("work_id", tools.SnowflakeUUID()).
 			SchemaType(map[string]string{
 				dialect.Postgres: "bigint",
 			}),
@@ -42,7 +39,5 @@ func (HymnsWork) Edges() []ent.Edge {
 }
 
 func (HymnsWork) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("work_id").Unique(),
-	}
+	return []ent.Index{}
 }
