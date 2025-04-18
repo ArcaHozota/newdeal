@@ -2,7 +2,6 @@ package service
 
 import (
 	"newdeal/common"
-	"newdeal/models"
 	"newdeal/pojos"
 	"newdeal/repository"
 
