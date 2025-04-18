@@ -11,7 +11,7 @@ type Hymn struct {
 	UpdatedUser int64     `gorm:"not null"`
 	Serif       string    `gorm:"not null"`
 	VisibleFlg  bool      `gorm:"not null"`
-	HymnWork    HymnWork  `gorm:"foreignKey:WorkId"`
+	HymnWork    HymnsWork `gorm:"foreignKey:WorkId"`
 }
 
 func (Hymn) TableName() string {
