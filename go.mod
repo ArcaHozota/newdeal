@@ -5,6 +5,7 @@ go 1.24.2
 require (
 	entgo.io/ent v0.14.4
 	github.com/gin-gonic/gin v1.10.0
+	github.com/lib/pq v1.10.9
 	github.com/samber/lo v1.49.1
 	gorm.io/gorm v1.25.12
 )
