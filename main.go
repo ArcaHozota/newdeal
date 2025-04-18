@@ -1,7 +1,7 @@
 package main
 
 import (
-	"newdeal/common"
+	"newdeal/common/tools"
 	"newdeal/routers"
 	"text/template"
 
@@ -13,7 +13,7 @@ func main() {
 	// Ginを配置する
 	r := gin.Default()
 	r.SetFuncMap(template.FuncMap{
-		"Substr": common.Substr,
+		"Substr": tools.Substr,
 	})
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/static", "./static")
