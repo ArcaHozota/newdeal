@@ -217,7 +217,20 @@ func (hu *HymnUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (hu *HymnUpdate) check() error {
+	if v, ok := hu.mutation.UpdatedUser(); ok {
+		if err := hymn.UpdatedUserValidator(v); err != nil {
+			return &ValidationError{Name: "updated_user", err: fmt.Errorf(`ent: validator failed for field "Hymn.updated_user": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (hu *HymnUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := hu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(hymn.Table, hymn.Columns, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64))
 	if ps := hu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -528,7 +541,20 @@ func (huo *HymnUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (huo *HymnUpdateOne) check() error {
+	if v, ok := huo.mutation.UpdatedUser(); ok {
+		if err := hymn.UpdatedUserValidator(v); err != nil {
+			return &ValidationError{Name: "updated_user", err: fmt.Errorf(`ent: validator failed for field "Hymn.updated_user": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (huo *HymnUpdateOne) sqlSave(ctx context.Context) (_node *Hymn, err error) {
+	if err := huo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(hymn.Table, hymn.Columns, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64))
 	id, ok := huo.mutation.ID()
 	if !ok {

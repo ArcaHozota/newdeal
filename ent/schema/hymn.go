@@ -24,6 +24,7 @@ func (Hymn) Fields() []ent.Field {
 		field.String("link").Nillable(),
 		field.Time("updated_time"),
 		field.Int64("updated_user").
+			Positive().
 			SchemaType(map[string]string{
 				dialect.Postgres: "bigint",
 			}),

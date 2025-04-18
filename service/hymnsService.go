@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"newdeal/common"
+	"newdeal/common/tools"
 	"newdeal/ent"
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
@@ -14,7 +15,7 @@ import (
 var ctx context.Context = context.Background()
 
 func CountHymnsAll() (int, error) {
-	kennsu, err := EntClient.Hymn.Query().
+	kennsu, err := EntCore.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
 		).Count(ctx)
@@ -22,7 +23,7 @@ func CountHymnsAll() (int, error) {
 }
 
 func CountHymnsByKeyword(keyword string) (int, error) {
-	kennsu, err := EntClient.Hymn.Query().
+	kennsu, err := EntCore.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
 			hymn.Or(
@@ -38,7 +39,7 @@ func CountHymnsByKeyword(keyword string) (int, error) {
 
 func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
 	offset := (pageNum - 1) * int(common.DefaultPageSize)
-	hymns, err := EntClient.Hymn.Query().
+	hymns, err := EntCore.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
 			hymn.Or(
@@ -56,8 +57,8 @@ func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
 			ID:          hm.ID,
 			NameJP:      hm.NameJp,
 			NameKR:      hm.NameKr,
-			Serif:       common.PtString2String(hm.Serif),
-			Link:        common.PtString2String(hm.Link),
+			Serif:       tools.PtString2String(hm.Serif),
+			Link:        tools.PtString2String(hm.Link),
 			Score:       nil,
 			Biko:        common.EmptyString,
 			UpdatedUser: hm.UpdatedUser,

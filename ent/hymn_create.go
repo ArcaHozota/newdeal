@@ -157,6 +157,11 @@ func (hc *HymnCreate) check() error {
 	if _, ok := hc.mutation.UpdatedUser(); !ok {
 		return &ValidationError{Name: "updated_user", err: errors.New(`ent: missing required field "Hymn.updated_user"`)}
 	}
+	if v, ok := hc.mutation.UpdatedUser(); ok {
+		if err := hymn.UpdatedUserValidator(v); err != nil {
+			return &ValidationError{Name: "updated_user", err: fmt.Errorf(`ent: validator failed for field "Hymn.updated_user": %w`, err)}
+		}
+	}
 	if _, ok := hc.mutation.Serif(); !ok {
 		return &ValidationError{Name: "serif", err: errors.New(`ent: missing required field "Hymn.serif"`)}
 	}

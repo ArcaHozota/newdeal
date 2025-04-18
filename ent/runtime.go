@@ -15,6 +15,10 @@ import (
 func init() {
 	hymnFields := schema.Hymn{}.Fields()
 	_ = hymnFields
+	// hymnDescUpdatedUser is the schema descriptor for updated_user field.
+	hymnDescUpdatedUser := hymnFields[5].Descriptor()
+	// hymn.UpdatedUserValidator is a validator for the "updated_user" field. It is called by the builders before save.
+	hymn.UpdatedUserValidator = hymnDescUpdatedUser.Validators[0].(func(int64) error)
 	// hymnDescID is the schema descriptor for id field.
 	hymnDescID := hymnFields[0].Descriptor()
 	// hymn.IDValidator is a validator for the "id" field. It is called by the builders before save.

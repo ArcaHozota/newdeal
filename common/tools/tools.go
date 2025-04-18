@@ -1,6 +1,7 @@
-package common
+package tools
 
 import (
+	"newdeal/common"
 	"time"
 )
 
@@ -27,12 +28,12 @@ func Substr(rawString string, startIndex, endIndex int) string {
 }
 
 func GetDetailKeyword1(keyword string) string {
-	return HankakuPercentMark + keyword + HankakuPercentMark
+	return common.HankakuPercentMark + keyword + common.HankakuPercentMark
 }
 
 func PtString2String(str *string) string {
 	if str == nil {
-		return EmptyString
+		return common.EmptyString
 	}
 	return *str
 }
