@@ -35,7 +35,6 @@ func (HymnsWork) Edges() []ent.Edge {
 
 func (HymnsWork) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("id", "link", "name_jp", "name_kr").
-			Unique(),
+		index.Fields("work_id").Unique(),
 	}
 }
