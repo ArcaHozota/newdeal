@@ -40,7 +40,7 @@ func (hwd *HymnsWorkDelete) ExecX(ctx context.Context) int {
 }
 
 func (hwd *HymnsWorkDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(hymnswork.Table, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(hymnswork.Table, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64))
 	if ps := hwd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

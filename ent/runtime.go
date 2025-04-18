@@ -3,56 +3,18 @@
 package ent
 
 import (
-	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
 	"newdeal/ent/schema"
-	"newdeal/ent/student"
 )
 
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	hymnFields := schema.Hymn{}.Fields()
-	_ = hymnFields
-	// hymnDescNameJp is the schema descriptor for name_jp field.
-	hymnDescNameJp := hymnFields[1].Descriptor()
-	// hymn.NameJpValidator is a validator for the "name_jp" field. It is called by the builders before save.
-	hymn.NameJpValidator = hymnDescNameJp.Validators[0].(func(string) error)
-	// hymnDescNameKr is the schema descriptor for name_kr field.
-	hymnDescNameKr := hymnFields[2].Descriptor()
-	// hymn.NameKrValidator is a validator for the "name_kr" field. It is called by the builders before save.
-	hymn.NameKrValidator = hymnDescNameKr.Validators[0].(func(string) error)
-	// hymnDescLink is the schema descriptor for link field.
-	hymnDescLink := hymnFields[3].Descriptor()
-	// hymn.LinkValidator is a validator for the "link" field. It is called by the builders before save.
-	hymn.LinkValidator = hymnDescLink.Validators[0].(func(string) error)
 	hymnsworkFields := schema.HymnsWork{}.Fields()
 	_ = hymnsworkFields
 	// hymnsworkDescNameJpRational is the schema descriptor for name_jp_rational field.
-	hymnsworkDescNameJpRational := hymnsworkFields[2].Descriptor()
+	hymnsworkDescNameJpRational := hymnsworkFields[3].Descriptor()
 	// hymnswork.NameJpRationalValidator is a validator for the "name_jp_rational" field. It is called by the builders before save.
 	hymnswork.NameJpRationalValidator = hymnsworkDescNameJpRational.Validators[0].(func(string) error)
-	// hymnsworkDescBiko is the schema descriptor for biko field.
-	hymnsworkDescBiko := hymnsworkFields[4].Descriptor()
-	// hymnswork.BikoValidator is a validator for the "biko" field. It is called by the builders before save.
-	hymnswork.BikoValidator = hymnsworkDescBiko.Validators[0].(func(string) error)
-	studentFields := schema.Student{}.Fields()
-	_ = studentFields
-	// studentDescLoginAccount is the schema descriptor for login_account field.
-	studentDescLoginAccount := studentFields[1].Descriptor()
-	// student.LoginAccountValidator is a validator for the "login_account" field. It is called by the builders before save.
-	student.LoginAccountValidator = studentDescLoginAccount.Validators[0].(func(string) error)
-	// studentDescPassword is the schema descriptor for password field.
-	studentDescPassword := studentFields[2].Descriptor()
-	// student.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
-	student.PasswordValidator = studentDescPassword.Validators[0].(func(string) error)
-	// studentDescUsername is the schema descriptor for username field.
-	studentDescUsername := studentFields[3].Descriptor()
-	// student.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
-	student.UsernameValidator = studentDescUsername.Validators[0].(func(string) error)
-	// studentDescEmail is the schema descriptor for email field.
-	studentDescEmail := studentFields[5].Descriptor()
-	// student.EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	student.EmailValidator = studentDescEmail.Validators[0].(func(string) error)
 }

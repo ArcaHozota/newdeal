@@ -444,7 +444,7 @@ func (c *HymnsWorkClient) UpdateOne(hw *HymnsWork) *HymnsWorkUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *HymnsWorkClient) UpdateOneID(id int) *HymnsWorkUpdateOne {
+func (c *HymnsWorkClient) UpdateOneID(id int64) *HymnsWorkUpdateOne {
 	mutation := newHymnsWorkMutation(c.config, OpUpdateOne, withHymnsWorkID(id))
 	return &HymnsWorkUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -461,7 +461,7 @@ func (c *HymnsWorkClient) DeleteOne(hw *HymnsWork) *HymnsWorkDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *HymnsWorkClient) DeleteOneID(id int) *HymnsWorkDeleteOne {
+func (c *HymnsWorkClient) DeleteOneID(id int64) *HymnsWorkDeleteOne {
 	builder := c.Delete().Where(hymnswork.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -478,12 +478,12 @@ func (c *HymnsWorkClient) Query() *HymnsWorkQuery {
 }
 
 // Get returns a HymnsWork entity by its id.
-func (c *HymnsWorkClient) Get(ctx context.Context, id int) (*HymnsWork, error) {
+func (c *HymnsWorkClient) Get(ctx context.Context, id int64) (*HymnsWork, error) {
 	return c.Query().Where(hymnswork.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *HymnsWorkClient) GetX(ctx context.Context, id int) *HymnsWork {
+func (c *HymnsWorkClient) GetX(ctx context.Context, id int64) *HymnsWork {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

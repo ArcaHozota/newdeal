@@ -27,23 +27,31 @@ func (Student) Fields() []ent.Field {
 				entsql.Annotation{Default: "0"}, // 明确设置无 default/identity
 			),
 		field.String("login_account").
-			MaxLen(40).
-			Comment("アカウント"),
+			Comment("アカウント").
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(40)",
+			}),
 		field.String("password").
-			MaxLen(255).
-			Comment("パスワード"),
+			Comment("パスワード").
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(255)",
+			}),
 		field.String("username").
-			MaxLen(40).
-			Comment("ユーザ名称"),
+			Comment("ユーザ名称").
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(40)",
+			}),
 		field.Time("date_of_birth").
 			Comment("生年月日").
 			SchemaType(map[string]string{
 				dialect.Postgres: "date",
 			}),
 		field.String("email").
-			MaxLen(60).
 			Comment("メール").
-			Optional(),
+			Optional().
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(60)",
+			}),
 		field.Time("updated_time").
 			Comment("登録時間").
 			Optional(),
@@ -60,10 +68,8 @@ func (Student) Edges() []ent.Edge {
 
 func (Student) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("login_account").
-			Unique(),
-		index.Fields("email").
-			Unique(),
+		index.Fields("login_account").Unique(),
+		index.Fields("email").Unique(),
 	}
 }
 

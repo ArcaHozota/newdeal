@@ -12,9 +12,9 @@ var (
 	// HymnsColumns holds the columns for the "hymns" table.
 	HymnsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true, Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
-		{Name: "name_jp", Type: field.TypeString, Size: 66},
-		{Name: "name_kr", Type: field.TypeString, Size: 66},
-		{Name: "link", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "name_jp", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(66)"}},
+		{Name: "name_kr", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(66)"}},
+		{Name: "link", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 		{Name: "updated_time", Type: field.TypeTime},
 		{Name: "serif", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "visible_flg", Type: field.TypeBool},
@@ -53,12 +53,12 @@ var (
 	}
 	// HymnsWorkColumns holds the columns for the "hymns_work" table.
 	HymnsWorkColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeInt64, Increment: true, SchemaType: map[string]string{"postgres": "bigint"}},
 		{Name: "score", Type: field.TypeBytes, Nullable: true},
-		{Name: "name_jp_rational", Type: field.TypeString, Nullable: true, Size: 120},
+		{Name: "name_jp_rational", Type: field.TypeString, Nullable: true, Size: 120, SchemaType: map[string]string{"postgres": "varchar(120)"}},
 		{Name: "updated_time", Type: field.TypeTime},
-		{Name: "biko", Type: field.TypeString, Nullable: true, Size: 10},
-		{Name: "work_id", Type: field.TypeInt64, Unique: true, Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "biko", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(10)"}},
+		{Name: "work_id", Type: field.TypeInt64, Unique: true, SchemaType: map[string]string{"postgres": "bigint"}},
 	}
 	// HymnsWorkTable holds the schema information for the "hymns_work" table.
 	HymnsWorkTable = &schema.Table{
@@ -73,15 +73,22 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "hymnswork_work_id",
+				Unique:  true,
+				Columns: []*schema.Column{HymnsWorkColumns[5]},
+			},
+		},
 	}
 	// StudentsColumns holds the columns for the "students" table.
 	StudentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true, Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
-		{Name: "login_account", Type: field.TypeString, Size: 40},
-		{Name: "password", Type: field.TypeString, Size: 255},
-		{Name: "username", Type: field.TypeString, Size: 40},
+		{Name: "login_account", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(40)"}},
+		{Name: "password", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "username", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(40)"}},
 		{Name: "date_of_birth", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "date"}},
-		{Name: "email", Type: field.TypeString, Nullable: true, Size: 60},
+		{Name: "email", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(60)"}},
 		{Name: "updated_time", Type: field.TypeTime, Nullable: true},
 		{Name: "visible_flg", Type: field.TypeBool},
 	}

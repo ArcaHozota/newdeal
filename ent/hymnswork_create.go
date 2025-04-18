@@ -67,6 +67,12 @@ func (hwc *HymnsWorkCreate) SetNillableBiko(s *string) *HymnsWorkCreate {
 	return hwc
 }
 
+// SetID sets the "id" field.
+func (hwc *HymnsWorkCreate) SetID(i int64) *HymnsWorkCreate {
+	hwc.mutation.SetID(i)
+	return hwc
+}
+
 // SetLinkedHymnID sets the "linked_hymn" edge to the Hymn entity by ID.
 func (hwc *HymnsWorkCreate) SetLinkedHymnID(id int64) *HymnsWorkCreate {
 	hwc.mutation.SetLinkedHymnID(id)
@@ -123,11 +129,6 @@ func (hwc *HymnsWorkCreate) check() error {
 	if _, ok := hwc.mutation.UpdatedTime(); !ok {
 		return &ValidationError{Name: "updated_time", err: errors.New(`ent: missing required field "HymnsWork.updated_time"`)}
 	}
-	if v, ok := hwc.mutation.Biko(); ok {
-		if err := hymnswork.BikoValidator(v); err != nil {
-			return &ValidationError{Name: "biko", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.biko": %w`, err)}
-		}
-	}
 	if len(hwc.mutation.LinkedHymnIDs()) == 0 {
 		return &ValidationError{Name: "linked_hymn", err: errors.New(`ent: missing required edge "HymnsWork.linked_hymn"`)}
 	}
@@ -145,8 +146,10 @@ func (hwc *HymnsWorkCreate) sqlSave(ctx context.Context) (*HymnsWork, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int64(id)
+	}
 	hwc.mutation.id = &_node.ID
 	hwc.mutation.done = true
 	return _node, nil
@@ -155,8 +158,12 @@ func (hwc *HymnsWorkCreate) sqlSave(ctx context.Context) (*HymnsWork, error) {
 func (hwc *HymnsWorkCreate) createSpec() (*HymnsWork, *sqlgraph.CreateSpec) {
 	var (
 		_node = &HymnsWork{config: hwc.config}
-		_spec = sqlgraph.NewCreateSpec(hymnswork.Table, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(hymnswork.Table, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64))
 	)
+	if id, ok := hwc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := hwc.mutation.Score(); ok {
 		_spec.SetField(hymnswork.FieldScore, field.TypeBytes, value)
 		_node.Score = value
@@ -237,9 +244,9 @@ func (hwcb *HymnsWorkCreateBulk) Save(ctx context.Context) ([]*HymnsWork, error)
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
+					nodes[i].ID = int64(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

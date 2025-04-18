@@ -152,13 +152,13 @@ func (hu *HymnUpdate) SetUpdatedBy(s *Student) *HymnUpdate {
 }
 
 // SetWorkID sets the "work" edge to the HymnsWork entity by ID.
-func (hu *HymnUpdate) SetWorkID(id int) *HymnUpdate {
+func (hu *HymnUpdate) SetWorkID(id int64) *HymnUpdate {
 	hu.mutation.SetWorkID(id)
 	return hu
 }
 
 // SetNillableWorkID sets the "work" edge to the HymnsWork entity by ID if the given value is not nil.
-func (hu *HymnUpdate) SetNillableWorkID(id *int) *HymnUpdate {
+func (hu *HymnUpdate) SetNillableWorkID(id *int64) *HymnUpdate {
 	if id != nil {
 		hu = hu.SetWorkID(*id)
 	}
@@ -216,21 +216,6 @@ func (hu *HymnUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (hu *HymnUpdate) check() error {
-	if v, ok := hu.mutation.NameJp(); ok {
-		if err := hymn.NameJpValidator(v); err != nil {
-			return &ValidationError{Name: "name_jp", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_jp": %w`, err)}
-		}
-	}
-	if v, ok := hu.mutation.NameKr(); ok {
-		if err := hymn.NameKrValidator(v); err != nil {
-			return &ValidationError{Name: "name_kr", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_kr": %w`, err)}
-		}
-	}
-	if v, ok := hu.mutation.Link(); ok {
-		if err := hymn.LinkValidator(v); err != nil {
-			return &ValidationError{Name: "link", err: fmt.Errorf(`ent: validator failed for field "Hymn.link": %w`, err)}
-		}
-	}
 	if hu.mutation.UpdatedByCleared() && len(hu.mutation.UpdatedByIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Hymn.updated_by"`)
 	}
@@ -310,7 +295,7 @@ func (hu *HymnUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{hymn.WorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -323,7 +308,7 @@ func (hu *HymnUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{hymn.WorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -473,13 +458,13 @@ func (huo *HymnUpdateOne) SetUpdatedBy(s *Student) *HymnUpdateOne {
 }
 
 // SetWorkID sets the "work" edge to the HymnsWork entity by ID.
-func (huo *HymnUpdateOne) SetWorkID(id int) *HymnUpdateOne {
+func (huo *HymnUpdateOne) SetWorkID(id int64) *HymnUpdateOne {
 	huo.mutation.SetWorkID(id)
 	return huo
 }
 
 // SetNillableWorkID sets the "work" edge to the HymnsWork entity by ID if the given value is not nil.
-func (huo *HymnUpdateOne) SetNillableWorkID(id *int) *HymnUpdateOne {
+func (huo *HymnUpdateOne) SetNillableWorkID(id *int64) *HymnUpdateOne {
 	if id != nil {
 		huo = huo.SetWorkID(*id)
 	}
@@ -550,21 +535,6 @@ func (huo *HymnUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (huo *HymnUpdateOne) check() error {
-	if v, ok := huo.mutation.NameJp(); ok {
-		if err := hymn.NameJpValidator(v); err != nil {
-			return &ValidationError{Name: "name_jp", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_jp": %w`, err)}
-		}
-	}
-	if v, ok := huo.mutation.NameKr(); ok {
-		if err := hymn.NameKrValidator(v); err != nil {
-			return &ValidationError{Name: "name_kr", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_kr": %w`, err)}
-		}
-	}
-	if v, ok := huo.mutation.Link(); ok {
-		if err := hymn.LinkValidator(v); err != nil {
-			return &ValidationError{Name: "link", err: fmt.Errorf(`ent: validator failed for field "Hymn.link": %w`, err)}
-		}
-	}
 	if huo.mutation.UpdatedByCleared() && len(huo.mutation.UpdatedByIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Hymn.updated_by"`)
 	}
@@ -661,7 +631,7 @@ func (huo *HymnUpdateOne) sqlSave(ctx context.Context) (_node *Hymn, err error) 
 			Columns: []string{hymn.WorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -674,7 +644,7 @@ func (huo *HymnUpdateOne) sqlSave(ctx context.Context) (_node *Hymn, err error) 
 			Columns: []string{hymn.WorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

@@ -207,35 +207,7 @@ func (su *StudentUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (su *StudentUpdate) check() error {
-	if v, ok := su.mutation.LoginAccount(); ok {
-		if err := student.LoginAccountValidator(v); err != nil {
-			return &ValidationError{Name: "login_account", err: fmt.Errorf(`ent: validator failed for field "Student.login_account": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.Password(); ok {
-		if err := student.PasswordValidator(v); err != nil {
-			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "Student.password": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.Username(); ok {
-		if err := student.UsernameValidator(v); err != nil {
-			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "Student.username": %w`, err)}
-		}
-	}
-	if v, ok := su.mutation.Email(); ok {
-		if err := student.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Student.email": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := su.check(); err != nil {
-		return n, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64))
 	if ps := su.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -527,35 +499,7 @@ func (suo *StudentUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (suo *StudentUpdateOne) check() error {
-	if v, ok := suo.mutation.LoginAccount(); ok {
-		if err := student.LoginAccountValidator(v); err != nil {
-			return &ValidationError{Name: "login_account", err: fmt.Errorf(`ent: validator failed for field "Student.login_account": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.Password(); ok {
-		if err := student.PasswordValidator(v); err != nil {
-			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "Student.password": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.Username(); ok {
-		if err := student.UsernameValidator(v); err != nil {
-			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "Student.username": %w`, err)}
-		}
-	}
-	if v, ok := suo.mutation.Email(); ok {
-		if err := student.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Student.email": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err error) {
-	if err := suo.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64))
 	id, ok := suo.mutation.ID()
 	if !ok {

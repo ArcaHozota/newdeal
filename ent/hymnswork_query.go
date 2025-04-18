@@ -106,8 +106,8 @@ func (hwq *HymnsWorkQuery) FirstX(ctx context.Context) *HymnsWork {
 
 // FirstID returns the first HymnsWork ID from the query.
 // Returns a *NotFoundError when no HymnsWork ID was found.
-func (hwq *HymnsWorkQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (hwq *HymnsWorkQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = hwq.Limit(1).IDs(setContextOp(ctx, hwq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -119,7 +119,7 @@ func (hwq *HymnsWorkQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (hwq *HymnsWorkQuery) FirstIDX(ctx context.Context) int {
+func (hwq *HymnsWorkQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := hwq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -157,8 +157,8 @@ func (hwq *HymnsWorkQuery) OnlyX(ctx context.Context) *HymnsWork {
 // OnlyID is like Only, but returns the only HymnsWork ID in the query.
 // Returns a *NotSingularError when more than one HymnsWork ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (hwq *HymnsWorkQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (hwq *HymnsWorkQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = hwq.Limit(2).IDs(setContextOp(ctx, hwq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -174,7 +174,7 @@ func (hwq *HymnsWorkQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (hwq *HymnsWorkQuery) OnlyIDX(ctx context.Context) int {
+func (hwq *HymnsWorkQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := hwq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -202,7 +202,7 @@ func (hwq *HymnsWorkQuery) AllX(ctx context.Context) []*HymnsWork {
 }
 
 // IDs executes the query and returns a list of HymnsWork IDs.
-func (hwq *HymnsWorkQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (hwq *HymnsWorkQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if hwq.ctx.Unique == nil && hwq.path != nil {
 		hwq.Unique(true)
 	}
@@ -214,7 +214,7 @@ func (hwq *HymnsWorkQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (hwq *HymnsWorkQuery) IDsX(ctx context.Context) []int {
+func (hwq *HymnsWorkQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := hwq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -441,7 +441,7 @@ func (hwq *HymnsWorkQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (hwq *HymnsWorkQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64))
 	_spec.From = hwq.sql
 	if unique := hwq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

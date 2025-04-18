@@ -137,34 +137,14 @@ func (sc *StudentCreate) check() error {
 	if _, ok := sc.mutation.LoginAccount(); !ok {
 		return &ValidationError{Name: "login_account", err: errors.New(`ent: missing required field "Student.login_account"`)}
 	}
-	if v, ok := sc.mutation.LoginAccount(); ok {
-		if err := student.LoginAccountValidator(v); err != nil {
-			return &ValidationError{Name: "login_account", err: fmt.Errorf(`ent: validator failed for field "Student.login_account": %w`, err)}
-		}
-	}
 	if _, ok := sc.mutation.Password(); !ok {
 		return &ValidationError{Name: "password", err: errors.New(`ent: missing required field "Student.password"`)}
-	}
-	if v, ok := sc.mutation.Password(); ok {
-		if err := student.PasswordValidator(v); err != nil {
-			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "Student.password": %w`, err)}
-		}
 	}
 	if _, ok := sc.mutation.Username(); !ok {
 		return &ValidationError{Name: "username", err: errors.New(`ent: missing required field "Student.username"`)}
 	}
-	if v, ok := sc.mutation.Username(); ok {
-		if err := student.UsernameValidator(v); err != nil {
-			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "Student.username": %w`, err)}
-		}
-	}
 	if _, ok := sc.mutation.DateOfBirth(); !ok {
 		return &ValidationError{Name: "date_of_birth", err: errors.New(`ent: missing required field "Student.date_of_birth"`)}
-	}
-	if v, ok := sc.mutation.Email(); ok {
-		if err := student.EmailValidator(v); err != nil {
-			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "Student.email": %w`, err)}
-		}
 	}
 	if _, ok := sc.mutation.VisibleFlg(); !ok {
 		return &ValidationError{Name: "visible_flg", err: errors.New(`ent: missing required field "Student.visible_flg"`)}

@@ -58,8 +58,6 @@ func ValidColumn(column string) bool {
 var (
 	// NameJpRationalValidator is a validator for the "name_jp_rational" field. It is called by the builders before save.
 	NameJpRationalValidator func(string) error
-	// BikoValidator is a validator for the "biko" field. It is called by the builders before save.
-	BikoValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the HymnsWork queries.

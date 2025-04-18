@@ -2,10 +2,12 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 type HymnsWork struct {
@@ -14,25 +16,33 @@ type HymnsWork struct {
 
 func (HymnsWork) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int64("work_id").
+		field.Int64("id").
+			Comment("ID").
+			Immutable().
 			Unique().
-			Comment("ワークID").
-			Annotations(
-				entsql.Annotation{Default: "0"}, // 明确设置无 default/identity
-			),
+			SchemaType(map[string]string{
+				dialect.Postgres: "bigint",
+			}),
+		field.Int64("work_id").
+			Comment("ワークID"),
 		field.Bytes("score").
 			Comment("楽譜").
 			Optional(),
 		field.String("name_jp_rational").
 			MaxLen(120).
 			Comment("日本語名称").
-			Optional(),
+			Optional().
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(120)",
+			}),
 		field.Time("updated_time").
 			Comment("更新時間"),
 		field.String("biko").
-			MaxLen(10).
 			Comment("備考").
-			Optional(),
+			Optional().
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(10)",
+			}),
 	}
 }
 
@@ -50,7 +60,9 @@ func (HymnsWork) Edges() []ent.Edge {
 }
 
 func (HymnsWork) Indexes() []ent.Index {
-	return []ent.Index{}
+	return []ent.Index{
+		index.Fields("work_id").Unique(),
+	}
 }
 
 // Annotations of the HymnsWork.

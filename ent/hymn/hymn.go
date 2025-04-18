@@ -70,15 +70,6 @@ func ValidColumn(column string) bool {
 	return false
 }
 
-var (
-	// NameJpValidator is a validator for the "name_jp" field. It is called by the builders before save.
-	NameJpValidator func(string) error
-	// NameKrValidator is a validator for the "name_kr" field. It is called by the builders before save.
-	NameKrValidator func(string) error
-	// LinkValidator is a validator for the "link" field. It is called by the builders before save.
-	LinkValidator func(string) error
-)
-
 // OrderOption defines the ordering options for the Hymn queries.
 type OrderOption func(*sql.Selector)
 

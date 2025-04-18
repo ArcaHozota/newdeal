@@ -98,13 +98,13 @@ func (hc *HymnCreate) SetUpdatedBy(s *Student) *HymnCreate {
 }
 
 // SetWorkID sets the "work" edge to the HymnsWork entity by ID.
-func (hc *HymnCreate) SetWorkID(id int) *HymnCreate {
+func (hc *HymnCreate) SetWorkID(id int64) *HymnCreate {
 	hc.mutation.SetWorkID(id)
 	return hc
 }
 
 // SetNillableWorkID sets the "work" edge to the HymnsWork entity by ID if the given value is not nil.
-func (hc *HymnCreate) SetNillableWorkID(id *int) *HymnCreate {
+func (hc *HymnCreate) SetNillableWorkID(id *int64) *HymnCreate {
 	if id != nil {
 		hc = hc.SetWorkID(*id)
 	}
@@ -153,23 +153,8 @@ func (hc *HymnCreate) check() error {
 	if _, ok := hc.mutation.NameJp(); !ok {
 		return &ValidationError{Name: "name_jp", err: errors.New(`ent: missing required field "Hymn.name_jp"`)}
 	}
-	if v, ok := hc.mutation.NameJp(); ok {
-		if err := hymn.NameJpValidator(v); err != nil {
-			return &ValidationError{Name: "name_jp", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_jp": %w`, err)}
-		}
-	}
 	if _, ok := hc.mutation.NameKr(); !ok {
 		return &ValidationError{Name: "name_kr", err: errors.New(`ent: missing required field "Hymn.name_kr"`)}
-	}
-	if v, ok := hc.mutation.NameKr(); ok {
-		if err := hymn.NameKrValidator(v); err != nil {
-			return &ValidationError{Name: "name_kr", err: fmt.Errorf(`ent: validator failed for field "Hymn.name_kr": %w`, err)}
-		}
-	}
-	if v, ok := hc.mutation.Link(); ok {
-		if err := hymn.LinkValidator(v); err != nil {
-			return &ValidationError{Name: "link", err: fmt.Errorf(`ent: validator failed for field "Hymn.link": %w`, err)}
-		}
 	}
 	if _, ok := hc.mutation.UpdatedUser(); !ok {
 		return &ValidationError{Name: "updated_user", err: errors.New(`ent: missing required field "Hymn.updated_user"`)}
@@ -264,7 +249,7 @@ func (hc *HymnCreate) createSpec() (*Hymn, *sqlgraph.CreateSpec) {
 			Columns: []string{hymn.WorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

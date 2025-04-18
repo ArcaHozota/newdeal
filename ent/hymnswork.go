@@ -17,7 +17,8 @@ import (
 type HymnsWork struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	// ID
+	ID int64 `json:"id,omitempty"`
 	// ワークID
 	WorkID int64 `json:"work_id,omitempty"`
 	// 楽譜
@@ -87,7 +88,7 @@ func (hw *HymnsWork) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			hw.ID = int(value.Int64)
+			hw.ID = int64(value.Int64)
 		case hymnswork.FieldWorkID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field work_id", values[i])

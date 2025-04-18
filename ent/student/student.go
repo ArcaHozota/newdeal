@@ -61,17 +61,6 @@ func ValidColumn(column string) bool {
 	return false
 }
 
-var (
-	// LoginAccountValidator is a validator for the "login_account" field. It is called by the builders before save.
-	LoginAccountValidator func(string) error
-	// PasswordValidator is a validator for the "password" field. It is called by the builders before save.
-	PasswordValidator func(string) error
-	// UsernameValidator is a validator for the "username" field. It is called by the builders before save.
-	UsernameValidator func(string) error
-	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
-	EmailValidator func(string) error
-)
-
 // OrderOption defines the ordering options for the Student queries.
 type OrderOption func(*sql.Selector)
 

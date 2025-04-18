@@ -27,15 +27,21 @@ func (Hymn) Fields() []ent.Field {
 				entsql.Annotation{Default: "0"}, // 明确设置无 default/identity
 			),
 		field.String("name_jp").
-			MaxLen(66).
-			Comment("日本語名称"),
+			Comment("日本語名称").
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(66)",
+			}),
 		field.String("name_kr").
-			MaxLen(66).
-			Comment("韓国語名称"),
+			Comment("韓国語名称").
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(66)",
+			}),
 		field.String("link").
-			MaxLen(255).
 			Comment("リンク").
-			Optional(),
+			Optional().
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(255)",
+			}),
 		field.Int64("updated_user").
 			Comment("更新者ID"),
 		field.Time("updated_time").
@@ -62,12 +68,9 @@ func (Hymn) Edges() []ent.Edge {
 
 func (Hymn) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("link").
-			Unique(),
-		index.Fields("name_jp").
-			Unique(),
-		index.Fields("name_kr").
-			Unique(),
+		index.Fields("link").Unique(),
+		index.Fields("name_jp").Unique(),
+		index.Fields("name_kr").Unique(),
 	}
 }
 

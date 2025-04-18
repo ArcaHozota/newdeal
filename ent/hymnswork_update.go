@@ -165,11 +165,6 @@ func (hwu *HymnsWorkUpdate) check() error {
 			return &ValidationError{Name: "name_jp_rational", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.name_jp_rational": %w`, err)}
 		}
 	}
-	if v, ok := hwu.mutation.Biko(); ok {
-		if err := hymnswork.BikoValidator(v); err != nil {
-			return &ValidationError{Name: "biko", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.biko": %w`, err)}
-		}
-	}
 	if hwu.mutation.LinkedHymnCleared() && len(hwu.mutation.LinkedHymnIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "HymnsWork.linked_hymn"`)
 	}
@@ -180,7 +175,7 @@ func (hwu *HymnsWorkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := hwu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64))
 	if ps := hwu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -407,11 +402,6 @@ func (hwuo *HymnsWorkUpdateOne) check() error {
 			return &ValidationError{Name: "name_jp_rational", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.name_jp_rational": %w`, err)}
 		}
 	}
-	if v, ok := hwuo.mutation.Biko(); ok {
-		if err := hymnswork.BikoValidator(v); err != nil {
-			return &ValidationError{Name: "biko", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.biko": %w`, err)}
-		}
-	}
 	if hwuo.mutation.LinkedHymnCleared() && len(hwuo.mutation.LinkedHymnIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "HymnsWork.linked_hymn"`)
 	}
@@ -422,7 +412,7 @@ func (hwuo *HymnsWorkUpdateOne) sqlSave(ctx context.Context) (_node *HymnsWork, 
 	if err := hwuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64))
 	id, ok := hwuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "HymnsWork.id" for update`)}

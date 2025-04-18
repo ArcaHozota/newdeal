@@ -118,7 +118,22 @@ func (s *SnowflakeIDGenerator) NextID() (uint64, error) {
 
 // SnowflakeID is a convenience wrapper mirroring Java's SnowflakeUtils.snowflakeId().
 // It picks random worker/datacenter IDs (0‑31) each call and returns a unique ID.
-func SnowflakeID() uint64 {
+func SnowflakeID() int64 {
+	worker := rand.Int63n(maxWorkerID + 1)
+	dc := rand.Int63n(maxDatacenterID + 1)
+
+	gen, err := NewSnowflakeIDGenerator(worker, dc)
+	if err != nil {
+		log.Fatalf("failed generate Snowflake key: %v", err)
+	}
+	id, err := gen.NextID()
+	if err != nil {
+		log.Fatalf("failed generate Snowflake id: %v", err)
+	}
+	return int64(id)
+}
+
+func SnowflakeIDUint64() uint64 {
 	worker := rand.Int63n(maxWorkerID + 1)
 	dc := rand.Int63n(maxDatacenterID + 1)
 
@@ -147,7 +162,7 @@ func currentMillis() int64 {
 
 // ✅ ent が期待するシグネチャ
 func SnowflakeUUID() uuid.UUID {
-	id := SnowflakeID() // uint64
+	id := SnowflakeIDUint64() // uint64
 	var buf [8]byte
 	binary.BigEndian.PutUint64(buf[:], id)
 	return uuid.NewSHA1(uuid.Nil, buf[:])
