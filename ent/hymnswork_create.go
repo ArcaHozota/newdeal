@@ -99,6 +99,11 @@ func (hwc *HymnsWorkCreate) check() error {
 	if _, ok := hwc.mutation.WorkID(); !ok {
 		return &ValidationError{Name: "work_id", err: errors.New(`ent: missing required field "HymnsWork.work_id"`)}
 	}
+	if v, ok := hwc.mutation.WorkID(); ok {
+		if err := hymnswork.WorkIDValidator(v); err != nil {
+			return &ValidationError{Name: "work_id", err: fmt.Errorf(`ent: validator failed for field "HymnsWork.work_id": %w`, err)}
+		}
+	}
 	if _, ok := hwc.mutation.Score(); !ok {
 		return &ValidationError{Name: "score", err: errors.New(`ent: missing required field "HymnsWork.score"`)}
 	}

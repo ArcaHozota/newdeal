@@ -163,6 +163,11 @@ func (hc *HymnCreate) check() error {
 	if _, ok := hc.mutation.VisibleFlg(); !ok {
 		return &ValidationError{Name: "visible_flg", err: errors.New(`ent: missing required field "Hymn.visible_flg"`)}
 	}
+	if v, ok := hc.mutation.ID(); ok {
+		if err := hymn.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Hymn.id": %w`, err)}
+		}
+	}
 	return nil
 }
 

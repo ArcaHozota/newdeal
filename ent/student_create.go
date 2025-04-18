@@ -139,6 +139,11 @@ func (sc *StudentCreate) check() error {
 	if _, ok := sc.mutation.VisibleFlg(); !ok {
 		return &ValidationError{Name: "visible_flg", err: errors.New(`ent: missing required field "Student.visible_flg"`)}
 	}
+	if v, ok := sc.mutation.ID(); ok {
+		if err := student.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Student.id": %w`, err)}
+		}
+	}
 	return nil
 }
 

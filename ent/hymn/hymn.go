@@ -81,6 +81,11 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// IDValidator is a validator for the "id" field. It is called by the builders before save.
+	IDValidator func(int64) error
+)
+
 // OrderOption defines the ordering options for the Hymn queries.
 type OrderOption func(*sql.Selector)
 

@@ -10,15 +10,15 @@ import (
 var (
 	// HymnsColumns holds the columns for the "hymns" table.
 	HymnsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "id", Type: field.TypeInt64, Increment: true, SchemaType: map[string]string{"postgres": "bigint"}},
 		{Name: "name_jp", Type: field.TypeString},
 		{Name: "name_kr", Type: field.TypeString},
 		{Name: "link", Type: field.TypeString},
 		{Name: "updated_time", Type: field.TypeTime},
-		{Name: "updated_user", Type: field.TypeInt64},
-		{Name: "serif", Type: field.TypeString},
+		{Name: "updated_user", Type: field.TypeInt64, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "serif", Type: field.TypeString, Size: 2147483647},
 		{Name: "visible_flg", Type: field.TypeBool},
-		{Name: "student_hymns", Type: field.TypeInt64, Nullable: true},
+		{Name: "student_hymns", Type: field.TypeInt64, Nullable: true, SchemaType: map[string]string{"postgres": "bigint"}},
 	}
 	// HymnsTable holds the schema information for the "hymns" table.
 	HymnsTable = &schema.Table{
@@ -44,12 +44,12 @@ var (
 	// HymnsWorksColumns holds the columns for the "hymns_works" table.
 	HymnsWorksColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "work_id", Type: field.TypeInt64},
+		{Name: "work_id", Type: field.TypeInt64, SchemaType: map[string]string{"postgres": "bigint"}},
 		{Name: "score", Type: field.TypeBytes},
 		{Name: "name_jp_rational", Type: field.TypeString},
 		{Name: "updated_time", Type: field.TypeTime},
 		{Name: "biko", Type: field.TypeString},
-		{Name: "hymn_hymns_work", Type: field.TypeInt64, Unique: true},
+		{Name: "hymn_hymns_work", Type: field.TypeInt64, Unique: true, SchemaType: map[string]string{"postgres": "bigint"}},
 	}
 	// HymnsWorksTable holds the schema information for the "hymns_works" table.
 	HymnsWorksTable = &schema.Table{
@@ -74,11 +74,11 @@ var (
 	}
 	// StudentsColumns holds the columns for the "students" table.
 	StudentsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "id", Type: field.TypeInt64, Increment: true, SchemaType: map[string]string{"postgres": "bigint"}},
 		{Name: "login_account", Type: field.TypeString},
 		{Name: "password", Type: field.TypeString},
 		{Name: "username", Type: field.TypeString},
-		{Name: "date_of_birth", Type: field.TypeTime},
+		{Name: "date_of_birth", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "date"}},
 		{Name: "email", Type: field.TypeString},
 		{Name: "updated_time", Type: field.TypeTime},
 		{Name: "visible_flg", Type: field.TypeBool},
