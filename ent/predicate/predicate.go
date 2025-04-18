@@ -12,5 +12,8 @@ type Hymn func(*sql.Selector)
 // HymnsWork is the predicate function for hymnswork builders.
 type HymnsWork func(*sql.Selector)
 
+// Role is the predicate function for role builders.
+type Role func(*sql.Selector)
+
 // Student is the predicate function for student builders.
 type Student func(*sql.Selector)

@@ -16,6 +16,8 @@ type Tx struct {
 	Hymn *HymnClient
 	// HymnsWork is the client for interacting with the HymnsWork builders.
 	HymnsWork *HymnsWorkClient
+	// Role is the client for interacting with the Role builders.
+	Role *RoleClient
 	// Student is the client for interacting with the Student builders.
 	Student *StudentClient
 
@@ -151,6 +153,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Hymn = NewHymnClient(tx.config)
 	tx.HymnsWork = NewHymnsWorkClient(tx.config)
+	tx.Role = NewRoleClient(tx.config)
 	tx.Student = NewStudentClient(tx.config)
 }
 

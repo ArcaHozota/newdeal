@@ -9,6 +9,7 @@ import (
 	"math"
 	"newdeal/ent/hymn"
 	"newdeal/ent/predicate"
+	"newdeal/ent/role"
 	"newdeal/ent/student"
 
 	"entgo.io/ent"
@@ -25,6 +26,7 @@ type StudentQuery struct {
 	inters           []Interceptor
 	predicates       []predicate.Student
 	withUpdatedHymns *HymnQuery
+	withRoledStudent *RoleQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -76,6 +78,28 @@ func (sq *StudentQuery) QueryUpdatedHymns() *HymnQuery {
 			sqlgraph.From(student.Table, student.FieldID, selector),
 			sqlgraph.To(hymn.Table, hymn.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, student.UpdatedHymnsTable, student.UpdatedHymnsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRoledStudent chains the current query on the "roled_student" edge.
+func (sq *StudentQuery) QueryRoledStudent() *RoleQuery {
+	query := (&RoleClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(student.Table, student.FieldID, selector),
+			sqlgraph.To(role.Table, role.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, student.RoledStudentTable, student.RoledStudentColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -276,6 +300,7 @@ func (sq *StudentQuery) Clone() *StudentQuery {
 		inters:           append([]Interceptor{}, sq.inters...),
 		predicates:       append([]predicate.Student{}, sq.predicates...),
 		withUpdatedHymns: sq.withUpdatedHymns.Clone(),
+		withRoledStudent: sq.withRoledStudent.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
@@ -290,6 +315,17 @@ func (sq *StudentQuery) WithUpdatedHymns(opts ...func(*HymnQuery)) *StudentQuery
 		opt(query)
 	}
 	sq.withUpdatedHymns = query
+	return sq
+}
+
+// WithRoledStudent tells the query-builder to eager-load the nodes that are connected to
+// the "roled_student" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *StudentQuery) WithRoledStudent(opts ...func(*RoleQuery)) *StudentQuery {
+	query := (&RoleClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withRoledStudent = query
 	return sq
 }
 
@@ -371,8 +407,9 @@ func (sq *StudentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Stud
 	var (
 		nodes       = []*Student{}
 		_spec       = sq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			sq.withUpdatedHymns != nil,
+			sq.withRoledStudent != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -397,6 +434,12 @@ func (sq *StudentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Stud
 		if err := sq.loadUpdatedHymns(ctx, query, nodes,
 			func(n *Student) { n.Edges.UpdatedHymns = []*Hymn{} },
 			func(n *Student, e *Hymn) { n.Edges.UpdatedHymns = append(n.Edges.UpdatedHymns, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withRoledStudent; query != nil {
+		if err := sq.loadRoledStudent(ctx, query, nodes, nil,
+			func(n *Student, e *Role) { n.Edges.RoledStudent = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -433,6 +476,35 @@ func (sq *StudentQuery) loadUpdatedHymns(ctx context.Context, query *HymnQuery, 
 	}
 	return nil
 }
+func (sq *StudentQuery) loadRoledStudent(ctx context.Context, query *RoleQuery, nodes []*Student, init func(*Student), assign func(*Student, *Role)) error {
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*Student)
+	for i := range nodes {
+		fk := nodes[i].RoleID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(role.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "role_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (sq *StudentQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := sq.querySpec()
@@ -458,6 +530,9 @@ func (sq *StudentQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != student.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if sq.withRoledStudent != nil {
+			_spec.Node.AddColumnOnce(student.FieldRoleID)
 		}
 	}
 	if ps := sq.predicates; len(ps) > 0 {

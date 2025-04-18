@@ -9,6 +9,7 @@ import (
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
 	"newdeal/ent/predicate"
+	"newdeal/ent/role"
 	"newdeal/ent/student"
 	"sync"
 	"time"
@@ -28,6 +29,7 @@ const (
 	// Node types.
 	TypeHymn      = "Hymn"
 	TypeHymnsWork = "HymnsWork"
+	TypeRole      = "Role"
 	TypeStudent   = "Student"
 )
 
@@ -1535,6 +1537,485 @@ func (m *HymnsWorkMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown HymnsWork edge %s", name)
 }
 
+// RoleMutation represents an operation that mutates the Role nodes in the graph.
+type RoleMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *int64
+	name           *string
+	visible_flg    *bool
+	clearedFields  map[string]struct{}
+	student        map[int64]struct{}
+	removedstudent map[int64]struct{}
+	clearedstudent bool
+	done           bool
+	oldValue       func(context.Context) (*Role, error)
+	predicates     []predicate.Role
+}
+
+var _ ent.Mutation = (*RoleMutation)(nil)
+
+// roleOption allows management of the mutation configuration using functional options.
+type roleOption func(*RoleMutation)
+
+// newRoleMutation creates new mutation for the Role entity.
+func newRoleMutation(c config, op Op, opts ...roleOption) *RoleMutation {
+	m := &RoleMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeRole,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withRoleID sets the ID field of the mutation.
+func withRoleID(id int64) roleOption {
+	return func(m *RoleMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Role
+		)
+		m.oldValue = func(ctx context.Context) (*Role, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Role.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withRole sets the old Role of the mutation.
+func withRole(node *Role) roleOption {
+	return func(m *RoleMutation) {
+		m.oldValue = func(context.Context) (*Role, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m RoleMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m RoleMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Role entities.
+func (m *RoleMutation) SetID(id int64) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *RoleMutation) ID() (id int64, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *RoleMutation) IDs(ctx context.Context) ([]int64, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int64{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Role.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetName sets the "name" field.
+func (m *RoleMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *RoleMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Role entity.
+// If the Role object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RoleMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *RoleMutation) ResetName() {
+	m.name = nil
+}
+
+// SetVisibleFlg sets the "visible_flg" field.
+func (m *RoleMutation) SetVisibleFlg(b bool) {
+	m.visible_flg = &b
+}
+
+// VisibleFlg returns the value of the "visible_flg" field in the mutation.
+func (m *RoleMutation) VisibleFlg() (r bool, exists bool) {
+	v := m.visible_flg
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVisibleFlg returns the old "visible_flg" field's value of the Role entity.
+// If the Role object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RoleMutation) OldVisibleFlg(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVisibleFlg is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVisibleFlg requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVisibleFlg: %w", err)
+	}
+	return oldValue.VisibleFlg, nil
+}
+
+// ResetVisibleFlg resets all changes to the "visible_flg" field.
+func (m *RoleMutation) ResetVisibleFlg() {
+	m.visible_flg = nil
+}
+
+// AddStudentIDs adds the "student" edge to the Student entity by ids.
+func (m *RoleMutation) AddStudentIDs(ids ...int64) {
+	if m.student == nil {
+		m.student = make(map[int64]struct{})
+	}
+	for i := range ids {
+		m.student[ids[i]] = struct{}{}
+	}
+}
+
+// ClearStudent clears the "student" edge to the Student entity.
+func (m *RoleMutation) ClearStudent() {
+	m.clearedstudent = true
+}
+
+// StudentCleared reports if the "student" edge to the Student entity was cleared.
+func (m *RoleMutation) StudentCleared() bool {
+	return m.clearedstudent
+}
+
+// RemoveStudentIDs removes the "student" edge to the Student entity by IDs.
+func (m *RoleMutation) RemoveStudentIDs(ids ...int64) {
+	if m.removedstudent == nil {
+		m.removedstudent = make(map[int64]struct{})
+	}
+	for i := range ids {
+		delete(m.student, ids[i])
+		m.removedstudent[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedStudent returns the removed IDs of the "student" edge to the Student entity.
+func (m *RoleMutation) RemovedStudentIDs() (ids []int64) {
+	for id := range m.removedstudent {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// StudentIDs returns the "student" edge IDs in the mutation.
+func (m *RoleMutation) StudentIDs() (ids []int64) {
+	for id := range m.student {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetStudent resets all changes to the "student" edge.
+func (m *RoleMutation) ResetStudent() {
+	m.student = nil
+	m.clearedstudent = false
+	m.removedstudent = nil
+}
+
+// Where appends a list predicates to the RoleMutation builder.
+func (m *RoleMutation) Where(ps ...predicate.Role) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the RoleMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *RoleMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Role, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *RoleMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *RoleMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Role).
+func (m *RoleMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *RoleMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.name != nil {
+		fields = append(fields, role.FieldName)
+	}
+	if m.visible_flg != nil {
+		fields = append(fields, role.FieldVisibleFlg)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *RoleMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case role.FieldName:
+		return m.Name()
+	case role.FieldVisibleFlg:
+		return m.VisibleFlg()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *RoleMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case role.FieldName:
+		return m.OldName(ctx)
+	case role.FieldVisibleFlg:
+		return m.OldVisibleFlg(ctx)
+	}
+	return nil, fmt.Errorf("unknown Role field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *RoleMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case role.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case role.FieldVisibleFlg:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVisibleFlg(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Role field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *RoleMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *RoleMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *RoleMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Role numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *RoleMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *RoleMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *RoleMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Role nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *RoleMutation) ResetField(name string) error {
+	switch name {
+	case role.FieldName:
+		m.ResetName()
+		return nil
+	case role.FieldVisibleFlg:
+		m.ResetVisibleFlg()
+		return nil
+	}
+	return fmt.Errorf("unknown Role field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *RoleMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.student != nil {
+		edges = append(edges, role.EdgeStudent)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *RoleMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case role.EdgeStudent:
+		ids := make([]ent.Value, 0, len(m.student))
+		for id := range m.student {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *RoleMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedstudent != nil {
+		edges = append(edges, role.EdgeStudent)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *RoleMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case role.EdgeStudent:
+		ids := make([]ent.Value, 0, len(m.removedstudent))
+		for id := range m.removedstudent {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *RoleMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedstudent {
+		edges = append(edges, role.EdgeStudent)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *RoleMutation) EdgeCleared(name string) bool {
+	switch name {
+	case role.EdgeStudent:
+		return m.clearedstudent
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *RoleMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Role unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *RoleMutation) ResetEdge(name string) error {
+	switch name {
+	case role.EdgeStudent:
+		m.ResetStudent()
+		return nil
+	}
+	return fmt.Errorf("unknown Role edge %s", name)
+}
+
 // StudentMutation represents an operation that mutates the Student nodes in the graph.
 type StudentMutation struct {
 	config
@@ -1552,6 +2033,8 @@ type StudentMutation struct {
 	updated_hymns        map[int64]struct{}
 	removedupdated_hymns map[int64]struct{}
 	clearedupdated_hymns bool
+	roled_student        *int64
+	clearedroled_student bool
 	done                 bool
 	oldValue             func(context.Context) (*Student, error)
 	predicates           []predicate.Student
@@ -1854,6 +2337,42 @@ func (m *StudentMutation) ResetEmail() {
 	delete(m.clearedFields, student.FieldEmail)
 }
 
+// SetRoleID sets the "role_id" field.
+func (m *StudentMutation) SetRoleID(i int64) {
+	m.roled_student = &i
+}
+
+// RoleID returns the value of the "role_id" field in the mutation.
+func (m *StudentMutation) RoleID() (r int64, exists bool) {
+	v := m.roled_student
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRoleID returns the old "role_id" field's value of the Student entity.
+// If the Student object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *StudentMutation) OldRoleID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRoleID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRoleID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRoleID: %w", err)
+	}
+	return oldValue.RoleID, nil
+}
+
+// ResetRoleID resets all changes to the "role_id" field.
+func (m *StudentMutation) ResetRoleID() {
+	m.roled_student = nil
+}
+
 // SetUpdatedTime sets the "updated_time" field.
 func (m *StudentMutation) SetUpdatedTime(t time.Time) {
 	m.updated_time = &t
@@ -1993,6 +2512,46 @@ func (m *StudentMutation) ResetUpdatedHymns() {
 	m.removedupdated_hymns = nil
 }
 
+// SetRoledStudentID sets the "roled_student" edge to the Role entity by id.
+func (m *StudentMutation) SetRoledStudentID(id int64) {
+	m.roled_student = &id
+}
+
+// ClearRoledStudent clears the "roled_student" edge to the Role entity.
+func (m *StudentMutation) ClearRoledStudent() {
+	m.clearedroled_student = true
+	m.clearedFields[student.FieldRoleID] = struct{}{}
+}
+
+// RoledStudentCleared reports if the "roled_student" edge to the Role entity was cleared.
+func (m *StudentMutation) RoledStudentCleared() bool {
+	return m.clearedroled_student
+}
+
+// RoledStudentID returns the "roled_student" edge ID in the mutation.
+func (m *StudentMutation) RoledStudentID() (id int64, exists bool) {
+	if m.roled_student != nil {
+		return *m.roled_student, true
+	}
+	return
+}
+
+// RoledStudentIDs returns the "roled_student" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// RoledStudentID instead. It exists only for internal usage by the builders.
+func (m *StudentMutation) RoledStudentIDs() (ids []int64) {
+	if id := m.roled_student; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetRoledStudent resets all changes to the "roled_student" edge.
+func (m *StudentMutation) ResetRoledStudent() {
+	m.roled_student = nil
+	m.clearedroled_student = false
+}
+
 // Where appends a list predicates to the StudentMutation builder.
 func (m *StudentMutation) Where(ps ...predicate.Student) {
 	m.predicates = append(m.predicates, ps...)
@@ -2027,7 +2586,7 @@ func (m *StudentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *StudentMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.login_account != nil {
 		fields = append(fields, student.FieldLoginAccount)
 	}
@@ -2042,6 +2601,9 @@ func (m *StudentMutation) Fields() []string {
 	}
 	if m.email != nil {
 		fields = append(fields, student.FieldEmail)
+	}
+	if m.roled_student != nil {
+		fields = append(fields, student.FieldRoleID)
 	}
 	if m.updated_time != nil {
 		fields = append(fields, student.FieldUpdatedTime)
@@ -2067,6 +2629,8 @@ func (m *StudentMutation) Field(name string) (ent.Value, bool) {
 		return m.DateOfBirth()
 	case student.FieldEmail:
 		return m.Email()
+	case student.FieldRoleID:
+		return m.RoleID()
 	case student.FieldUpdatedTime:
 		return m.UpdatedTime()
 	case student.FieldVisibleFlg:
@@ -2090,6 +2654,8 @@ func (m *StudentMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDateOfBirth(ctx)
 	case student.FieldEmail:
 		return m.OldEmail(ctx)
+	case student.FieldRoleID:
+		return m.OldRoleID(ctx)
 	case student.FieldUpdatedTime:
 		return m.OldUpdatedTime(ctx)
 	case student.FieldVisibleFlg:
@@ -2138,6 +2704,13 @@ func (m *StudentMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetEmail(v)
 		return nil
+	case student.FieldRoleID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRoleID(v)
+		return nil
 	case student.FieldUpdatedTime:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -2159,13 +2732,16 @@ func (m *StudentMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *StudentMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *StudentMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
 	return nil, false
 }
 
@@ -2231,6 +2807,9 @@ func (m *StudentMutation) ResetField(name string) error {
 	case student.FieldEmail:
 		m.ResetEmail()
 		return nil
+	case student.FieldRoleID:
+		m.ResetRoleID()
+		return nil
 	case student.FieldUpdatedTime:
 		m.ResetUpdatedTime()
 		return nil
@@ -2243,9 +2822,12 @@ func (m *StudentMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *StudentMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.updated_hymns != nil {
 		edges = append(edges, student.EdgeUpdatedHymns)
+	}
+	if m.roled_student != nil {
+		edges = append(edges, student.EdgeRoledStudent)
 	}
 	return edges
 }
@@ -2260,13 +2842,17 @@ func (m *StudentMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case student.EdgeRoledStudent:
+		if id := m.roled_student; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *StudentMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedupdated_hymns != nil {
 		edges = append(edges, student.EdgeUpdatedHymns)
 	}
@@ -2289,9 +2875,12 @@ func (m *StudentMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *StudentMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedupdated_hymns {
 		edges = append(edges, student.EdgeUpdatedHymns)
+	}
+	if m.clearedroled_student {
+		edges = append(edges, student.EdgeRoledStudent)
 	}
 	return edges
 }
@@ -2302,6 +2891,8 @@ func (m *StudentMutation) EdgeCleared(name string) bool {
 	switch name {
 	case student.EdgeUpdatedHymns:
 		return m.clearedupdated_hymns
+	case student.EdgeRoledStudent:
+		return m.clearedroled_student
 	}
 	return false
 }
@@ -2310,6 +2901,9 @@ func (m *StudentMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *StudentMutation) ClearEdge(name string) error {
 	switch name {
+	case student.EdgeRoledStudent:
+		m.ClearRoledStudent()
+		return nil
 	}
 	return fmt.Errorf("unknown Student unique edge %s", name)
 }
@@ -2320,6 +2914,9 @@ func (m *StudentMutation) ResetEdge(name string) error {
 	switch name {
 	case student.EdgeUpdatedHymns:
 		m.ResetUpdatedHymns()
+		return nil
+	case student.EdgeRoledStudent:
+		m.ResetRoledStudent()
 		return nil
 	}
 	return fmt.Errorf("unknown Student edge %s", name)

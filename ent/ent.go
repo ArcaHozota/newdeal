@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
+	"newdeal/ent/role"
 	"newdeal/ent/student"
 	"reflect"
 	"sync"
@@ -77,6 +78,7 @@ func checkColumn(table, column string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			hymn.Table:      hymn.ValidColumn,
 			hymnswork.Table: hymnswork.ValidColumn,
+			role.Table:      role.ValidColumn,
 			student.Table:   student.ValidColumn,
 		})
 	})

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"newdeal/ent/hymn"
 	"newdeal/ent/predicate"
+	"newdeal/ent/role"
 	"newdeal/ent/student"
 	"time"
 
@@ -105,6 +106,20 @@ func (su *StudentUpdate) ClearEmail() *StudentUpdate {
 	return su
 }
 
+// SetRoleID sets the "role_id" field.
+func (su *StudentUpdate) SetRoleID(i int64) *StudentUpdate {
+	su.mutation.SetRoleID(i)
+	return su
+}
+
+// SetNillableRoleID sets the "role_id" field if the given value is not nil.
+func (su *StudentUpdate) SetNillableRoleID(i *int64) *StudentUpdate {
+	if i != nil {
+		su.SetRoleID(*i)
+	}
+	return su
+}
+
 // SetUpdatedTime sets the "updated_time" field.
 func (su *StudentUpdate) SetUpdatedTime(t time.Time) *StudentUpdate {
 	su.mutation.SetUpdatedTime(t)
@@ -154,6 +169,17 @@ func (su *StudentUpdate) AddUpdatedHymns(h ...*Hymn) *StudentUpdate {
 	return su.AddUpdatedHymnIDs(ids...)
 }
 
+// SetRoledStudentID sets the "roled_student" edge to the Role entity by ID.
+func (su *StudentUpdate) SetRoledStudentID(id int64) *StudentUpdate {
+	su.mutation.SetRoledStudentID(id)
+	return su
+}
+
+// SetRoledStudent sets the "roled_student" edge to the Role entity.
+func (su *StudentUpdate) SetRoledStudent(r *Role) *StudentUpdate {
+	return su.SetRoledStudentID(r.ID)
+}
+
 // Mutation returns the StudentMutation object of the builder.
 func (su *StudentUpdate) Mutation() *StudentMutation {
 	return su.mutation
@@ -178,6 +204,12 @@ func (su *StudentUpdate) RemoveUpdatedHymns(h ...*Hymn) *StudentUpdate {
 		ids[i] = h[i].ID
 	}
 	return su.RemoveUpdatedHymnIDs(ids...)
+}
+
+// ClearRoledStudent clears the "roled_student" edge to the Role entity.
+func (su *StudentUpdate) ClearRoledStudent() *StudentUpdate {
+	su.mutation.ClearRoledStudent()
+	return su
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -207,7 +239,18 @@ func (su *StudentUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (su *StudentUpdate) check() error {
+	if su.mutation.RoledStudentCleared() && len(su.mutation.RoledStudentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Student.roled_student"`)
+	}
+	return nil
+}
+
 func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := su.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64))
 	if ps := su.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -281,6 +324,35 @@ func (su *StudentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.RoledStudentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   student.RoledStudentTable,
+			Columns: []string{student.RoledStudentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RoledStudentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   student.RoledStudentTable,
+			Columns: []string{student.RoledStudentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -384,6 +456,20 @@ func (suo *StudentUpdateOne) ClearEmail() *StudentUpdateOne {
 	return suo
 }
 
+// SetRoleID sets the "role_id" field.
+func (suo *StudentUpdateOne) SetRoleID(i int64) *StudentUpdateOne {
+	suo.mutation.SetRoleID(i)
+	return suo
+}
+
+// SetNillableRoleID sets the "role_id" field if the given value is not nil.
+func (suo *StudentUpdateOne) SetNillableRoleID(i *int64) *StudentUpdateOne {
+	if i != nil {
+		suo.SetRoleID(*i)
+	}
+	return suo
+}
+
 // SetUpdatedTime sets the "updated_time" field.
 func (suo *StudentUpdateOne) SetUpdatedTime(t time.Time) *StudentUpdateOne {
 	suo.mutation.SetUpdatedTime(t)
@@ -433,6 +519,17 @@ func (suo *StudentUpdateOne) AddUpdatedHymns(h ...*Hymn) *StudentUpdateOne {
 	return suo.AddUpdatedHymnIDs(ids...)
 }
 
+// SetRoledStudentID sets the "roled_student" edge to the Role entity by ID.
+func (suo *StudentUpdateOne) SetRoledStudentID(id int64) *StudentUpdateOne {
+	suo.mutation.SetRoledStudentID(id)
+	return suo
+}
+
+// SetRoledStudent sets the "roled_student" edge to the Role entity.
+func (suo *StudentUpdateOne) SetRoledStudent(r *Role) *StudentUpdateOne {
+	return suo.SetRoledStudentID(r.ID)
+}
+
 // Mutation returns the StudentMutation object of the builder.
 func (suo *StudentUpdateOne) Mutation() *StudentMutation {
 	return suo.mutation
@@ -457,6 +554,12 @@ func (suo *StudentUpdateOne) RemoveUpdatedHymns(h ...*Hymn) *StudentUpdateOne {
 		ids[i] = h[i].ID
 	}
 	return suo.RemoveUpdatedHymnIDs(ids...)
+}
+
+// ClearRoledStudent clears the "roled_student" edge to the Role entity.
+func (suo *StudentUpdateOne) ClearRoledStudent() *StudentUpdateOne {
+	suo.mutation.ClearRoledStudent()
+	return suo
 }
 
 // Where appends a list predicates to the StudentUpdate builder.
@@ -499,7 +602,18 @@ func (suo *StudentUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (suo *StudentUpdateOne) check() error {
+	if suo.mutation.RoledStudentCleared() && len(suo.mutation.RoledStudentIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Student.roled_student"`)
+	}
+	return nil
+}
+
 func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err error) {
+	if err := suo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(student.Table, student.Columns, sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64))
 	id, ok := suo.mutation.ID()
 	if !ok {
@@ -590,6 +704,35 @@ func (suo *StudentUpdateOne) sqlSave(ctx context.Context) (_node *Student, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.RoledStudentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   student.RoledStudentTable,
+			Columns: []string{student.RoledStudentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RoledStudentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   student.RoledStudentTable,
+			Columns: []string{student.RoledStudentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

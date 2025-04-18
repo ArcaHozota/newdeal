@@ -81,6 +81,25 @@ var (
 			},
 		},
 	}
+	// RolesColumns holds the columns for the "roles" table.
+	RolesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true, Comment: "ID", Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "name", Type: field.TypeString, Comment: "名称", SchemaType: map[string]string{"postgres": "varchar(40)"}},
+		{Name: "visible_flg", Type: field.TypeBool, Comment: "論理削除フラグ"},
+	}
+	// RolesTable holds the schema information for the "roles" table.
+	RolesTable = &schema.Table{
+		Name:       "roles",
+		Columns:    RolesColumns,
+		PrimaryKey: []*schema.Column{RolesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "role_name",
+				Unique:  true,
+				Columns: []*schema.Column{RolesColumns[1]},
+			},
+		},
+	}
 	// StudentsColumns holds the columns for the "students" table.
 	StudentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true, Comment: "ID", Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
@@ -91,12 +110,21 @@ var (
 		{Name: "email", Type: field.TypeString, Nullable: true, Comment: "メール", SchemaType: map[string]string{"postgres": "varchar(60)"}},
 		{Name: "updated_time", Type: field.TypeTime, Nullable: true, Comment: "登録時間"},
 		{Name: "visible_flg", Type: field.TypeBool, Comment: "論理削除フラグ"},
+		{Name: "role_id", Type: field.TypeInt64, Comment: "役割ID", SchemaType: map[string]string{"postgres": "bigint"}},
 	}
 	// StudentsTable holds the schema information for the "students" table.
 	StudentsTable = &schema.Table{
 		Name:       "students",
 		Columns:    StudentsColumns,
 		PrimaryKey: []*schema.Column{StudentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "students_roles_student",
+				Columns:    []*schema.Column{StudentsColumns[8]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "student_login_account",
@@ -114,6 +142,7 @@ var (
 	Tables = []*schema.Table{
 		HymnsTable,
 		HymnsWorkTable,
+		RolesTable,
 		StudentsTable,
 	}
 )
@@ -127,6 +156,10 @@ func init() {
 	HymnsWorkTable.Annotation = &entsql.Annotation{
 		Table: "hymns_work",
 	}
+	RolesTable.Annotation = &entsql.Annotation{
+		Table: "roles",
+	}
+	StudentsTable.ForeignKeys[0].RefTable = RolesTable
 	StudentsTable.Annotation = &entsql.Annotation{
 		Table: "students",
 	}
