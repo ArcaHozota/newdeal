@@ -3,9 +3,12 @@ package service
 import (
 	"context"
 	"newdeal/common"
+	"newdeal/ent"
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
 	"newdeal/pojos"
+
+	"github.com/samber/lo"
 )
 
 var ctx context.Context = context.Background()
@@ -48,18 +51,18 @@ func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
 		).
 		Limit(int(common.DefaultPageSize)).
 		Offset(offset).All(ctx)
-	// return lo.Map(hymns, func(hm ent.Hymn, _ int) pojos.HymnDTO {
-	// 	return pojos.HymnDTO{
-	// 		ID:          hm.ID,
-	// 		NameJP:      hm.NameJp,
-	// 		NameKR:      hm.NameKr,
-	// 		Serif:       hm.Serif,
-	// 		Link:        *hm.Link,
-	// 		Score:       nil,
-	// 		Biko:        common.EmptyString,
-	// 		UpdatedUser: hm.UpdatedUser,
-	// 		UpdatedTime: hm.UpdatedTime,
-	// 		LineNumber:  0,
-	// 	}
-	// }), err
+	return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
+		return pojos.HymnDTO{
+			ID:          hm.ID,
+			NameJP:      hm.NameJp,
+			NameKR:      hm.NameKr,
+			Serif:       common.PtString2String(hm.Serif),
+			Link:        common.PtString2String(hm.Link),
+			Score:       nil,
+			Biko:        common.EmptyString,
+			UpdatedUser: hm.UpdatedUser,
+			UpdatedTime: hm.UpdatedTime,
+			LineNumber:  0,
+		}
+	}), err
 }

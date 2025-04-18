@@ -1,6 +1,8 @@
 package common
 
-import "time"
+import (
+	"time"
+)
 
 func Unix2DateTime(timestamp int64) string {
 	t := time.Unix(timestamp, 0)
@@ -26,4 +28,11 @@ func Substr(rawString string, startIndex, endIndex int) string {
 
 func GetDetailKeyword1(keyword string) string {
 	return HankakuPercentMark + keyword + HankakuPercentMark
+}
+
+func PtString2String(str *string) string {
+	if str == nil {
+		return EmptyString
+	}
+	return *str
 }
