@@ -11,13 +11,16 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // HymnsWork is the model entity for the HymnsWork schema.
 type HymnsWork struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int64 `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
+	// WorkID holds the value of the "work_id" field.
+	WorkID uuid.UUID `json:"work_id,omitempty"`
 	// Score holds the value of the "score" field.
 	Score *[]byte `json:"score,omitempty"`
 	// NameJpRational holds the value of the "name_jp_rational" field.
@@ -29,7 +32,7 @@ type HymnsWork struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the HymnsWorkQuery when eager-loading is set.
 	Edges           HymnsWorkEdges `json:"edges"`
-	hymn_hymns_work *int64
+	hymn_hymns_work *uuid.UUID
 	selectValues    sql.SelectValues
 }
 
@@ -66,8 +69,10 @@ func (*HymnsWork) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case hymnswork.FieldUpdatedTime:
 			values[i] = new(sql.NullTime)
+		case hymnswork.FieldWorkID:
+			values[i] = new(uuid.UUID)
 		case hymnswork.ForeignKeys[0]: // hymn_hymns_work
-			values[i] = new(sql.NullInt64)
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -88,7 +93,13 @@ func (hw *HymnsWork) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			hw.ID = int64(value.Int64)
+			hw.ID = int(value.Int64)
+		case hymnswork.FieldWorkID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field work_id", values[i])
+			} else if value != nil {
+				hw.WorkID = *value
+			}
 		case hymnswork.FieldScore:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field score", values[i])
@@ -116,11 +127,11 @@ func (hw *HymnsWork) assignValues(columns []string, values []any) error {
 				*hw.Biko = value.String
 			}
 		case hymnswork.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field hymn_hymns_work", value)
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field hymn_hymns_work", values[i])
 			} else if value.Valid {
-				hw.hymn_hymns_work = new(int64)
-				*hw.hymn_hymns_work = int64(value.Int64)
+				hw.hymn_hymns_work = new(uuid.UUID)
+				*hw.hymn_hymns_work = *value.S.(*uuid.UUID)
 			}
 		default:
 			hw.selectValues.Set(columns[i], values[i])
@@ -163,6 +174,9 @@ func (hw *HymnsWork) String() string {
 	var builder strings.Builder
 	builder.WriteString("HymnsWork(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", hw.ID))
+	builder.WriteString("work_id=")
+	builder.WriteString(fmt.Sprintf("%v", hw.WorkID))
+	builder.WriteString(", ")
 	if v := hw.Score; v != nil {
 		builder.WriteString("score=")
 		builder.WriteString(fmt.Sprintf("%v", *v))

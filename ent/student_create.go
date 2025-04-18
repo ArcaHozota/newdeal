@@ -12,6 +12,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // StudentCreate is the builder for creating a Student entity.
@@ -64,28 +65,20 @@ func (sc *StudentCreate) SetVisibleFlg(b bool) *StudentCreate {
 }
 
 // SetID sets the "id" field.
-func (sc *StudentCreate) SetID(i int64) *StudentCreate {
-	sc.mutation.SetID(i)
-	return sc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (sc *StudentCreate) SetNillableID(i *int64) *StudentCreate {
-	if i != nil {
-		sc.SetID(*i)
-	}
+func (sc *StudentCreate) SetID(u uuid.UUID) *StudentCreate {
+	sc.mutation.SetID(u)
 	return sc
 }
 
 // AddHymnIDs adds the "hymns" edge to the Hymn entity by IDs.
-func (sc *StudentCreate) AddHymnIDs(ids ...int64) *StudentCreate {
+func (sc *StudentCreate) AddHymnIDs(ids ...uuid.UUID) *StudentCreate {
 	sc.mutation.AddHymnIDs(ids...)
 	return sc
 }
 
 // AddHymns adds the "hymns" edges to the Hymn entity.
 func (sc *StudentCreate) AddHymns(h ...*Hymn) *StudentCreate {
-	ids := make([]int64, len(h))
+	ids := make([]uuid.UUID, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -99,7 +92,6 @@ func (sc *StudentCreate) Mutation() *StudentMutation {
 
 // Save creates the Student in the database.
 func (sc *StudentCreate) Save(ctx context.Context) (*Student, error) {
-	sc.defaults()
 	return withHooks(ctx, sc.sqlSave, sc.mutation, sc.hooks)
 }
 
@@ -122,14 +114,6 @@ func (sc *StudentCreate) Exec(ctx context.Context) error {
 func (sc *StudentCreate) ExecX(ctx context.Context) {
 	if err := sc.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (sc *StudentCreate) defaults() {
-	if _, ok := sc.mutation.ID(); !ok {
-		v := student.DefaultID
-		sc.mutation.SetID(v)
 	}
 }
 
@@ -170,9 +154,12 @@ func (sc *StudentCreate) sqlSave(ctx context.Context) (*Student, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != _node.ID {
-		id := _spec.ID.Value.(int64)
-		_node.ID = int64(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
 	}
 	sc.mutation.id = &_node.ID
 	sc.mutation.done = true
@@ -182,11 +169,11 @@ func (sc *StudentCreate) sqlSave(ctx context.Context) (*Student, error) {
 func (sc *StudentCreate) createSpec() (*Student, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Student{config: sc.config}
-		_spec = sqlgraph.NewCreateSpec(student.Table, sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64))
+		_spec = sqlgraph.NewCreateSpec(student.Table, sqlgraph.NewFieldSpec(student.FieldID, field.TypeOther))
 	)
 	if id, ok := sc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := sc.mutation.LoginAccount(); ok {
 		_spec.SetField(student.FieldLoginAccount, field.TypeString, value)
@@ -224,7 +211,7 @@ func (sc *StudentCreate) createSpec() (*Student, *sqlgraph.CreateSpec) {
 			Columns: []string{student.HymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
 			},
 		}
 		for _, k := range nodes {
@@ -253,7 +240,6 @@ func (scb *StudentCreateBulk) Save(ctx context.Context) ([]*Student, error) {
 	for i := range scb.builders {
 		func(i int, root context.Context) {
 			builder := scb.builders[i]
-			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*StudentMutation)
 				if !ok {
@@ -280,10 +266,6 @@ func (scb *StudentCreateBulk) Save(ctx context.Context) ([]*Student, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int64(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

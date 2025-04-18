@@ -16,8 +16,8 @@ type Hymn struct {
 
 func (Hymn) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int64("id").
-			Default(int64(tools.SnowflakeID())).
+		field.Other("id", tools.SnowflakeUUID()).
+			Immutable().
 			SchemaType(map[string]string{
 				dialect.Postgres: "bigint",
 			}),
@@ -47,7 +47,7 @@ func (Hymn) Edges() []ent.Edge {
 
 func (Hymn) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("link", "name_jp", "name_kr").
+		index.Fields("id", "link", "name_jp", "name_kr").
 			Unique(),
 	}
 }

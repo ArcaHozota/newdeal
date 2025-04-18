@@ -84,8 +84,6 @@ func ValidColumn(column string) bool {
 var (
 	// UpdatedUserValidator is a validator for the "updated_user" field. It is called by the builders before save.
 	UpdatedUserValidator func(int64) error
-	// DefaultID holds the default value on creation for the "id" field.
-	DefaultID int64
 )
 
 // OrderOption defines the ordering options for the Hymn queries.

@@ -8,51 +8,57 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int64) predicate.HymnsWork {
+func ID(id int) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int64) predicate.HymnsWork {
+func IDEQ(id int) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int64) predicate.HymnsWork {
+func IDNEQ(id int) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int64) predicate.HymnsWork {
+func IDIn(ids ...int) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int64) predicate.HymnsWork {
+func IDNotIn(ids ...int) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int64) predicate.HymnsWork {
+func IDGT(id int) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int64) predicate.HymnsWork {
+func IDGTE(id int) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int64) predicate.HymnsWork {
+func IDLT(id int) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int64) predicate.HymnsWork {
+func IDLTE(id int) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldLTE(FieldID, id))
+}
+
+// WorkID applies equality check predicate on the "work_id" field. It's identical to WorkIDEQ.
+func WorkID(v uuid.UUID) predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldEQ(FieldWorkID, v))
 }
 
 // Score applies equality check predicate on the "score" field. It's identical to ScoreEQ.
@@ -73,6 +79,46 @@ func UpdatedTime(v time.Time) predicate.HymnsWork {
 // Biko applies equality check predicate on the "biko" field. It's identical to BikoEQ.
 func Biko(v string) predicate.HymnsWork {
 	return predicate.HymnsWork(sql.FieldEQ(FieldBiko, v))
+}
+
+// WorkIDEQ applies the EQ predicate on the "work_id" field.
+func WorkIDEQ(v uuid.UUID) predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldEQ(FieldWorkID, v))
+}
+
+// WorkIDNEQ applies the NEQ predicate on the "work_id" field.
+func WorkIDNEQ(v uuid.UUID) predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldNEQ(FieldWorkID, v))
+}
+
+// WorkIDIn applies the In predicate on the "work_id" field.
+func WorkIDIn(vs ...uuid.UUID) predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldIn(FieldWorkID, vs...))
+}
+
+// WorkIDNotIn applies the NotIn predicate on the "work_id" field.
+func WorkIDNotIn(vs ...uuid.UUID) predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldNotIn(FieldWorkID, vs...))
+}
+
+// WorkIDGT applies the GT predicate on the "work_id" field.
+func WorkIDGT(v uuid.UUID) predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldGT(FieldWorkID, v))
+}
+
+// WorkIDGTE applies the GTE predicate on the "work_id" field.
+func WorkIDGTE(v uuid.UUID) predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldGTE(FieldWorkID, v))
+}
+
+// WorkIDLT applies the LT predicate on the "work_id" field.
+func WorkIDLT(v uuid.UUID) predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldLT(FieldWorkID, v))
+}
+
+// WorkIDLTE applies the LTE predicate on the "work_id" field.
+func WorkIDLTE(v uuid.UUID) predicate.HymnsWork {
+	return predicate.HymnsWork(sql.FieldLTE(FieldWorkID, v))
 }
 
 // ScoreEQ applies the EQ predicate on the "score" field.

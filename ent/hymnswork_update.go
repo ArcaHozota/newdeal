@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // HymnsWorkUpdate is the builder for updating HymnsWork entities.
@@ -78,7 +79,7 @@ func (hwu *HymnsWorkUpdate) SetNillableBiko(s *string) *HymnsWorkUpdate {
 }
 
 // SetHymnsID sets the "hymns" edge to the Hymn entity by ID.
-func (hwu *HymnsWorkUpdate) SetHymnsID(id int64) *HymnsWorkUpdate {
+func (hwu *HymnsWorkUpdate) SetHymnsID(id uuid.UUID) *HymnsWorkUpdate {
 	hwu.mutation.SetHymnsID(id)
 	return hwu
 }
@@ -138,7 +139,7 @@ func (hwu *HymnsWorkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := hwu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64))
+	_spec := sqlgraph.NewUpdateSpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt))
 	if ps := hwu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -166,7 +167,7 @@ func (hwu *HymnsWorkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{hymnswork.HymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -179,7 +180,7 @@ func (hwu *HymnsWorkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{hymnswork.HymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
 			},
 		}
 		for _, k := range nodes {
@@ -256,7 +257,7 @@ func (hwuo *HymnsWorkUpdateOne) SetNillableBiko(s *string) *HymnsWorkUpdateOne {
 }
 
 // SetHymnsID sets the "hymns" edge to the Hymn entity by ID.
-func (hwuo *HymnsWorkUpdateOne) SetHymnsID(id int64) *HymnsWorkUpdateOne {
+func (hwuo *HymnsWorkUpdateOne) SetHymnsID(id uuid.UUID) *HymnsWorkUpdateOne {
 	hwuo.mutation.SetHymnsID(id)
 	return hwuo
 }
@@ -329,7 +330,7 @@ func (hwuo *HymnsWorkUpdateOne) sqlSave(ctx context.Context) (_node *HymnsWork, 
 	if err := hwuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64))
+	_spec := sqlgraph.NewUpdateSpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt))
 	id, ok := hwuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "HymnsWork.id" for update`)}
@@ -374,7 +375,7 @@ func (hwuo *HymnsWorkUpdateOne) sqlSave(ctx context.Context) (_node *HymnsWork, 
 			Columns: []string{hymnswork.HymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -387,7 +388,7 @@ func (hwuo *HymnsWorkUpdateOne) sqlSave(ctx context.Context) (_node *HymnsWork, 
 			Columns: []string{hymnswork.HymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther),
 			},
 		}
 		for _, k := range nodes {

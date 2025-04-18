@@ -13,6 +13,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // HymnCreate is the builder for creating a Hymn entity.
@@ -65,27 +66,19 @@ func (hc *HymnCreate) SetVisibleFlg(b bool) *HymnCreate {
 }
 
 // SetID sets the "id" field.
-func (hc *HymnCreate) SetID(i int64) *HymnCreate {
-	hc.mutation.SetID(i)
-	return hc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (hc *HymnCreate) SetNillableID(i *int64) *HymnCreate {
-	if i != nil {
-		hc.SetID(*i)
-	}
+func (hc *HymnCreate) SetID(u uuid.UUID) *HymnCreate {
+	hc.mutation.SetID(u)
 	return hc
 }
 
 // SetStudentsID sets the "students" edge to the Student entity by ID.
-func (hc *HymnCreate) SetStudentsID(id int64) *HymnCreate {
+func (hc *HymnCreate) SetStudentsID(id uuid.UUID) *HymnCreate {
 	hc.mutation.SetStudentsID(id)
 	return hc
 }
 
 // SetNillableStudentsID sets the "students" edge to the Student entity by ID if the given value is not nil.
-func (hc *HymnCreate) SetNillableStudentsID(id *int64) *HymnCreate {
+func (hc *HymnCreate) SetNillableStudentsID(id *uuid.UUID) *HymnCreate {
 	if id != nil {
 		hc = hc.SetStudentsID(*id)
 	}
@@ -98,13 +91,13 @@ func (hc *HymnCreate) SetStudents(s *Student) *HymnCreate {
 }
 
 // SetHymnsWorkID sets the "hymns_work" edge to the HymnsWork entity by ID.
-func (hc *HymnCreate) SetHymnsWorkID(id int64) *HymnCreate {
+func (hc *HymnCreate) SetHymnsWorkID(id int) *HymnCreate {
 	hc.mutation.SetHymnsWorkID(id)
 	return hc
 }
 
 // SetNillableHymnsWorkID sets the "hymns_work" edge to the HymnsWork entity by ID if the given value is not nil.
-func (hc *HymnCreate) SetNillableHymnsWorkID(id *int64) *HymnCreate {
+func (hc *HymnCreate) SetNillableHymnsWorkID(id *int) *HymnCreate {
 	if id != nil {
 		hc = hc.SetHymnsWorkID(*id)
 	}
@@ -123,7 +116,6 @@ func (hc *HymnCreate) Mutation() *HymnMutation {
 
 // Save creates the Hymn in the database.
 func (hc *HymnCreate) Save(ctx context.Context) (*Hymn, error) {
-	hc.defaults()
 	return withHooks(ctx, hc.sqlSave, hc.mutation, hc.hooks)
 }
 
@@ -146,14 +138,6 @@ func (hc *HymnCreate) Exec(ctx context.Context) error {
 func (hc *HymnCreate) ExecX(ctx context.Context) {
 	if err := hc.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (hc *HymnCreate) defaults() {
-	if _, ok := hc.mutation.ID(); !ok {
-		v := hymn.DefaultID
-		hc.mutation.SetID(v)
 	}
 }
 
@@ -199,9 +183,12 @@ func (hc *HymnCreate) sqlSave(ctx context.Context) (*Hymn, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != _node.ID {
-		id := _spec.ID.Value.(int64)
-		_node.ID = int64(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
 	}
 	hc.mutation.id = &_node.ID
 	hc.mutation.done = true
@@ -211,11 +198,11 @@ func (hc *HymnCreate) sqlSave(ctx context.Context) (*Hymn, error) {
 func (hc *HymnCreate) createSpec() (*Hymn, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Hymn{config: hc.config}
-		_spec = sqlgraph.NewCreateSpec(hymn.Table, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64))
+		_spec = sqlgraph.NewCreateSpec(hymn.Table, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeOther))
 	)
 	if id, ok := hc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := hc.mutation.NameJp(); ok {
 		_spec.SetField(hymn.FieldNameJp, field.TypeString, value)
@@ -253,7 +240,7 @@ func (hc *HymnCreate) createSpec() (*Hymn, *sqlgraph.CreateSpec) {
 			Columns: []string{hymn.StudentsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeOther),
 			},
 		}
 		for _, k := range nodes {
@@ -270,7 +257,7 @@ func (hc *HymnCreate) createSpec() (*Hymn, *sqlgraph.CreateSpec) {
 			Columns: []string{hymn.HymnsWorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64),
+				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -299,7 +286,6 @@ func (hcb *HymnCreateBulk) Save(ctx context.Context) ([]*Hymn, error) {
 	for i := range hcb.builders {
 		func(i int, root context.Context) {
 			builder := hcb.builders[i]
-			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*HymnMutation)
 				if !ok {
@@ -326,10 +312,6 @@ func (hcb *HymnCreateBulk) Save(ctx context.Context) ([]*Hymn, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int64(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

@@ -16,8 +16,8 @@ type Student struct {
 
 func (Student) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int64("id").
-			Default(int64(tools.SnowflakeID())).
+		field.Other("id", tools.SnowflakeUUID()).
+			Immutable().
 			SchemaType(map[string]string{
 				dialect.Postgres: "bigint",
 			}),
@@ -42,7 +42,7 @@ func (Student) Edges() []ent.Edge {
 
 func (Student) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("login_account", "email").
+		index.Fields("id", "login_account", "email").
 			Unique(),
 	}
 }

@@ -10,13 +10,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Student is the model entity for the Student schema.
 type Student struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int64 `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// LoginAccount holds the value of the "login_account" field.
 	LoginAccount string `json:"login_account,omitempty"`
 	// Password holds the value of the "password" field.
@@ -62,12 +63,12 @@ func (*Student) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case student.FieldVisibleFlg:
 			values[i] = new(sql.NullBool)
-		case student.FieldID:
-			values[i] = new(sql.NullInt64)
 		case student.FieldLoginAccount, student.FieldPassword, student.FieldUsername, student.FieldEmail:
 			values[i] = new(sql.NullString)
 		case student.FieldDateOfBirth, student.FieldUpdatedTime:
 			values[i] = new(sql.NullTime)
+		case student.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -84,11 +85,11 @@ func (s *Student) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case student.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				s.ID = *value
 			}
-			s.ID = int64(value.Int64)
 		case student.FieldLoginAccount:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field login_account", values[i])

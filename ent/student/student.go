@@ -61,11 +61,6 @@ func ValidColumn(column string) bool {
 	return false
 }
 
-var (
-	// DefaultID holds the default value on creation for the "id" field.
-	DefaultID int64
-)
-
 // OrderOption defines the ordering options for the Student queries.
 type OrderOption func(*sql.Selector)
 
