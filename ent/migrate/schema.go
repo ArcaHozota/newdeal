@@ -11,14 +11,14 @@ import (
 var (
 	// HymnsColumns holds the columns for the "hymns" table.
 	HymnsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt64, Increment: true, Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
-		{Name: "name_jp", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(66)"}},
-		{Name: "name_kr", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(66)"}},
-		{Name: "link", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "updated_time", Type: field.TypeTime},
-		{Name: "serif", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "visible_flg", Type: field.TypeBool},
-		{Name: "updated_user", Type: field.TypeInt64, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "id", Type: field.TypeInt64, Increment: true, Comment: "ID", Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "name_jp", Type: field.TypeString, Comment: "日本語名称", SchemaType: map[string]string{"postgres": "varchar(66)"}},
+		{Name: "name_kr", Type: field.TypeString, Comment: "韓国語名称", SchemaType: map[string]string{"postgres": "varchar(66)"}},
+		{Name: "link", Type: field.TypeString, Nullable: true, Comment: "リンク", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "updated_time", Type: field.TypeTime, Comment: "更新時間"},
+		{Name: "serif", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "歌詞"},
+		{Name: "visible_flg", Type: field.TypeBool, Comment: "論理削除フラグ"},
+		{Name: "updated_user", Type: field.TypeInt64, Comment: "更新者ID", SchemaType: map[string]string{"postgres": "bigint"}},
 	}
 	// HymnsTable holds the schema information for the "hymns" table.
 	HymnsTable = &schema.Table{
@@ -53,12 +53,12 @@ var (
 	}
 	// HymnsWorkColumns holds the columns for the "hymns_work" table.
 	HymnsWorkColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt64, Increment: true, SchemaType: map[string]string{"postgres": "bigint"}},
-		{Name: "score", Type: field.TypeBytes, Nullable: true},
-		{Name: "name_jp_rational", Type: field.TypeString, Nullable: true, Size: 120, SchemaType: map[string]string{"postgres": "varchar(120)"}},
-		{Name: "updated_time", Type: field.TypeTime},
-		{Name: "biko", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(10)"}},
-		{Name: "work_id", Type: field.TypeInt64, Unique: true, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "id", Type: field.TypeInt64, Increment: true, Comment: "ID", SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "score", Type: field.TypeBytes, Nullable: true, Comment: "楽譜"},
+		{Name: "name_jp_rational", Type: field.TypeString, Nullable: true, Size: 120, Comment: "日本語名称", SchemaType: map[string]string{"postgres": "varchar(120)"}},
+		{Name: "updated_time", Type: field.TypeTime, Comment: "更新時間"},
+		{Name: "biko", Type: field.TypeString, Nullable: true, Comment: "備考", SchemaType: map[string]string{"postgres": "varchar(10)"}},
+		{Name: "work_id", Type: field.TypeInt64, Unique: true, Comment: "ワークID", SchemaType: map[string]string{"postgres": "bigint"}},
 	}
 	// HymnsWorkTable holds the schema information for the "hymns_work" table.
 	HymnsWorkTable = &schema.Table{
@@ -83,14 +83,14 @@ var (
 	}
 	// StudentsColumns holds the columns for the "students" table.
 	StudentsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt64, Increment: true, Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
-		{Name: "login_account", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(40)"}},
-		{Name: "password", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "username", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(40)"}},
-		{Name: "date_of_birth", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "date"}},
-		{Name: "email", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(60)"}},
-		{Name: "updated_time", Type: field.TypeTime, Nullable: true},
-		{Name: "visible_flg", Type: field.TypeBool},
+		{Name: "id", Type: field.TypeInt64, Increment: true, Comment: "ID", Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "login_account", Type: field.TypeString, Comment: "アカウント", SchemaType: map[string]string{"postgres": "varchar(40)"}},
+		{Name: "password", Type: field.TypeString, Comment: "パスワード", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "username", Type: field.TypeString, Comment: "ユーザ名称", SchemaType: map[string]string{"postgres": "varchar(40)"}},
+		{Name: "date_of_birth", Type: field.TypeTime, Comment: "生年月日", SchemaType: map[string]string{"postgres": "date"}},
+		{Name: "email", Type: field.TypeString, Nullable: true, Comment: "メール", SchemaType: map[string]string{"postgres": "varchar(60)"}},
+		{Name: "updated_time", Type: field.TypeTime, Nullable: true, Comment: "登録時間"},
+		{Name: "visible_flg", Type: field.TypeBool, Comment: "論理削除フラグ"},
 	}
 	// StudentsTable holds the schema information for the "students" table.
 	StudentsTable = &schema.Table{

@@ -77,5 +77,6 @@ func (Hymn) Indexes() []ent.Index {
 func (Hymn) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "hymns"},
+		entsql.WithComments(true),
 	}
 }

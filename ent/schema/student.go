@@ -76,5 +76,6 @@ func (Student) Indexes() []ent.Index {
 func (Student) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "students"},
+		entsql.WithComments(true),
 	}
 }
