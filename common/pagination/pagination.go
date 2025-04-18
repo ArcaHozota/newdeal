@@ -3,8 +3,6 @@ package pagination
 import (
 	"errors"
 	"fmt"
-
-	"gorm.io/gorm"
 )
 
 // Pagination 与 Java 版字段一一对应。
@@ -131,12 +129,12 @@ func (p *Pagination[T]) calcNavigate() {
 // ------------------- GORM 辅助 Scope -------------------
 
 // PaginateScope 用于 GORM 链式调用：db.Scopes(PaginateScope(page, size))
-func PaginateScope(page, size int) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		if size <= 0 {
-			return db
-		}
-		offset := (page - 1) * size
-		return db.Offset(offset).Limit(size)
-	}
-}
+// func PaginateScope(page, size int) func(db *gorm.DB) *gorm.DB {
+// 	return func(db *gorm.DB) *gorm.DB {
+// 		if size <= 0 {
+// 			return db
+// 		}
+// 		offset := (page - 1) * size
+// 		return db.Offset(offset).Limit(size)
+// 	}
+// }

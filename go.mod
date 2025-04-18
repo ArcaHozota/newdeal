@@ -7,7 +7,6 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/lib/pq v1.10.9
 	github.com/samber/lo v1.49.1
-	gorm.io/gorm v1.25.12
 )
 
 require (
@@ -29,8 +28,6 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/uuid v1.3.0 // direct
 	github.com/hashicorp/hcl/v2 v2.13.0 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
