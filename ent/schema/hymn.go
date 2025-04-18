@@ -22,7 +22,10 @@ func (Hymn) Fields() []ent.Field {
 			Unique().
 			SchemaType(map[string]string{
 				dialect.Postgres: "bigint",
-			}),
+			}).
+			Annotations(
+				entsql.Annotation{Default: "0"}, // 明确设置无 default/identity
+			),
 		field.String("name_jp").
 			MaxLen(66).
 			Comment("日本語名称"),

@@ -22,7 +22,10 @@ func (Student) Fields() []ent.Field {
 			Unique().
 			SchemaType(map[string]string{
 				dialect.Postgres: "bigint",
-			}),
+			}).
+			Annotations(
+				entsql.Annotation{Default: "0"}, // 明确设置无 default/identity
+			),
 		field.String("login_account").
 			MaxLen(40).
 			Comment("アカウント"),

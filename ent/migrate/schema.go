@@ -11,7 +11,7 @@ import (
 var (
 	// HymnsColumns holds the columns for the "hymns" table.
 	HymnsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt64, Increment: true, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "id", Type: field.TypeInt64, Increment: true, Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
 		{Name: "name_jp", Type: field.TypeString, Size: 66},
 		{Name: "name_kr", Type: field.TypeString, Size: 66},
 		{Name: "link", Type: field.TypeString, Nullable: true, Size: 255},
@@ -58,7 +58,7 @@ var (
 		{Name: "name_jp_rational", Type: field.TypeString, Nullable: true, Size: 120},
 		{Name: "updated_time", Type: field.TypeTime},
 		{Name: "biko", Type: field.TypeString, Nullable: true, Size: 10},
-		{Name: "work_id", Type: field.TypeInt64, Unique: true, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "work_id", Type: field.TypeInt64, Unique: true, Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
 	}
 	// HymnsWorkTable holds the schema information for the "hymns_work" table.
 	HymnsWorkTable = &schema.Table{
@@ -76,7 +76,7 @@ var (
 	}
 	// StudentsColumns holds the columns for the "students" table.
 	StudentsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt64, Increment: true, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "id", Type: field.TypeInt64, Increment: true, Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
 		{Name: "login_account", Type: field.TypeString, Size: 40},
 		{Name: "password", Type: field.TypeString, Size: 255},
 		{Name: "username", Type: field.TypeString, Size: 40},

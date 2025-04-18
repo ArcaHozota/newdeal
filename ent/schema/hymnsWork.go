@@ -16,7 +16,10 @@ func (HymnsWork) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("work_id").
 			Unique().
-			Comment("ワークID"),
+			Comment("ワークID").
+			Annotations(
+				entsql.Annotation{Default: "0"}, // 明确设置无 default/identity
+			),
 		field.Bytes("score").
 			Comment("楽譜").
 			Optional(),
