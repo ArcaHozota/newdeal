@@ -16,7 +16,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // HymnQuery is the builder for querying Hymn entities.
@@ -133,8 +132,8 @@ func (hq *HymnQuery) FirstX(ctx context.Context) *Hymn {
 
 // FirstID returns the first Hymn ID from the query.
 // Returns a *NotFoundError when no Hymn ID was found.
-func (hq *HymnQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (hq *HymnQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = hq.Limit(1).IDs(setContextOp(ctx, hq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -146,7 +145,7 @@ func (hq *HymnQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (hq *HymnQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (hq *HymnQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := hq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -184,8 +183,8 @@ func (hq *HymnQuery) OnlyX(ctx context.Context) *Hymn {
 // OnlyID is like Only, but returns the only Hymn ID in the query.
 // Returns a *NotSingularError when more than one Hymn ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (hq *HymnQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (hq *HymnQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = hq.Limit(2).IDs(setContextOp(ctx, hq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -201,7 +200,7 @@ func (hq *HymnQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (hq *HymnQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (hq *HymnQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := hq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -229,7 +228,7 @@ func (hq *HymnQuery) AllX(ctx context.Context) []*Hymn {
 }
 
 // IDs executes the query and returns a list of Hymn IDs.
-func (hq *HymnQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+func (hq *HymnQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if hq.ctx.Unique == nil && hq.path != nil {
 		hq.Unique(true)
 	}
@@ -241,7 +240,7 @@ func (hq *HymnQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (hq *HymnQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (hq *HymnQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := hq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -455,8 +454,8 @@ func (hq *HymnQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Hymn, e
 }
 
 func (hq *HymnQuery) loadStudents(ctx context.Context, query *StudentQuery, nodes []*Hymn, init func(*Hymn), assign func(*Hymn, *Student)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Hymn)
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*Hymn)
 	for i := range nodes {
 		if nodes[i].student_hymns == nil {
 			continue
@@ -488,7 +487,7 @@ func (hq *HymnQuery) loadStudents(ctx context.Context, query *StudentQuery, node
 }
 func (hq *HymnQuery) loadHymnsWork(ctx context.Context, query *HymnsWorkQuery, nodes []*Hymn, init func(*Hymn), assign func(*Hymn, *HymnsWork)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Hymn)
+	nodeids := make(map[int64]*Hymn)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -525,7 +524,7 @@ func (hq *HymnQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (hq *HymnQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(hymn.Table, hymn.Columns, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeUUID))
+	_spec := sqlgraph.NewQuerySpec(hymn.Table, hymn.Columns, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64))
 	_spec.From = hq.sql
 	if unique := hq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

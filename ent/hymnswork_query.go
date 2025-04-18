@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // HymnsWorkQuery is the builder for querying HymnsWork entities.
@@ -108,8 +107,8 @@ func (hwq *HymnsWorkQuery) FirstX(ctx context.Context) *HymnsWork {
 
 // FirstID returns the first HymnsWork ID from the query.
 // Returns a *NotFoundError when no HymnsWork ID was found.
-func (hwq *HymnsWorkQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (hwq *HymnsWorkQuery) FirstID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = hwq.Limit(1).IDs(setContextOp(ctx, hwq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -121,7 +120,7 @@ func (hwq *HymnsWorkQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (hwq *HymnsWorkQuery) FirstIDX(ctx context.Context) int {
+func (hwq *HymnsWorkQuery) FirstIDX(ctx context.Context) int64 {
 	id, err := hwq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -159,8 +158,8 @@ func (hwq *HymnsWorkQuery) OnlyX(ctx context.Context) *HymnsWork {
 // OnlyID is like Only, but returns the only HymnsWork ID in the query.
 // Returns a *NotSingularError when more than one HymnsWork ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (hwq *HymnsWorkQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (hwq *HymnsWorkQuery) OnlyID(ctx context.Context) (id int64, err error) {
+	var ids []int64
 	if ids, err = hwq.Limit(2).IDs(setContextOp(ctx, hwq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -176,7 +175,7 @@ func (hwq *HymnsWorkQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (hwq *HymnsWorkQuery) OnlyIDX(ctx context.Context) int {
+func (hwq *HymnsWorkQuery) OnlyIDX(ctx context.Context) int64 {
 	id, err := hwq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -204,7 +203,7 @@ func (hwq *HymnsWorkQuery) AllX(ctx context.Context) []*HymnsWork {
 }
 
 // IDs executes the query and returns a list of HymnsWork IDs.
-func (hwq *HymnsWorkQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (hwq *HymnsWorkQuery) IDs(ctx context.Context) (ids []int64, err error) {
 	if hwq.ctx.Unique == nil && hwq.path != nil {
 		hwq.Unique(true)
 	}
@@ -216,7 +215,7 @@ func (hwq *HymnsWorkQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (hwq *HymnsWorkQuery) IDsX(ctx context.Context) []int {
+func (hwq *HymnsWorkQuery) IDsX(ctx context.Context) []int64 {
 	ids, err := hwq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -300,12 +299,12 @@ func (hwq *HymnsWorkQuery) WithHymns(opts ...func(*HymnQuery)) *HymnsWorkQuery {
 // Example:
 //
 //	var v []struct {
-//		WorkID uuid.UUID `json:"work_id,omitempty"`
+//		Score []byte `json:"score,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.HymnsWork.Query().
-//		GroupBy(hymnswork.FieldWorkID).
+//		GroupBy(hymnswork.FieldScore).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (hwq *HymnsWorkQuery) GroupBy(field string, fields ...string) *HymnsWorkGroupBy {
@@ -323,11 +322,11 @@ func (hwq *HymnsWorkQuery) GroupBy(field string, fields ...string) *HymnsWorkGro
 // Example:
 //
 //	var v []struct {
-//		WorkID uuid.UUID `json:"work_id,omitempty"`
+//		Score []byte `json:"score,omitempty"`
 //	}
 //
 //	client.HymnsWork.Query().
-//		Select(hymnswork.FieldWorkID).
+//		Select(hymnswork.FieldScore).
 //		Scan(ctx, &v)
 func (hwq *HymnsWorkQuery) Select(fields ...string) *HymnsWorkSelect {
 	hwq.ctx.Fields = append(hwq.ctx.Fields, fields...)
@@ -411,8 +410,8 @@ func (hwq *HymnsWorkQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*H
 }
 
 func (hwq *HymnsWorkQuery) loadHymns(ctx context.Context, query *HymnQuery, nodes []*HymnsWork, init func(*HymnsWork), assign func(*HymnsWork, *Hymn)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*HymnsWork)
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*HymnsWork)
 	for i := range nodes {
 		if nodes[i].hymn_hymns_work == nil {
 			continue
@@ -453,7 +452,7 @@ func (hwq *HymnsWorkQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (hwq *HymnsWorkQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(hymnswork.Table, hymnswork.Columns, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64))
 	_spec.From = hwq.sql
 	if unique := hwq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

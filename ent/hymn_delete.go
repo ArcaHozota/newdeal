@@ -40,7 +40,7 @@ func (hd *HymnDelete) ExecX(ctx context.Context) int {
 }
 
 func (hd *HymnDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(hymn.Table, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeUUID))
+	_spec := sqlgraph.NewDeleteSpec(hymn.Table, sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64))
 	if ps := hd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

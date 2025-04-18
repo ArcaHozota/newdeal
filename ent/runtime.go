@@ -4,7 +4,9 @@ package ent
 
 import (
 	"newdeal/ent/hymn"
+	"newdeal/ent/hymnswork"
 	"newdeal/ent/schema"
+	"newdeal/ent/student"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -17,4 +19,20 @@ func init() {
 	hymnDescUpdatedUser := hymnFields[5].Descriptor()
 	// hymn.UpdatedUserValidator is a validator for the "updated_user" field. It is called by the builders before save.
 	hymn.UpdatedUserValidator = hymnDescUpdatedUser.Validators[0].(func(int64) error)
+	// hymnDescID is the schema descriptor for id field.
+	hymnDescID := hymnFields[0].Descriptor()
+	// hymn.DefaultID holds the default value on creation for the id field.
+	hymn.DefaultID = hymnDescID.Default.(int64)
+	hymnsworkFields := schema.HymnsWork{}.Fields()
+	_ = hymnsworkFields
+	// hymnsworkDescID is the schema descriptor for id field.
+	hymnsworkDescID := hymnsworkFields[0].Descriptor()
+	// hymnswork.DefaultID holds the default value on creation for the id field.
+	hymnswork.DefaultID = hymnsworkDescID.Default.(int64)
+	studentFields := schema.Student{}.Fields()
+	_ = studentFields
+	// studentDescID is the schema descriptor for id field.
+	studentDescID := studentFields[0].Descriptor()
+	// student.DefaultID holds the default value on creation for the id field.
+	student.DefaultID = studentDescID.Default.(int64)
 }

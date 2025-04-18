@@ -8,51 +8,50 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id uuid.UUID) predicate.Hymn {
+func ID(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id uuid.UUID) predicate.Hymn {
+func IDEQ(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id uuid.UUID) predicate.Hymn {
+func IDNEQ(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...uuid.UUID) predicate.Hymn {
+func IDIn(ids ...int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...uuid.UUID) predicate.Hymn {
+func IDNotIn(ids ...int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id uuid.UUID) predicate.Hymn {
+func IDGT(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id uuid.UUID) predicate.Hymn {
+func IDGTE(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id uuid.UUID) predicate.Hymn {
+func IDLT(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id uuid.UUID) predicate.Hymn {
+func IDLTE(id int64) predicate.Hymn {
 	return predicate.Hymn(sql.FieldLTE(FieldID, id))
 }
 

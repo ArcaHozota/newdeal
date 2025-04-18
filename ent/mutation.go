@@ -15,7 +15,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 )
 
 const (
@@ -37,7 +36,7 @@ type HymnMutation struct {
 	config
 	op                Op
 	typ               string
-	id                *uuid.UUID
+	id                *int64
 	name_jp           *string
 	name_kr           *string
 	link              *string
@@ -47,9 +46,9 @@ type HymnMutation struct {
 	serif             *string
 	visible_flg       *bool
 	clearedFields     map[string]struct{}
-	students          *uuid.UUID
+	students          *int64
 	clearedstudents   bool
-	hymns_work        *int
+	hymns_work        *int64
 	clearedhymns_work bool
 	done              bool
 	oldValue          func(context.Context) (*Hymn, error)
@@ -76,7 +75,7 @@ func newHymnMutation(c config, op Op, opts ...hymnOption) *HymnMutation {
 }
 
 // withHymnID sets the ID field of the mutation.
-func withHymnID(id uuid.UUID) hymnOption {
+func withHymnID(id int64) hymnOption {
 	return func(m *HymnMutation) {
 		var (
 			err   error
@@ -128,13 +127,13 @@ func (m HymnMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Hymn entities.
-func (m *HymnMutation) SetID(id uuid.UUID) {
+func (m *HymnMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *HymnMutation) ID() (id uuid.UUID, exists bool) {
+func (m *HymnMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -145,12 +144,12 @@ func (m *HymnMutation) ID() (id uuid.UUID, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *HymnMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+func (m *HymnMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []uuid.UUID{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -433,7 +432,7 @@ func (m *HymnMutation) ResetVisibleFlg() {
 }
 
 // SetStudentsID sets the "students" edge to the Student entity by id.
-func (m *HymnMutation) SetStudentsID(id uuid.UUID) {
+func (m *HymnMutation) SetStudentsID(id int64) {
 	m.students = &id
 }
 
@@ -448,7 +447,7 @@ func (m *HymnMutation) StudentsCleared() bool {
 }
 
 // StudentsID returns the "students" edge ID in the mutation.
-func (m *HymnMutation) StudentsID() (id uuid.UUID, exists bool) {
+func (m *HymnMutation) StudentsID() (id int64, exists bool) {
 	if m.students != nil {
 		return *m.students, true
 	}
@@ -458,7 +457,7 @@ func (m *HymnMutation) StudentsID() (id uuid.UUID, exists bool) {
 // StudentsIDs returns the "students" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // StudentsID instead. It exists only for internal usage by the builders.
-func (m *HymnMutation) StudentsIDs() (ids []uuid.UUID) {
+func (m *HymnMutation) StudentsIDs() (ids []int64) {
 	if id := m.students; id != nil {
 		ids = append(ids, *id)
 	}
@@ -472,7 +471,7 @@ func (m *HymnMutation) ResetStudents() {
 }
 
 // SetHymnsWorkID sets the "hymns_work" edge to the HymnsWork entity by id.
-func (m *HymnMutation) SetHymnsWorkID(id int) {
+func (m *HymnMutation) SetHymnsWorkID(id int64) {
 	m.hymns_work = &id
 }
 
@@ -487,7 +486,7 @@ func (m *HymnMutation) HymnsWorkCleared() bool {
 }
 
 // HymnsWorkID returns the "hymns_work" edge ID in the mutation.
-func (m *HymnMutation) HymnsWorkID() (id int, exists bool) {
+func (m *HymnMutation) HymnsWorkID() (id int64, exists bool) {
 	if m.hymns_work != nil {
 		return *m.hymns_work, true
 	}
@@ -497,7 +496,7 @@ func (m *HymnMutation) HymnsWorkID() (id int, exists bool) {
 // HymnsWorkIDs returns the "hymns_work" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // HymnsWorkID instead. It exists only for internal usage by the builders.
-func (m *HymnMutation) HymnsWorkIDs() (ids []int) {
+func (m *HymnMutation) HymnsWorkIDs() (ids []int64) {
 	if id := m.hymns_work; id != nil {
 		ids = append(ids, *id)
 	}
@@ -855,14 +854,13 @@ type HymnsWorkMutation struct {
 	config
 	op               Op
 	typ              string
-	id               *int
-	work_id          *uuid.UUID
+	id               *int64
 	score            *[]byte
 	name_jp_rational *string
 	updated_time     *time.Time
 	biko             *string
 	clearedFields    map[string]struct{}
-	hymns            *uuid.UUID
+	hymns            *int64
 	clearedhymns     bool
 	done             bool
 	oldValue         func(context.Context) (*HymnsWork, error)
@@ -889,7 +887,7 @@ func newHymnsWorkMutation(c config, op Op, opts ...hymnsworkOption) *HymnsWorkMu
 }
 
 // withHymnsWorkID sets the ID field of the mutation.
-func withHymnsWorkID(id int) hymnsworkOption {
+func withHymnsWorkID(id int64) hymnsworkOption {
 	return func(m *HymnsWorkMutation) {
 		var (
 			err   error
@@ -939,9 +937,15 @@ func (m HymnsWorkMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of HymnsWork entities.
+func (m *HymnsWorkMutation) SetID(id int64) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *HymnsWorkMutation) ID() (id int, exists bool) {
+func (m *HymnsWorkMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -952,12 +956,12 @@ func (m *HymnsWorkMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *HymnsWorkMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *HymnsWorkMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -965,42 +969,6 @@ func (m *HymnsWorkMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetWorkID sets the "work_id" field.
-func (m *HymnsWorkMutation) SetWorkID(u uuid.UUID) {
-	m.work_id = &u
-}
-
-// WorkID returns the value of the "work_id" field in the mutation.
-func (m *HymnsWorkMutation) WorkID() (r uuid.UUID, exists bool) {
-	v := m.work_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldWorkID returns the old "work_id" field's value of the HymnsWork entity.
-// If the HymnsWork object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HymnsWorkMutation) OldWorkID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldWorkID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldWorkID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldWorkID: %w", err)
-	}
-	return oldValue.WorkID, nil
-}
-
-// ResetWorkID resets all changes to the "work_id" field.
-func (m *HymnsWorkMutation) ResetWorkID() {
-	m.work_id = nil
 }
 
 // SetScore sets the "score" field.
@@ -1148,7 +1116,7 @@ func (m *HymnsWorkMutation) ResetBiko() {
 }
 
 // SetHymnsID sets the "hymns" edge to the Hymn entity by id.
-func (m *HymnsWorkMutation) SetHymnsID(id uuid.UUID) {
+func (m *HymnsWorkMutation) SetHymnsID(id int64) {
 	m.hymns = &id
 }
 
@@ -1163,7 +1131,7 @@ func (m *HymnsWorkMutation) HymnsCleared() bool {
 }
 
 // HymnsID returns the "hymns" edge ID in the mutation.
-func (m *HymnsWorkMutation) HymnsID() (id uuid.UUID, exists bool) {
+func (m *HymnsWorkMutation) HymnsID() (id int64, exists bool) {
 	if m.hymns != nil {
 		return *m.hymns, true
 	}
@@ -1173,7 +1141,7 @@ func (m *HymnsWorkMutation) HymnsID() (id uuid.UUID, exists bool) {
 // HymnsIDs returns the "hymns" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // HymnsID instead. It exists only for internal usage by the builders.
-func (m *HymnsWorkMutation) HymnsIDs() (ids []uuid.UUID) {
+func (m *HymnsWorkMutation) HymnsIDs() (ids []int64) {
 	if id := m.hymns; id != nil {
 		ids = append(ids, *id)
 	}
@@ -1220,10 +1188,7 @@ func (m *HymnsWorkMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *HymnsWorkMutation) Fields() []string {
-	fields := make([]string, 0, 5)
-	if m.work_id != nil {
-		fields = append(fields, hymnswork.FieldWorkID)
-	}
+	fields := make([]string, 0, 4)
 	if m.score != nil {
 		fields = append(fields, hymnswork.FieldScore)
 	}
@@ -1244,8 +1209,6 @@ func (m *HymnsWorkMutation) Fields() []string {
 // schema.
 func (m *HymnsWorkMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case hymnswork.FieldWorkID:
-		return m.WorkID()
 	case hymnswork.FieldScore:
 		return m.Score()
 	case hymnswork.FieldNameJpRational:
@@ -1263,8 +1226,6 @@ func (m *HymnsWorkMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *HymnsWorkMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case hymnswork.FieldWorkID:
-		return m.OldWorkID(ctx)
 	case hymnswork.FieldScore:
 		return m.OldScore(ctx)
 	case hymnswork.FieldNameJpRational:
@@ -1282,13 +1243,6 @@ func (m *HymnsWorkMutation) OldField(ctx context.Context, name string) (ent.Valu
 // type.
 func (m *HymnsWorkMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case hymnswork.FieldWorkID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetWorkID(v)
-		return nil
 	case hymnswork.FieldScore:
 		v, ok := value.([]byte)
 		if !ok {
@@ -1366,9 +1320,6 @@ func (m *HymnsWorkMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *HymnsWorkMutation) ResetField(name string) error {
 	switch name {
-	case hymnswork.FieldWorkID:
-		m.ResetWorkID()
-		return nil
 	case hymnswork.FieldScore:
 		m.ResetScore()
 		return nil
@@ -1464,7 +1415,7 @@ type StudentMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *uuid.UUID
+	id            *int64
 	login_account *string
 	password      *string
 	username      *string
@@ -1473,8 +1424,8 @@ type StudentMutation struct {
 	updated_time  *time.Time
 	visible_flg   *bool
 	clearedFields map[string]struct{}
-	hymns         map[uuid.UUID]struct{}
-	removedhymns  map[uuid.UUID]struct{}
+	hymns         map[int64]struct{}
+	removedhymns  map[int64]struct{}
 	clearedhymns  bool
 	done          bool
 	oldValue      func(context.Context) (*Student, error)
@@ -1501,7 +1452,7 @@ func newStudentMutation(c config, op Op, opts ...studentOption) *StudentMutation
 }
 
 // withStudentID sets the ID field of the mutation.
-func withStudentID(id uuid.UUID) studentOption {
+func withStudentID(id int64) studentOption {
 	return func(m *StudentMutation) {
 		var (
 			err   error
@@ -1553,13 +1504,13 @@ func (m StudentMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Student entities.
-func (m *StudentMutation) SetID(id uuid.UUID) {
+func (m *StudentMutation) SetID(id int64) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *StudentMutation) ID() (id uuid.UUID, exists bool) {
+func (m *StudentMutation) ID() (id int64, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -1570,12 +1521,12 @@ func (m *StudentMutation) ID() (id uuid.UUID, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *StudentMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+func (m *StudentMutation) IDs(ctx context.Context) ([]int64, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []uuid.UUID{id}, nil
+			return []int64{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -1838,9 +1789,9 @@ func (m *StudentMutation) ResetVisibleFlg() {
 }
 
 // AddHymnIDs adds the "hymns" edge to the Hymn entity by ids.
-func (m *StudentMutation) AddHymnIDs(ids ...uuid.UUID) {
+func (m *StudentMutation) AddHymnIDs(ids ...int64) {
 	if m.hymns == nil {
-		m.hymns = make(map[uuid.UUID]struct{})
+		m.hymns = make(map[int64]struct{})
 	}
 	for i := range ids {
 		m.hymns[ids[i]] = struct{}{}
@@ -1858,9 +1809,9 @@ func (m *StudentMutation) HymnsCleared() bool {
 }
 
 // RemoveHymnIDs removes the "hymns" edge to the Hymn entity by IDs.
-func (m *StudentMutation) RemoveHymnIDs(ids ...uuid.UUID) {
+func (m *StudentMutation) RemoveHymnIDs(ids ...int64) {
 	if m.removedhymns == nil {
-		m.removedhymns = make(map[uuid.UUID]struct{})
+		m.removedhymns = make(map[int64]struct{})
 	}
 	for i := range ids {
 		delete(m.hymns, ids[i])
@@ -1869,7 +1820,7 @@ func (m *StudentMutation) RemoveHymnIDs(ids ...uuid.UUID) {
 }
 
 // RemovedHymns returns the removed IDs of the "hymns" edge to the Hymn entity.
-func (m *StudentMutation) RemovedHymnsIDs() (ids []uuid.UUID) {
+func (m *StudentMutation) RemovedHymnsIDs() (ids []int64) {
 	for id := range m.removedhymns {
 		ids = append(ids, id)
 	}
@@ -1877,7 +1828,7 @@ func (m *StudentMutation) RemovedHymnsIDs() (ids []uuid.UUID) {
 }
 
 // HymnsIDs returns the "hymns" edge IDs in the mutation.
-func (m *StudentMutation) HymnsIDs() (ids []uuid.UUID) {
+func (m *StudentMutation) HymnsIDs() (ids []int64) {
 	for id := range m.hymns {
 		ids = append(ids, id)
 	}

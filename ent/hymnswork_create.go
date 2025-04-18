@@ -12,7 +12,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // HymnsWorkCreate is the builder for creating a HymnsWork entity.
@@ -20,12 +19,6 @@ type HymnsWorkCreate struct {
 	config
 	mutation *HymnsWorkMutation
 	hooks    []Hook
-}
-
-// SetWorkID sets the "work_id" field.
-func (hwc *HymnsWorkCreate) SetWorkID(u uuid.UUID) *HymnsWorkCreate {
-	hwc.mutation.SetWorkID(u)
-	return hwc
 }
 
 // SetScore sets the "score" field.
@@ -52,8 +45,22 @@ func (hwc *HymnsWorkCreate) SetBiko(s string) *HymnsWorkCreate {
 	return hwc
 }
 
+// SetID sets the "id" field.
+func (hwc *HymnsWorkCreate) SetID(i int64) *HymnsWorkCreate {
+	hwc.mutation.SetID(i)
+	return hwc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (hwc *HymnsWorkCreate) SetNillableID(i *int64) *HymnsWorkCreate {
+	if i != nil {
+		hwc.SetID(*i)
+	}
+	return hwc
+}
+
 // SetHymnsID sets the "hymns" edge to the Hymn entity by ID.
-func (hwc *HymnsWorkCreate) SetHymnsID(id uuid.UUID) *HymnsWorkCreate {
+func (hwc *HymnsWorkCreate) SetHymnsID(id int64) *HymnsWorkCreate {
 	hwc.mutation.SetHymnsID(id)
 	return hwc
 }
@@ -70,6 +77,7 @@ func (hwc *HymnsWorkCreate) Mutation() *HymnsWorkMutation {
 
 // Save creates the HymnsWork in the database.
 func (hwc *HymnsWorkCreate) Save(ctx context.Context) (*HymnsWork, error) {
+	hwc.defaults()
 	return withHooks(ctx, hwc.sqlSave, hwc.mutation, hwc.hooks)
 }
 
@@ -95,11 +103,16 @@ func (hwc *HymnsWorkCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (hwc *HymnsWorkCreate) defaults() {
+	if _, ok := hwc.mutation.ID(); !ok {
+		v := hymnswork.DefaultID
+		hwc.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (hwc *HymnsWorkCreate) check() error {
-	if _, ok := hwc.mutation.WorkID(); !ok {
-		return &ValidationError{Name: "work_id", err: errors.New(`ent: missing required field "HymnsWork.work_id"`)}
-	}
 	if _, ok := hwc.mutation.Score(); !ok {
 		return &ValidationError{Name: "score", err: errors.New(`ent: missing required field "HymnsWork.score"`)}
 	}
@@ -129,8 +142,10 @@ func (hwc *HymnsWorkCreate) sqlSave(ctx context.Context) (*HymnsWork, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int64(id)
+	}
 	hwc.mutation.id = &_node.ID
 	hwc.mutation.done = true
 	return _node, nil
@@ -139,11 +154,11 @@ func (hwc *HymnsWorkCreate) sqlSave(ctx context.Context) (*HymnsWork, error) {
 func (hwc *HymnsWorkCreate) createSpec() (*HymnsWork, *sqlgraph.CreateSpec) {
 	var (
 		_node = &HymnsWork{config: hwc.config}
-		_spec = sqlgraph.NewCreateSpec(hymnswork.Table, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(hymnswork.Table, sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64))
 	)
-	if value, ok := hwc.mutation.WorkID(); ok {
-		_spec.SetField(hymnswork.FieldWorkID, field.TypeUUID, value)
-		_node.WorkID = value
+	if id, ok := hwc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := hwc.mutation.Score(); ok {
 		_spec.SetField(hymnswork.FieldScore, field.TypeBytes, value)
@@ -169,7 +184,7 @@ func (hwc *HymnsWorkCreate) createSpec() (*HymnsWork, *sqlgraph.CreateSpec) {
 			Columns: []string{hymnswork.HymnsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(hymn.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -199,6 +214,7 @@ func (hwcb *HymnsWorkCreateBulk) Save(ctx context.Context) ([]*HymnsWork, error)
 	for i := range hwcb.builders {
 		func(i int, root context.Context) {
 			builder := hwcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*HymnsWorkMutation)
 				if !ok {
@@ -225,9 +241,9 @@ func (hwcb *HymnsWorkCreateBulk) Save(ctx context.Context) ([]*HymnsWork, error)
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
+					nodes[i].ID = int64(id)
 				}
 				mutation.done = true
 				return nodes[i], nil

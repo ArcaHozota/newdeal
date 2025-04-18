@@ -15,7 +15,8 @@ type HymnsWork struct {
 
 func (HymnsWork) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("work_id", tools.SnowflakeUUID()).
+		field.Int64("id").
+			Default(int64(tools.SnowflakeID())).
 			SchemaType(map[string]string{
 				dialect.Postgres: "bigint",
 			}),

@@ -12,8 +12,6 @@ const (
 	Label = "hymns_work"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldWorkID holds the string denoting the work_id field in the database.
-	FieldWorkID = "work_id"
 	// FieldScore holds the string denoting the score field in the database.
 	FieldScore = "score"
 	// FieldNameJpRational holds the string denoting the name_jp_rational field in the database.
@@ -38,7 +36,6 @@ const (
 // Columns holds all SQL columns for hymnswork fields.
 var Columns = []string{
 	FieldID,
-	FieldWorkID,
 	FieldScore,
 	FieldNameJpRational,
 	FieldUpdatedTime,
@@ -66,17 +63,17 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID int64
+)
+
 // OrderOption defines the ordering options for the HymnsWork queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByWorkID orders the results by the work_id field.
-func ByWorkID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldWorkID, opts...).ToFunc()
 }
 
 // ByNameJpRational orders the results by the name_jp_rational field.
