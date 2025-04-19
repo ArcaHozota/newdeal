@@ -31,7 +31,7 @@ func CountHymnsByKeyword(keyword string) (int, error) {
 			hymn.Or(
 				hymn.NameJpContains(keyword),
 				hymn.NameKrContains(keyword),
-				hymn.HasWorkWith(
+				hymn.HasToWorkWith(
 					hymnswork.NameJpRationalContains(keyword),
 				),
 			),
@@ -49,7 +49,7 @@ func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
 			hymn.Or(
 				hymn.NameJpContains(keyword),
 				hymn.NameKrContains(keyword),
-				hymn.HasWorkWith(
+				hymn.HasToWorkWith(
 					hymnswork.NameJpRationalContains(keyword),
 				),
 			),

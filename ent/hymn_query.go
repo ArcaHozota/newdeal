@@ -26,7 +26,7 @@ type HymnQuery struct {
 	inters        []Interceptor
 	predicates    []predicate.Hymn
 	withUpdatedBy *StudentQuery
-	withWork      *HymnsWorkQuery
+	withToWork    *HymnsWorkQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -85,8 +85,8 @@ func (hq *HymnQuery) QueryUpdatedBy() *StudentQuery {
 	return query
 }
 
-// QueryWork chains the current query on the "work" edge.
-func (hq *HymnQuery) QueryWork() *HymnsWorkQuery {
+// QueryToWork chains the current query on the "to_work" edge.
+func (hq *HymnQuery) QueryToWork() *HymnsWorkQuery {
 	query := (&HymnsWorkClient{config: hq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := hq.prepareQuery(ctx); err != nil {
@@ -99,7 +99,7 @@ func (hq *HymnQuery) QueryWork() *HymnsWorkQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(hymn.Table, hymn.FieldID, selector),
 			sqlgraph.To(hymnswork.Table, hymnswork.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, hymn.WorkTable, hymn.WorkColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, hymn.ToWorkTable, hymn.ToWorkColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
 		return fromU, nil
@@ -300,7 +300,7 @@ func (hq *HymnQuery) Clone() *HymnQuery {
 		inters:        append([]Interceptor{}, hq.inters...),
 		predicates:    append([]predicate.Hymn{}, hq.predicates...),
 		withUpdatedBy: hq.withUpdatedBy.Clone(),
-		withWork:      hq.withWork.Clone(),
+		withToWork:    hq.withToWork.Clone(),
 		// clone intermediate query.
 		sql:  hq.sql.Clone(),
 		path: hq.path,
@@ -318,14 +318,14 @@ func (hq *HymnQuery) WithUpdatedBy(opts ...func(*StudentQuery)) *HymnQuery {
 	return hq
 }
 
-// WithWork tells the query-builder to eager-load the nodes that are connected to
-// the "work" edge. The optional arguments are used to configure the query builder of the edge.
-func (hq *HymnQuery) WithWork(opts ...func(*HymnsWorkQuery)) *HymnQuery {
+// WithToWork tells the query-builder to eager-load the nodes that are connected to
+// the "to_work" edge. The optional arguments are used to configure the query builder of the edge.
+func (hq *HymnQuery) WithToWork(opts ...func(*HymnsWorkQuery)) *HymnQuery {
 	query := (&HymnsWorkClient{config: hq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	hq.withWork = query
+	hq.withToWork = query
 	return hq
 }
 
@@ -409,7 +409,7 @@ func (hq *HymnQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Hymn, e
 		_spec       = hq.querySpec()
 		loadedTypes = [2]bool{
 			hq.withUpdatedBy != nil,
-			hq.withWork != nil,
+			hq.withToWork != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -436,9 +436,9 @@ func (hq *HymnQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Hymn, e
 			return nil, err
 		}
 	}
-	if query := hq.withWork; query != nil {
-		if err := hq.loadWork(ctx, query, nodes, nil,
-			func(n *Hymn, e *HymnsWork) { n.Edges.Work = e }); err != nil {
+	if query := hq.withToWork; query != nil {
+		if err := hq.loadToWork(ctx, query, nodes, nil,
+			func(n *Hymn, e *HymnsWork) { n.Edges.ToWork = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -474,7 +474,7 @@ func (hq *HymnQuery) loadUpdatedBy(ctx context.Context, query *StudentQuery, nod
 	}
 	return nil
 }
-func (hq *HymnQuery) loadWork(ctx context.Context, query *HymnsWorkQuery, nodes []*Hymn, init func(*Hymn), assign func(*Hymn, *HymnsWork)) error {
+func (hq *HymnQuery) loadToWork(ctx context.Context, query *HymnsWorkQuery, nodes []*Hymn, init func(*Hymn), assign func(*Hymn, *HymnsWork)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int64]*Hymn)
 	for i := range nodes {
@@ -485,7 +485,7 @@ func (hq *HymnQuery) loadWork(ctx context.Context, query *HymnsWorkQuery, nodes 
 		query.ctx.AppendFieldOnce(hymnswork.FieldWorkID)
 	}
 	query.Where(predicate.HymnsWork(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(hymn.WorkColumn), fks...))
+		s.Where(sql.InValues(s.C(hymn.ToWorkColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

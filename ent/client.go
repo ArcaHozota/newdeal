@@ -849,15 +849,15 @@ func (c *HymnClient) QueryUpdatedBy(h *Hymn) *StudentQuery {
 	return query
 }
 
-// QueryWork queries the work edge of a Hymn.
-func (c *HymnClient) QueryWork(h *Hymn) *HymnsWorkQuery {
+// QueryToWork queries the to_work edge of a Hymn.
+func (c *HymnClient) QueryToWork(h *Hymn) *HymnsWorkQuery {
 	query := (&HymnsWorkClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := h.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(hymn.Table, hymn.FieldID, id),
 			sqlgraph.To(hymnswork.Table, hymnswork.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, hymn.WorkTable, hymn.WorkColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, hymn.ToWorkTable, hymn.ToWorkColumn),
 		)
 		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
 		return fromV, nil

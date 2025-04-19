@@ -28,8 +28,8 @@ const (
 	FieldVisibleFlg = "visible_flg"
 	// EdgeUpdatedBy holds the string denoting the updated_by edge name in mutations.
 	EdgeUpdatedBy = "updated_by"
-	// EdgeWork holds the string denoting the work edge name in mutations.
-	EdgeWork = "work"
+	// EdgeToWork holds the string denoting the to_work edge name in mutations.
+	EdgeToWork = "to_work"
 	// Table holds the table name of the hymn in the database.
 	Table = "hymns"
 	// UpdatedByTable is the table that holds the updated_by relation/edge.
@@ -39,13 +39,13 @@ const (
 	UpdatedByInverseTable = "students"
 	// UpdatedByColumn is the table column denoting the updated_by relation/edge.
 	UpdatedByColumn = "updated_user"
-	// WorkTable is the table that holds the work relation/edge.
-	WorkTable = "hymns_work"
-	// WorkInverseTable is the table name for the HymnsWork entity.
+	// ToWorkTable is the table that holds the to_work relation/edge.
+	ToWorkTable = "hymns_work"
+	// ToWorkInverseTable is the table name for the HymnsWork entity.
 	// It exists in this package in order to avoid circular dependency with the "hymnswork" package.
-	WorkInverseTable = "hymns_work"
-	// WorkColumn is the table column denoting the work relation/edge.
-	WorkColumn = "work_id"
+	ToWorkInverseTable = "hymns_work"
+	// ToWorkColumn is the table column denoting the to_work relation/edge.
+	ToWorkColumn = "work_id"
 )
 
 // Columns holds all SQL columns for hymn fields.
@@ -120,10 +120,10 @@ func ByUpdatedByField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByWorkField orders the results by work field.
-func ByWorkField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByToWorkField orders the results by to_work field.
+func ByToWorkField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newWorkStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newToWorkStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newUpdatedByStep() *sqlgraph.Step {
@@ -133,10 +133,10 @@ func newUpdatedByStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, UpdatedByTable, UpdatedByColumn),
 	)
 }
-func newWorkStep() *sqlgraph.Step {
+func newToWorkStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(WorkInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, WorkTable, WorkColumn),
+		sqlgraph.To(ToWorkInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, ToWorkTable, ToWorkColumn),
 	)
 }

@@ -151,23 +151,23 @@ func (hu *HymnUpdate) SetUpdatedBy(s *Student) *HymnUpdate {
 	return hu.SetUpdatedByID(s.ID)
 }
 
-// SetWorkID sets the "work" edge to the HymnsWork entity by ID.
-func (hu *HymnUpdate) SetWorkID(id int64) *HymnUpdate {
-	hu.mutation.SetWorkID(id)
+// SetToWorkID sets the "to_work" edge to the HymnsWork entity by ID.
+func (hu *HymnUpdate) SetToWorkID(id int64) *HymnUpdate {
+	hu.mutation.SetToWorkID(id)
 	return hu
 }
 
-// SetNillableWorkID sets the "work" edge to the HymnsWork entity by ID if the given value is not nil.
-func (hu *HymnUpdate) SetNillableWorkID(id *int64) *HymnUpdate {
+// SetNillableToWorkID sets the "to_work" edge to the HymnsWork entity by ID if the given value is not nil.
+func (hu *HymnUpdate) SetNillableToWorkID(id *int64) *HymnUpdate {
 	if id != nil {
-		hu = hu.SetWorkID(*id)
+		hu = hu.SetToWorkID(*id)
 	}
 	return hu
 }
 
-// SetWork sets the "work" edge to the HymnsWork entity.
-func (hu *HymnUpdate) SetWork(h *HymnsWork) *HymnUpdate {
-	return hu.SetWorkID(h.ID)
+// SetToWork sets the "to_work" edge to the HymnsWork entity.
+func (hu *HymnUpdate) SetToWork(h *HymnsWork) *HymnUpdate {
+	return hu.SetToWorkID(h.ID)
 }
 
 // Mutation returns the HymnMutation object of the builder.
@@ -181,9 +181,9 @@ func (hu *HymnUpdate) ClearUpdatedBy() *HymnUpdate {
 	return hu
 }
 
-// ClearWork clears the "work" edge to the HymnsWork entity.
-func (hu *HymnUpdate) ClearWork() *HymnUpdate {
-	hu.mutation.ClearWork()
+// ClearToWork clears the "to_work" edge to the HymnsWork entity.
+func (hu *HymnUpdate) ClearToWork() *HymnUpdate {
+	hu.mutation.ClearToWork()
 	return hu
 }
 
@@ -287,12 +287,12 @@ func (hu *HymnUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if hu.mutation.WorkCleared() {
+	if hu.mutation.ToWorkCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   hymn.WorkTable,
-			Columns: []string{hymn.WorkColumn},
+			Table:   hymn.ToWorkTable,
+			Columns: []string{hymn.ToWorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64),
@@ -300,12 +300,12 @@ func (hu *HymnUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := hu.mutation.WorkIDs(); len(nodes) > 0 {
+	if nodes := hu.mutation.ToWorkIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   hymn.WorkTable,
-			Columns: []string{hymn.WorkColumn},
+			Table:   hymn.ToWorkTable,
+			Columns: []string{hymn.ToWorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64),
@@ -457,23 +457,23 @@ func (huo *HymnUpdateOne) SetUpdatedBy(s *Student) *HymnUpdateOne {
 	return huo.SetUpdatedByID(s.ID)
 }
 
-// SetWorkID sets the "work" edge to the HymnsWork entity by ID.
-func (huo *HymnUpdateOne) SetWorkID(id int64) *HymnUpdateOne {
-	huo.mutation.SetWorkID(id)
+// SetToWorkID sets the "to_work" edge to the HymnsWork entity by ID.
+func (huo *HymnUpdateOne) SetToWorkID(id int64) *HymnUpdateOne {
+	huo.mutation.SetToWorkID(id)
 	return huo
 }
 
-// SetNillableWorkID sets the "work" edge to the HymnsWork entity by ID if the given value is not nil.
-func (huo *HymnUpdateOne) SetNillableWorkID(id *int64) *HymnUpdateOne {
+// SetNillableToWorkID sets the "to_work" edge to the HymnsWork entity by ID if the given value is not nil.
+func (huo *HymnUpdateOne) SetNillableToWorkID(id *int64) *HymnUpdateOne {
 	if id != nil {
-		huo = huo.SetWorkID(*id)
+		huo = huo.SetToWorkID(*id)
 	}
 	return huo
 }
 
-// SetWork sets the "work" edge to the HymnsWork entity.
-func (huo *HymnUpdateOne) SetWork(h *HymnsWork) *HymnUpdateOne {
-	return huo.SetWorkID(h.ID)
+// SetToWork sets the "to_work" edge to the HymnsWork entity.
+func (huo *HymnUpdateOne) SetToWork(h *HymnsWork) *HymnUpdateOne {
+	return huo.SetToWorkID(h.ID)
 }
 
 // Mutation returns the HymnMutation object of the builder.
@@ -487,9 +487,9 @@ func (huo *HymnUpdateOne) ClearUpdatedBy() *HymnUpdateOne {
 	return huo
 }
 
-// ClearWork clears the "work" edge to the HymnsWork entity.
-func (huo *HymnUpdateOne) ClearWork() *HymnUpdateOne {
-	huo.mutation.ClearWork()
+// ClearToWork clears the "to_work" edge to the HymnsWork entity.
+func (huo *HymnUpdateOne) ClearToWork() *HymnUpdateOne {
+	huo.mutation.ClearToWork()
 	return huo
 }
 
@@ -623,12 +623,12 @@ func (huo *HymnUpdateOne) sqlSave(ctx context.Context) (_node *Hymn, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if huo.mutation.WorkCleared() {
+	if huo.mutation.ToWorkCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   hymn.WorkTable,
-			Columns: []string{hymn.WorkColumn},
+			Table:   hymn.ToWorkTable,
+			Columns: []string{hymn.ToWorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64),
@@ -636,12 +636,12 @@ func (huo *HymnUpdateOne) sqlSave(ctx context.Context) (_node *Hymn, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := huo.mutation.WorkIDs(); len(nodes) > 0 {
+	if nodes := huo.mutation.ToWorkIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
-			Table:   hymn.WorkTable,
-			Columns: []string{hymn.WorkColumn},
+			Table:   hymn.ToWorkTable,
+			Columns: []string{hymn.ToWorkColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(hymnswork.FieldID, field.TypeInt64),

@@ -7,7 +7,6 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/index"
 )
 
 type HymnsWork struct {
@@ -48,7 +47,7 @@ func (HymnsWork) Fields() []ent.Field {
 func (HymnsWork) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("linked_hymn", Hymn.Type).
-			Ref("work").
+			Ref("to_work").
 			Field("work_id").
 			// We add the "Required" method to the builder
 			// to make this edge required on entity creation.
@@ -59,9 +58,7 @@ func (HymnsWork) Edges() []ent.Edge {
 }
 
 func (HymnsWork) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("work_id").Unique(),
-	}
+	return []ent.Index{}
 }
 
 // Annotations of the HymnsWork.

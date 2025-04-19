@@ -1722,8 +1722,8 @@ type HymnMutation struct {
 	clearedFields     map[string]struct{}
 	updated_by        *int64
 	clearedupdated_by bool
-	work              *int64
-	clearedwork       bool
+	to_work           *int64
+	clearedto_work    bool
 	done              bool
 	oldValue          func(context.Context) (*Hymn, error)
 	predicates        []predicate.Hymn
@@ -2151,43 +2151,43 @@ func (m *HymnMutation) ResetUpdatedBy() {
 	m.clearedupdated_by = false
 }
 
-// SetWorkID sets the "work" edge to the HymnsWork entity by id.
-func (m *HymnMutation) SetWorkID(id int64) {
-	m.work = &id
+// SetToWorkID sets the "to_work" edge to the HymnsWork entity by id.
+func (m *HymnMutation) SetToWorkID(id int64) {
+	m.to_work = &id
 }
 
-// ClearWork clears the "work" edge to the HymnsWork entity.
-func (m *HymnMutation) ClearWork() {
-	m.clearedwork = true
+// ClearToWork clears the "to_work" edge to the HymnsWork entity.
+func (m *HymnMutation) ClearToWork() {
+	m.clearedto_work = true
 }
 
-// WorkCleared reports if the "work" edge to the HymnsWork entity was cleared.
-func (m *HymnMutation) WorkCleared() bool {
-	return m.clearedwork
+// ToWorkCleared reports if the "to_work" edge to the HymnsWork entity was cleared.
+func (m *HymnMutation) ToWorkCleared() bool {
+	return m.clearedto_work
 }
 
-// WorkID returns the "work" edge ID in the mutation.
-func (m *HymnMutation) WorkID() (id int64, exists bool) {
-	if m.work != nil {
-		return *m.work, true
+// ToWorkID returns the "to_work" edge ID in the mutation.
+func (m *HymnMutation) ToWorkID() (id int64, exists bool) {
+	if m.to_work != nil {
+		return *m.to_work, true
 	}
 	return
 }
 
-// WorkIDs returns the "work" edge IDs in the mutation.
+// ToWorkIDs returns the "to_work" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// WorkID instead. It exists only for internal usage by the builders.
-func (m *HymnMutation) WorkIDs() (ids []int64) {
-	if id := m.work; id != nil {
+// ToWorkID instead. It exists only for internal usage by the builders.
+func (m *HymnMutation) ToWorkIDs() (ids []int64) {
+	if id := m.to_work; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetWork resets all changes to the "work" edge.
-func (m *HymnMutation) ResetWork() {
-	m.work = nil
-	m.clearedwork = false
+// ResetToWork resets all changes to the "to_work" edge.
+func (m *HymnMutation) ResetToWork() {
+	m.to_work = nil
+	m.clearedto_work = false
 }
 
 // Where appends a list predicates to the HymnMutation builder.
@@ -2447,8 +2447,8 @@ func (m *HymnMutation) AddedEdges() []string {
 	if m.updated_by != nil {
 		edges = append(edges, hymn.EdgeUpdatedBy)
 	}
-	if m.work != nil {
-		edges = append(edges, hymn.EdgeWork)
+	if m.to_work != nil {
+		edges = append(edges, hymn.EdgeToWork)
 	}
 	return edges
 }
@@ -2461,8 +2461,8 @@ func (m *HymnMutation) AddedIDs(name string) []ent.Value {
 		if id := m.updated_by; id != nil {
 			return []ent.Value{*id}
 		}
-	case hymn.EdgeWork:
-		if id := m.work; id != nil {
+	case hymn.EdgeToWork:
+		if id := m.to_work; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -2487,8 +2487,8 @@ func (m *HymnMutation) ClearedEdges() []string {
 	if m.clearedupdated_by {
 		edges = append(edges, hymn.EdgeUpdatedBy)
 	}
-	if m.clearedwork {
-		edges = append(edges, hymn.EdgeWork)
+	if m.clearedto_work {
+		edges = append(edges, hymn.EdgeToWork)
 	}
 	return edges
 }
@@ -2499,8 +2499,8 @@ func (m *HymnMutation) EdgeCleared(name string) bool {
 	switch name {
 	case hymn.EdgeUpdatedBy:
 		return m.clearedupdated_by
-	case hymn.EdgeWork:
-		return m.clearedwork
+	case hymn.EdgeToWork:
+		return m.clearedto_work
 	}
 	return false
 }
@@ -2512,8 +2512,8 @@ func (m *HymnMutation) ClearEdge(name string) error {
 	case hymn.EdgeUpdatedBy:
 		m.ClearUpdatedBy()
 		return nil
-	case hymn.EdgeWork:
-		m.ClearWork()
+	case hymn.EdgeToWork:
+		m.ClearToWork()
 		return nil
 	}
 	return fmt.Errorf("unknown Hymn unique edge %s", name)
@@ -2526,8 +2526,8 @@ func (m *HymnMutation) ResetEdge(name string) error {
 	case hymn.EdgeUpdatedBy:
 		m.ResetUpdatedBy()
 		return nil
-	case hymn.EdgeWork:
-		m.ResetWork()
+	case hymn.EdgeToWork:
+		m.ResetToWork()
 		return nil
 	}
 	return fmt.Errorf("unknown Hymn edge %s", name)

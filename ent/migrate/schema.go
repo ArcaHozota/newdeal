@@ -125,17 +125,10 @@ var (
 		PrimaryKey: []*schema.Column{HymnsWorkColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "hymns_work_hymns_work",
+				Symbol:     "hymns_work_hymns_to_work",
 				Columns:    []*schema.Column{HymnsWorkColumns[5]},
 				RefColumns: []*schema.Column{HymnsColumns[0]},
 				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "hymnswork_work_id",
-				Unique:  true,
-				Columns: []*schema.Column{HymnsWorkColumns[5]},
 			},
 		},
 	}

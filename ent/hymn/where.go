@@ -463,21 +463,21 @@ func HasUpdatedByWith(preds ...predicate.Student) predicate.Hymn {
 	})
 }
 
-// HasWork applies the HasEdge predicate on the "work" edge.
-func HasWork() predicate.Hymn {
+// HasToWork applies the HasEdge predicate on the "to_work" edge.
+func HasToWork() predicate.Hymn {
 	return predicate.Hymn(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, WorkTable, WorkColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, ToWorkTable, ToWorkColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasWorkWith applies the HasEdge predicate on the "work" edge with a given conditions (other predicates).
-func HasWorkWith(preds ...predicate.HymnsWork) predicate.Hymn {
+// HasToWorkWith applies the HasEdge predicate on the "to_work" edge with a given conditions (other predicates).
+func HasToWorkWith(preds ...predicate.HymnsWork) predicate.Hymn {
 	return predicate.Hymn(func(s *sql.Selector) {
-		step := newWorkStep()
+		step := newToWorkStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

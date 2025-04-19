@@ -44,8 +44,8 @@ type Hymn struct {
 type HymnEdges struct {
 	// UpdatedBy holds the value of the updated_by edge.
 	UpdatedBy *Student `json:"updated_by,omitempty"`
-	// Work holds the value of the work edge.
-	Work *HymnsWork `json:"work,omitempty"`
+	// ToWork holds the value of the to_work edge.
+	ToWork *HymnsWork `json:"to_work,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
@@ -62,15 +62,15 @@ func (e HymnEdges) UpdatedByOrErr() (*Student, error) {
 	return nil, &NotLoadedError{edge: "updated_by"}
 }
 
-// WorkOrErr returns the Work value or an error if the edge
+// ToWorkOrErr returns the ToWork value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e HymnEdges) WorkOrErr() (*HymnsWork, error) {
-	if e.Work != nil {
-		return e.Work, nil
+func (e HymnEdges) ToWorkOrErr() (*HymnsWork, error) {
+	if e.ToWork != nil {
+		return e.ToWork, nil
 	} else if e.loadedTypes[1] {
 		return nil, &NotFoundError{label: hymnswork.Label}
 	}
-	return nil, &NotLoadedError{edge: "work"}
+	return nil, &NotLoadedError{edge: "to_work"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -167,9 +167,9 @@ func (h *Hymn) QueryUpdatedBy() *StudentQuery {
 	return NewHymnClient(h.config).QueryUpdatedBy(h)
 }
 
-// QueryWork queries the "work" edge of the Hymn entity.
-func (h *Hymn) QueryWork() *HymnsWorkQuery {
-	return NewHymnClient(h.config).QueryWork(h)
+// QueryToWork queries the "to_work" edge of the Hymn entity.
+func (h *Hymn) QueryToWork() *HymnsWorkQuery {
+	return NewHymnClient(h.config).QueryToWork(h)
 }
 
 // Update returns a builder for updating this Hymn.

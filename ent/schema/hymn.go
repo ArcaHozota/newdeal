@@ -61,7 +61,7 @@ func (Hymn) Edges() []ent.Edge {
 			Field("updated_user"). // 外键字段
 			Required().
 			Unique(),
-		edge.To("work", HymnsWork.Type).
+		edge.To("to_work", HymnsWork.Type).
 			Unique(),
 	}
 }
