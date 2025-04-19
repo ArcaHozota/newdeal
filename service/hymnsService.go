@@ -54,6 +54,7 @@ func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
 				),
 			),
 		).
+		Order(hymn.ByID()).
 		Limit(int(common.DefaultPageSize)).
 		Offset(offset).All(ctx)
 	return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
