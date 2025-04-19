@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Auth is the client for interacting with the Auth builders.
+	Auth *AuthClient
 	// Hymn is the client for interacting with the Hymn builders.
 	Hymn *HymnClient
 	// HymnsWork is the client for interacting with the HymnsWork builders.
@@ -151,6 +153,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Auth = NewAuthClient(tx.config)
 	tx.Hymn = NewHymnClient(tx.config)
 	tx.HymnsWork = NewHymnsWorkClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
@@ -164,7 +167,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Hymn.QueryXXX(), the query will be executed
+// applies a query, for example: Auth.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"newdeal/ent/auth"
 	"newdeal/ent/predicate"
 	"newdeal/ent/role"
 	"newdeal/ent/student"
@@ -71,6 +72,21 @@ func (ru *RoleUpdate) AddStudent(s ...*Student) *RoleUpdate {
 	return ru.AddStudentIDs(ids...)
 }
 
+// AddAuthIDs adds the "auths" edge to the Auth entity by IDs.
+func (ru *RoleUpdate) AddAuthIDs(ids ...int64) *RoleUpdate {
+	ru.mutation.AddAuthIDs(ids...)
+	return ru
+}
+
+// AddAuths adds the "auths" edges to the Auth entity.
+func (ru *RoleUpdate) AddAuths(a ...*Auth) *RoleUpdate {
+	ids := make([]int64, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return ru.AddAuthIDs(ids...)
+}
+
 // Mutation returns the RoleMutation object of the builder.
 func (ru *RoleUpdate) Mutation() *RoleMutation {
 	return ru.mutation
@@ -95,6 +111,27 @@ func (ru *RoleUpdate) RemoveStudent(s ...*Student) *RoleUpdate {
 		ids[i] = s[i].ID
 	}
 	return ru.RemoveStudentIDs(ids...)
+}
+
+// ClearAuths clears all "auths" edges to the Auth entity.
+func (ru *RoleUpdate) ClearAuths() *RoleUpdate {
+	ru.mutation.ClearAuths()
+	return ru
+}
+
+// RemoveAuthIDs removes the "auths" edge to Auth entities by IDs.
+func (ru *RoleUpdate) RemoveAuthIDs(ids ...int64) *RoleUpdate {
+	ru.mutation.RemoveAuthIDs(ids...)
+	return ru
+}
+
+// RemoveAuths removes "auths" edges to Auth entities.
+func (ru *RoleUpdate) RemoveAuths(a ...*Auth) *RoleUpdate {
+	ids := make([]int64, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return ru.RemoveAuthIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -184,6 +221,51 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if ru.mutation.AuthsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.AuthsTable,
+			Columns: role.AuthsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ru.mutation.RemovedAuthsIDs(); len(nodes) > 0 && !ru.mutation.AuthsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.AuthsTable,
+			Columns: role.AuthsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ru.mutation.AuthsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.AuthsTable,
+			Columns: role.AuthsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, ru.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{role.Label}
@@ -247,6 +329,21 @@ func (ruo *RoleUpdateOne) AddStudent(s ...*Student) *RoleUpdateOne {
 	return ruo.AddStudentIDs(ids...)
 }
 
+// AddAuthIDs adds the "auths" edge to the Auth entity by IDs.
+func (ruo *RoleUpdateOne) AddAuthIDs(ids ...int64) *RoleUpdateOne {
+	ruo.mutation.AddAuthIDs(ids...)
+	return ruo
+}
+
+// AddAuths adds the "auths" edges to the Auth entity.
+func (ruo *RoleUpdateOne) AddAuths(a ...*Auth) *RoleUpdateOne {
+	ids := make([]int64, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return ruo.AddAuthIDs(ids...)
+}
+
 // Mutation returns the RoleMutation object of the builder.
 func (ruo *RoleUpdateOne) Mutation() *RoleMutation {
 	return ruo.mutation
@@ -271,6 +368,27 @@ func (ruo *RoleUpdateOne) RemoveStudent(s ...*Student) *RoleUpdateOne {
 		ids[i] = s[i].ID
 	}
 	return ruo.RemoveStudentIDs(ids...)
+}
+
+// ClearAuths clears all "auths" edges to the Auth entity.
+func (ruo *RoleUpdateOne) ClearAuths() *RoleUpdateOne {
+	ruo.mutation.ClearAuths()
+	return ruo
+}
+
+// RemoveAuthIDs removes the "auths" edge to Auth entities by IDs.
+func (ruo *RoleUpdateOne) RemoveAuthIDs(ids ...int64) *RoleUpdateOne {
+	ruo.mutation.RemoveAuthIDs(ids...)
+	return ruo
+}
+
+// RemoveAuths removes "auths" edges to Auth entities.
+func (ruo *RoleUpdateOne) RemoveAuths(a ...*Auth) *RoleUpdateOne {
+	ids := make([]int64, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return ruo.RemoveAuthIDs(ids...)
 }
 
 // Where appends a list predicates to the RoleUpdate builder.
@@ -383,6 +501,51 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ruo.mutation.AuthsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.AuthsTable,
+			Columns: role.AuthsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ruo.mutation.RemovedAuthsIDs(); len(nodes) > 0 && !ruo.mutation.AuthsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.AuthsTable,
+			Columns: role.AuthsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ruo.mutation.AuthsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.AuthsTable,
+			Columns: role.AuthsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

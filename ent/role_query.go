@@ -7,6 +7,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"math"
+	"newdeal/ent/auth"
 	"newdeal/ent/predicate"
 	"newdeal/ent/role"
 	"newdeal/ent/student"
@@ -25,6 +26,7 @@ type RoleQuery struct {
 	inters      []Interceptor
 	predicates  []predicate.Role
 	withStudent *StudentQuery
+	withAuths   *AuthQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -76,6 +78,28 @@ func (rq *RoleQuery) QueryStudent() *StudentQuery {
 			sqlgraph.From(role.Table, role.FieldID, selector),
 			sqlgraph.To(student.Table, student.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, role.StudentTable, role.StudentColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryAuths chains the current query on the "auths" edge.
+func (rq *RoleQuery) QueryAuths() *AuthQuery {
+	query := (&AuthClient{config: rq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := rq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := rq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(role.Table, role.FieldID, selector),
+			sqlgraph.To(auth.Table, auth.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, role.AuthsTable, role.AuthsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
 		return fromU, nil
@@ -276,6 +300,7 @@ func (rq *RoleQuery) Clone() *RoleQuery {
 		inters:      append([]Interceptor{}, rq.inters...),
 		predicates:  append([]predicate.Role{}, rq.predicates...),
 		withStudent: rq.withStudent.Clone(),
+		withAuths:   rq.withAuths.Clone(),
 		// clone intermediate query.
 		sql:  rq.sql.Clone(),
 		path: rq.path,
@@ -290,6 +315,17 @@ func (rq *RoleQuery) WithStudent(opts ...func(*StudentQuery)) *RoleQuery {
 		opt(query)
 	}
 	rq.withStudent = query
+	return rq
+}
+
+// WithAuths tells the query-builder to eager-load the nodes that are connected to
+// the "auths" edge. The optional arguments are used to configure the query builder of the edge.
+func (rq *RoleQuery) WithAuths(opts ...func(*AuthQuery)) *RoleQuery {
+	query := (&AuthClient{config: rq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	rq.withAuths = query
 	return rq
 }
 
@@ -371,8 +407,9 @@ func (rq *RoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Role, e
 	var (
 		nodes       = []*Role{}
 		_spec       = rq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			rq.withStudent != nil,
+			rq.withAuths != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -397,6 +434,13 @@ func (rq *RoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Role, e
 		if err := rq.loadStudent(ctx, query, nodes,
 			func(n *Role) { n.Edges.Student = []*Student{} },
 			func(n *Role, e *Student) { n.Edges.Student = append(n.Edges.Student, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := rq.withAuths; query != nil {
+		if err := rq.loadAuths(ctx, query, nodes,
+			func(n *Role) { n.Edges.Auths = []*Auth{} },
+			func(n *Role, e *Auth) { n.Edges.Auths = append(n.Edges.Auths, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -430,6 +474,67 @@ func (rq *RoleQuery) loadStudent(ctx context.Context, query *StudentQuery, nodes
 			return fmt.Errorf(`unexpected referenced foreign-key "role_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (rq *RoleQuery) loadAuths(ctx context.Context, query *AuthQuery, nodes []*Role, init func(*Role), assign func(*Role, *Auth)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int64]*Role)
+	nids := make(map[int64]map[*Role]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(role.AuthsTable)
+		s.Join(joinT).On(s.C(auth.FieldID), joinT.C(role.AuthsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(role.AuthsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(role.AuthsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := values[0].(*sql.NullInt64).Int64
+				inValue := values[1].(*sql.NullInt64).Int64
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Role]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Auth](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "auths" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }

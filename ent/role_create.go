@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"newdeal/ent/auth"
 	"newdeal/ent/role"
 	"newdeal/ent/student"
 
@@ -51,6 +52,21 @@ func (rc *RoleCreate) AddStudent(s ...*Student) *RoleCreate {
 		ids[i] = s[i].ID
 	}
 	return rc.AddStudentIDs(ids...)
+}
+
+// AddAuthIDs adds the "auths" edge to the Auth entity by IDs.
+func (rc *RoleCreate) AddAuthIDs(ids ...int64) *RoleCreate {
+	rc.mutation.AddAuthIDs(ids...)
+	return rc
+}
+
+// AddAuths adds the "auths" edges to the Auth entity.
+func (rc *RoleCreate) AddAuths(a ...*Auth) *RoleCreate {
+	ids := make([]int64, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return rc.AddAuthIDs(ids...)
 }
 
 // Mutation returns the RoleMutation object of the builder.
@@ -142,6 +158,22 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(student.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := rc.mutation.AuthsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.AuthsTable,
+			Columns: role.AuthsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

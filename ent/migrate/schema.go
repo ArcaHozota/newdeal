@@ -9,6 +9,31 @@ import (
 )
 
 var (
+	// AuthoritiesColumns holds the columns for the "authorities" table.
+	AuthoritiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true, Comment: "ID", Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "name", Type: field.TypeString, Comment: "権限名称", SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "title", Type: field.TypeString, Comment: "漢字名称", SchemaType: map[string]string{"postgres": "varchar(40)"}},
+		{Name: "category_id", Type: field.TypeInt64, Nullable: true, Comment: "分類ID"},
+	}
+	// AuthoritiesTable holds the schema information for the "authorities" table.
+	AuthoritiesTable = &schema.Table{
+		Name:       "authorities",
+		Columns:    AuthoritiesColumns,
+		PrimaryKey: []*schema.Column{AuthoritiesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "auth_name",
+				Unique:  true,
+				Columns: []*schema.Column{AuthoritiesColumns[1]},
+			},
+			{
+				Name:    "auth_title",
+				Unique:  true,
+				Columns: []*schema.Column{AuthoritiesColumns[2]},
+			},
+		},
+	}
 	// HymnsColumns holds the columns for the "hymns" table.
 	HymnsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true, Comment: "ID", Default: "0", SchemaType: map[string]string{"postgres": "bigint"}},
@@ -138,16 +163,46 @@ var (
 			},
 		},
 	}
+	// RoleAuthsColumns holds the columns for the "role_auths" table.
+	RoleAuthsColumns = []*schema.Column{
+		{Name: "role_id", Type: field.TypeInt64, SchemaType: map[string]string{"postgres": "bigint"}},
+		{Name: "auth_id", Type: field.TypeInt64, SchemaType: map[string]string{"postgres": "bigint"}},
+	}
+	// RoleAuthsTable holds the schema information for the "role_auths" table.
+	RoleAuthsTable = &schema.Table{
+		Name:       "role_auths",
+		Columns:    RoleAuthsColumns,
+		PrimaryKey: []*schema.Column{RoleAuthsColumns[0], RoleAuthsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "role_auths_role_id",
+				Columns:    []*schema.Column{RoleAuthsColumns[0]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "role_auths_auth_id",
+				Columns:    []*schema.Column{RoleAuthsColumns[1]},
+				RefColumns: []*schema.Column{AuthoritiesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AuthoritiesTable,
 		HymnsTable,
 		HymnsWorkTable,
 		RolesTable,
 		StudentsTable,
+		RoleAuthsTable,
 	}
 )
 
 func init() {
+	AuthoritiesTable.Annotation = &entsql.Annotation{
+		Table: "authorities",
+	}
 	HymnsTable.ForeignKeys[0].RefTable = StudentsTable
 	HymnsTable.Annotation = &entsql.Annotation{
 		Table: "hymns",
@@ -163,4 +218,6 @@ func init() {
 	StudentsTable.Annotation = &entsql.Annotation{
 		Table: "students",
 	}
+	RoleAuthsTable.ForeignKeys[0].RefTable = RolesTable
+	RoleAuthsTable.ForeignKeys[1].RefTable = AuthoritiesTable
 }

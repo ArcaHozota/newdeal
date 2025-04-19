@@ -162,6 +162,29 @@ func HasStudentWith(preds ...predicate.Student) predicate.Role {
 	})
 }
 
+// HasAuths applies the HasEdge predicate on the "auths" edge.
+func HasAuths() predicate.Role {
+	return predicate.Role(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, AuthsTable, AuthsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAuthsWith applies the HasEdge predicate on the "auths" edge with a given conditions (other predicates).
+func HasAuthsWith(preds ...predicate.Auth) predicate.Role {
+	return predicate.Role(func(s *sql.Selector) {
+		step := newAuthsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Role) predicate.Role {
 	return predicate.Role(sql.AndPredicates(predicates...))

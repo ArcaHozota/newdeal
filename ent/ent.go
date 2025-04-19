@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"newdeal/ent/auth"
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
 	"newdeal/ent/role"
@@ -76,6 +77,7 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			auth.Table:      auth.ValidColumn,
 			hymn.Table:      hymn.ValidColumn,
 			hymnswork.Table: hymnswork.ValidColumn,
 			role.Table:      role.ValidColumn,

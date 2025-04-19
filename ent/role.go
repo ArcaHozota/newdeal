@@ -31,9 +31,11 @@ type Role struct {
 type RoleEdges struct {
 	// Student holds the value of the student edge.
 	Student []*Student `json:"student,omitempty"`
+	// Auths holds the value of the auths edge.
+	Auths []*Auth `json:"auths,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // StudentOrErr returns the Student value or an error if the edge
@@ -43,6 +45,15 @@ func (e RoleEdges) StudentOrErr() ([]*Student, error) {
 		return e.Student, nil
 	}
 	return nil, &NotLoadedError{edge: "student"}
+}
+
+// AuthsOrErr returns the Auths value or an error if the edge
+// was not loaded in eager-loading.
+func (e RoleEdges) AuthsOrErr() ([]*Auth, error) {
+	if e.loadedTypes[1] {
+		return e.Auths, nil
+	}
+	return nil, &NotLoadedError{edge: "auths"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -105,6 +116,11 @@ func (r *Role) Value(name string) (ent.Value, error) {
 // QueryStudent queries the "student" edge of the Role entity.
 func (r *Role) QueryStudent() *StudentQuery {
 	return NewRoleClient(r.config).QueryStudent(r)
+}
+
+// QueryAuths queries the "auths" edge of the Role entity.
+func (r *Role) QueryAuths() *AuthQuery {
+	return NewRoleClient(r.config).QueryAuths(r)
 }
 
 // Update returns a builder for updating this Role.

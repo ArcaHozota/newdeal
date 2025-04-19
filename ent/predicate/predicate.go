@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Auth is the predicate function for auth builders.
+type Auth func(*sql.Selector)
+
 // Hymn is the predicate function for hymn builders.
 type Hymn func(*sql.Selector)
 

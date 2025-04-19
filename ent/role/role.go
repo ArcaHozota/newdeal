@@ -18,6 +18,8 @@ const (
 	FieldVisibleFlg = "visible_flg"
 	// EdgeStudent holds the string denoting the student edge name in mutations.
 	EdgeStudent = "student"
+	// EdgeAuths holds the string denoting the auths edge name in mutations.
+	EdgeAuths = "auths"
 	// Table holds the table name of the role in the database.
 	Table = "roles"
 	// StudentTable is the table that holds the student relation/edge.
@@ -27,6 +29,11 @@ const (
 	StudentInverseTable = "students"
 	// StudentColumn is the table column denoting the student relation/edge.
 	StudentColumn = "role_id"
+	// AuthsTable is the table that holds the auths relation/edge. The primary key declared below.
+	AuthsTable = "role_auths"
+	// AuthsInverseTable is the table name for the Auth entity.
+	// It exists in this package in order to avoid circular dependency with the "auth" package.
+	AuthsInverseTable = "authorities"
 )
 
 // Columns holds all SQL columns for role fields.
@@ -35,6 +42,12 @@ var Columns = []string{
 	FieldName,
 	FieldVisibleFlg,
 }
+
+var (
+	// AuthsPrimaryKey and AuthsColumn2 are the table columns denoting the
+	// primary key for the auths relation (M2M).
+	AuthsPrimaryKey = []string{"role_id", "auth_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -77,10 +90,31 @@ func ByStudent(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newStudentStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByAuthsCount orders the results by auths count.
+func ByAuthsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAuthsStep(), opts...)
+	}
+}
+
+// ByAuths orders the results by auths terms.
+func ByAuths(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAuthsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newStudentStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(StudentInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, StudentTable, StudentColumn),
+	)
+}
+func newAuthsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AuthsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, AuthsTable, AuthsPrimaryKey...),
 	)
 }
