@@ -10,11 +10,11 @@ import (
 	"entgo.io/ent/schema/index"
 )
 
-type Role struct {
+type Auth struct {
 	ent.Schema
 }
 
-func (Role) Fields() []ent.Field {
+func (Auth) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("id").
 			Comment("ID").
@@ -27,31 +27,38 @@ func (Role) Fields() []ent.Field {
 				entsql.Annotation{Default: "0"}, // 明确设置无 default/identity
 			),
 		field.String("name").
-			Comment("名称").
+			Comment("権限名称").
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(50)",
+			}),
+		field.String("title").
+			Comment("漢字名称").
 			SchemaType(map[string]string{
 				dialect.Postgres: "varchar(40)",
 			}),
-		field.Bool("visible_flg").
-			Comment("論理削除フラグ"),
+		field.Int64("category_id").
+			Comment("分類ID").
+			Optional(),
 	}
 }
 
-func (Role) Edges() []ent.Edge {
+func (Auth) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("student", Student.Type),
-		edge.To("auths", Auth.Type),
+		edge.From("roles", Role.Type).
+			Ref("auths"),
 	}
 }
 
-func (Role) Indexes() []ent.Index {
+func (Auth) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("name").Unique(),
+		index.Fields("title").Unique(),
 	}
 }
 
-func (Role) Annotations() []schema.Annotation {
+func (Auth) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "roles"},
+		entsql.Annotation{Table: "authorities"},
 		entsql.WithComments(true),
 	}
 }
