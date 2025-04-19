@@ -12,8 +12,11 @@ import (
 	"newdeal/ent/migrate"
 
 	"newdeal/ent/auth"
+	"newdeal/ent/book"
+	"newdeal/ent/chapter"
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
+	"newdeal/ent/phrase"
 	"newdeal/ent/role"
 	"newdeal/ent/student"
 
@@ -30,10 +33,16 @@ type Client struct {
 	Schema *migrate.Schema
 	// Auth is the client for interacting with the Auth builders.
 	Auth *AuthClient
+	// Book is the client for interacting with the Book builders.
+	Book *BookClient
+	// Chapter is the client for interacting with the Chapter builders.
+	Chapter *ChapterClient
 	// Hymn is the client for interacting with the Hymn builders.
 	Hymn *HymnClient
 	// HymnsWork is the client for interacting with the HymnsWork builders.
 	HymnsWork *HymnsWorkClient
+	// Phrase is the client for interacting with the Phrase builders.
+	Phrase *PhraseClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// Student is the client for interacting with the Student builders.
@@ -50,8 +59,11 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Auth = NewAuthClient(c.config)
+	c.Book = NewBookClient(c.config)
+	c.Chapter = NewChapterClient(c.config)
 	c.Hymn = NewHymnClient(c.config)
 	c.HymnsWork = NewHymnsWorkClient(c.config)
+	c.Phrase = NewPhraseClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.Student = NewStudentClient(c.config)
 }
@@ -147,8 +159,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:       ctx,
 		config:    cfg,
 		Auth:      NewAuthClient(cfg),
+		Book:      NewBookClient(cfg),
+		Chapter:   NewChapterClient(cfg),
 		Hymn:      NewHymnClient(cfg),
 		HymnsWork: NewHymnsWorkClient(cfg),
+		Phrase:    NewPhraseClient(cfg),
 		Role:      NewRoleClient(cfg),
 		Student:   NewStudentClient(cfg),
 	}, nil
@@ -171,8 +186,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:       ctx,
 		config:    cfg,
 		Auth:      NewAuthClient(cfg),
+		Book:      NewBookClient(cfg),
+		Chapter:   NewChapterClient(cfg),
 		Hymn:      NewHymnClient(cfg),
 		HymnsWork: NewHymnsWorkClient(cfg),
+		Phrase:    NewPhraseClient(cfg),
 		Role:      NewRoleClient(cfg),
 		Student:   NewStudentClient(cfg),
 	}, nil
@@ -203,21 +221,21 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Auth.Use(hooks...)
-	c.Hymn.Use(hooks...)
-	c.HymnsWork.Use(hooks...)
-	c.Role.Use(hooks...)
-	c.Student.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.Auth, c.Book, c.Chapter, c.Hymn, c.HymnsWork, c.Phrase, c.Role, c.Student,
+	} {
+		n.Use(hooks...)
+	}
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Auth.Intercept(interceptors...)
-	c.Hymn.Intercept(interceptors...)
-	c.HymnsWork.Intercept(interceptors...)
-	c.Role.Intercept(interceptors...)
-	c.Student.Intercept(interceptors...)
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.Auth, c.Book, c.Chapter, c.Hymn, c.HymnsWork, c.Phrase, c.Role, c.Student,
+	} {
+		n.Intercept(interceptors...)
+	}
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -225,10 +243,16 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *AuthMutation:
 		return c.Auth.mutate(ctx, m)
+	case *BookMutation:
+		return c.Book.mutate(ctx, m)
+	case *ChapterMutation:
+		return c.Chapter.mutate(ctx, m)
 	case *HymnMutation:
 		return c.Hymn.mutate(ctx, m)
 	case *HymnsWorkMutation:
 		return c.HymnsWork.mutate(ctx, m)
+	case *PhraseMutation:
+		return c.Phrase.mutate(ctx, m)
 	case *RoleMutation:
 		return c.Role.mutate(ctx, m)
 	case *StudentMutation:
@@ -384,6 +408,320 @@ func (c *AuthClient) mutate(ctx context.Context, m *AuthMutation) (Value, error)
 		return (&AuthDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Auth mutation op: %q", m.Op())
+	}
+}
+
+// BookClient is a client for the Book schema.
+type BookClient struct {
+	config
+}
+
+// NewBookClient returns a client for the Book from the given config.
+func NewBookClient(c config) *BookClient {
+	return &BookClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `book.Hooks(f(g(h())))`.
+func (c *BookClient) Use(hooks ...Hook) {
+	c.hooks.Book = append(c.hooks.Book, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `book.Intercept(f(g(h())))`.
+func (c *BookClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Book = append(c.inters.Book, interceptors...)
+}
+
+// Create returns a builder for creating a Book entity.
+func (c *BookClient) Create() *BookCreate {
+	mutation := newBookMutation(c.config, OpCreate)
+	return &BookCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Book entities.
+func (c *BookClient) CreateBulk(builders ...*BookCreate) *BookCreateBulk {
+	return &BookCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *BookClient) MapCreateBulk(slice any, setFunc func(*BookCreate, int)) *BookCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &BookCreateBulk{err: fmt.Errorf("calling to BookClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*BookCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &BookCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Book.
+func (c *BookClient) Update() *BookUpdate {
+	mutation := newBookMutation(c.config, OpUpdate)
+	return &BookUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *BookClient) UpdateOne(b *Book) *BookUpdateOne {
+	mutation := newBookMutation(c.config, OpUpdateOne, withBook(b))
+	return &BookUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *BookClient) UpdateOneID(id int16) *BookUpdateOne {
+	mutation := newBookMutation(c.config, OpUpdateOne, withBookID(id))
+	return &BookUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Book.
+func (c *BookClient) Delete() *BookDelete {
+	mutation := newBookMutation(c.config, OpDelete)
+	return &BookDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *BookClient) DeleteOne(b *Book) *BookDeleteOne {
+	return c.DeleteOneID(b.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *BookClient) DeleteOneID(id int16) *BookDeleteOne {
+	builder := c.Delete().Where(book.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &BookDeleteOne{builder}
+}
+
+// Query returns a query builder for Book.
+func (c *BookClient) Query() *BookQuery {
+	return &BookQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeBook},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Book entity by its id.
+func (c *BookClient) Get(ctx context.Context, id int16) (*Book, error) {
+	return c.Query().Where(book.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *BookClient) GetX(ctx context.Context, id int16) *Book {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryToChapter queries the to_chapter edge of a Book.
+func (c *BookClient) QueryToChapter(b *Book) *ChapterQuery {
+	query := (&ChapterClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := b.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(book.Table, book.FieldID, id),
+			sqlgraph.To(chapter.Table, chapter.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, book.ToChapterTable, book.ToChapterColumn),
+		)
+		fromV = sqlgraph.Neighbors(b.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *BookClient) Hooks() []Hook {
+	return c.hooks.Book
+}
+
+// Interceptors returns the client interceptors.
+func (c *BookClient) Interceptors() []Interceptor {
+	return c.inters.Book
+}
+
+func (c *BookClient) mutate(ctx context.Context, m *BookMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&BookCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&BookUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&BookUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&BookDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Book mutation op: %q", m.Op())
+	}
+}
+
+// ChapterClient is a client for the Chapter schema.
+type ChapterClient struct {
+	config
+}
+
+// NewChapterClient returns a client for the Chapter from the given config.
+func NewChapterClient(c config) *ChapterClient {
+	return &ChapterClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `chapter.Hooks(f(g(h())))`.
+func (c *ChapterClient) Use(hooks ...Hook) {
+	c.hooks.Chapter = append(c.hooks.Chapter, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `chapter.Intercept(f(g(h())))`.
+func (c *ChapterClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Chapter = append(c.inters.Chapter, interceptors...)
+}
+
+// Create returns a builder for creating a Chapter entity.
+func (c *ChapterClient) Create() *ChapterCreate {
+	mutation := newChapterMutation(c.config, OpCreate)
+	return &ChapterCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Chapter entities.
+func (c *ChapterClient) CreateBulk(builders ...*ChapterCreate) *ChapterCreateBulk {
+	return &ChapterCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ChapterClient) MapCreateBulk(slice any, setFunc func(*ChapterCreate, int)) *ChapterCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ChapterCreateBulk{err: fmt.Errorf("calling to ChapterClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ChapterCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ChapterCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Chapter.
+func (c *ChapterClient) Update() *ChapterUpdate {
+	mutation := newChapterMutation(c.config, OpUpdate)
+	return &ChapterUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ChapterClient) UpdateOne(ch *Chapter) *ChapterUpdateOne {
+	mutation := newChapterMutation(c.config, OpUpdateOne, withChapter(ch))
+	return &ChapterUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ChapterClient) UpdateOneID(id int32) *ChapterUpdateOne {
+	mutation := newChapterMutation(c.config, OpUpdateOne, withChapterID(id))
+	return &ChapterUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Chapter.
+func (c *ChapterClient) Delete() *ChapterDelete {
+	mutation := newChapterMutation(c.config, OpDelete)
+	return &ChapterDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ChapterClient) DeleteOne(ch *Chapter) *ChapterDeleteOne {
+	return c.DeleteOneID(ch.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ChapterClient) DeleteOneID(id int32) *ChapterDeleteOne {
+	builder := c.Delete().Where(chapter.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ChapterDeleteOne{builder}
+}
+
+// Query returns a query builder for Chapter.
+func (c *ChapterClient) Query() *ChapterQuery {
+	return &ChapterQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeChapter},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Chapter entity by its id.
+func (c *ChapterClient) Get(ctx context.Context, id int32) (*Chapter, error) {
+	return c.Query().Where(chapter.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ChapterClient) GetX(ctx context.Context, id int32) *Chapter {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryToPhrase queries the to_phrase edge of a Chapter.
+func (c *ChapterClient) QueryToPhrase(ch *Chapter) *PhraseQuery {
+	query := (&PhraseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ch.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(chapter.Table, chapter.FieldID, id),
+			sqlgraph.To(phrase.Table, phrase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, chapter.ToPhraseTable, chapter.ToPhraseColumn),
+		)
+		fromV = sqlgraph.Neighbors(ch.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryChapterBook queries the chapter_book edge of a Chapter.
+func (c *ChapterClient) QueryChapterBook(ch *Chapter) *BookQuery {
+	query := (&BookClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ch.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(chapter.Table, chapter.FieldID, id),
+			sqlgraph.To(book.Table, book.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, chapter.ChapterBookTable, chapter.ChapterBookColumn),
+		)
+		fromV = sqlgraph.Neighbors(ch.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ChapterClient) Hooks() []Hook {
+	return c.hooks.Chapter
+}
+
+// Interceptors returns the client interceptors.
+func (c *ChapterClient) Interceptors() []Interceptor {
+	return c.inters.Chapter
+}
+
+func (c *ChapterClient) mutate(ctx context.Context, m *ChapterMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ChapterCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ChapterUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ChapterUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ChapterDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Chapter mutation op: %q", m.Op())
 	}
 }
 
@@ -698,6 +1036,155 @@ func (c *HymnsWorkClient) mutate(ctx context.Context, m *HymnsWorkMutation) (Val
 		return (&HymnsWorkDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown HymnsWork mutation op: %q", m.Op())
+	}
+}
+
+// PhraseClient is a client for the Phrase schema.
+type PhraseClient struct {
+	config
+}
+
+// NewPhraseClient returns a client for the Phrase from the given config.
+func NewPhraseClient(c config) *PhraseClient {
+	return &PhraseClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `phrase.Hooks(f(g(h())))`.
+func (c *PhraseClient) Use(hooks ...Hook) {
+	c.hooks.Phrase = append(c.hooks.Phrase, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `phrase.Intercept(f(g(h())))`.
+func (c *PhraseClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Phrase = append(c.inters.Phrase, interceptors...)
+}
+
+// Create returns a builder for creating a Phrase entity.
+func (c *PhraseClient) Create() *PhraseCreate {
+	mutation := newPhraseMutation(c.config, OpCreate)
+	return &PhraseCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Phrase entities.
+func (c *PhraseClient) CreateBulk(builders ...*PhraseCreate) *PhraseCreateBulk {
+	return &PhraseCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PhraseClient) MapCreateBulk(slice any, setFunc func(*PhraseCreate, int)) *PhraseCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PhraseCreateBulk{err: fmt.Errorf("calling to PhraseClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PhraseCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PhraseCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Phrase.
+func (c *PhraseClient) Update() *PhraseUpdate {
+	mutation := newPhraseMutation(c.config, OpUpdate)
+	return &PhraseUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PhraseClient) UpdateOne(ph *Phrase) *PhraseUpdateOne {
+	mutation := newPhraseMutation(c.config, OpUpdateOne, withPhrase(ph))
+	return &PhraseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PhraseClient) UpdateOneID(id int64) *PhraseUpdateOne {
+	mutation := newPhraseMutation(c.config, OpUpdateOne, withPhraseID(id))
+	return &PhraseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Phrase.
+func (c *PhraseClient) Delete() *PhraseDelete {
+	mutation := newPhraseMutation(c.config, OpDelete)
+	return &PhraseDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PhraseClient) DeleteOne(ph *Phrase) *PhraseDeleteOne {
+	return c.DeleteOneID(ph.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PhraseClient) DeleteOneID(id int64) *PhraseDeleteOne {
+	builder := c.Delete().Where(phrase.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PhraseDeleteOne{builder}
+}
+
+// Query returns a query builder for Phrase.
+func (c *PhraseClient) Query() *PhraseQuery {
+	return &PhraseQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePhrase},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Phrase entity by its id.
+func (c *PhraseClient) Get(ctx context.Context, id int64) (*Phrase, error) {
+	return c.Query().Where(phrase.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PhraseClient) GetX(ctx context.Context, id int64) *Phrase {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryPhraseChapter queries the phrase_chapter edge of a Phrase.
+func (c *PhraseClient) QueryPhraseChapter(ph *Phrase) *ChapterQuery {
+	query := (&ChapterClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ph.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(phrase.Table, phrase.FieldID, id),
+			sqlgraph.To(chapter.Table, chapter.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, phrase.PhraseChapterTable, phrase.PhraseChapterColumn),
+		)
+		fromV = sqlgraph.Neighbors(ph.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *PhraseClient) Hooks() []Hook {
+	return c.hooks.Phrase
+}
+
+// Interceptors returns the client interceptors.
+func (c *PhraseClient) Interceptors() []Interceptor {
+	return c.inters.Phrase
+}
+
+func (c *PhraseClient) mutate(ctx context.Context, m *PhraseMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PhraseCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PhraseUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PhraseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PhraseDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Phrase mutation op: %q", m.Op())
 	}
 }
 
@@ -1034,9 +1521,9 @@ func (c *StudentClient) mutate(ctx context.Context, m *StudentMutation) (Value, 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Auth, Hymn, HymnsWork, Role, Student []ent.Hook
+		Auth, Book, Chapter, Hymn, HymnsWork, Phrase, Role, Student []ent.Hook
 	}
 	inters struct {
-		Auth, Hymn, HymnsWork, Role, Student []ent.Interceptor
+		Auth, Book, Chapter, Hymn, HymnsWork, Phrase, Role, Student []ent.Interceptor
 	}
 )

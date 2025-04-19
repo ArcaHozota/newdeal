@@ -14,10 +14,16 @@ type Tx struct {
 	config
 	// Auth is the client for interacting with the Auth builders.
 	Auth *AuthClient
+	// Book is the client for interacting with the Book builders.
+	Book *BookClient
+	// Chapter is the client for interacting with the Chapter builders.
+	Chapter *ChapterClient
 	// Hymn is the client for interacting with the Hymn builders.
 	Hymn *HymnClient
 	// HymnsWork is the client for interacting with the HymnsWork builders.
 	HymnsWork *HymnsWorkClient
+	// Phrase is the client for interacting with the Phrase builders.
+	Phrase *PhraseClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// Student is the client for interacting with the Student builders.
@@ -154,8 +160,11 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Auth = NewAuthClient(tx.config)
+	tx.Book = NewBookClient(tx.config)
+	tx.Chapter = NewChapterClient(tx.config)
 	tx.Hymn = NewHymnClient(tx.config)
 	tx.HymnsWork = NewHymnsWorkClient(tx.config)
+	tx.Phrase = NewPhraseClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.Student = NewStudentClient(tx.config)
 }

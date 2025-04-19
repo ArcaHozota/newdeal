@@ -20,6 +20,30 @@ func (f AuthFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuthMutation", m)
 }
 
+// The BookFunc type is an adapter to allow the use of ordinary
+// function as Book mutator.
+type BookFunc func(context.Context, *ent.BookMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f BookFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.BookMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BookMutation", m)
+}
+
+// The ChapterFunc type is an adapter to allow the use of ordinary
+// function as Chapter mutator.
+type ChapterFunc func(context.Context, *ent.ChapterMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ChapterFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ChapterMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ChapterMutation", m)
+}
+
 // The HymnFunc type is an adapter to allow the use of ordinary
 // function as Hymn mutator.
 type HymnFunc func(context.Context, *ent.HymnMutation) (ent.Value, error)
@@ -42,6 +66,18 @@ func (f HymnsWorkFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.HymnsWorkMutation", m)
+}
+
+// The PhraseFunc type is an adapter to allow the use of ordinary
+// function as Phrase mutator.
+type PhraseFunc func(context.Context, *ent.PhraseMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PhraseFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PhraseMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PhraseMutation", m)
 }
 
 // The RoleFunc type is an adapter to allow the use of ordinary

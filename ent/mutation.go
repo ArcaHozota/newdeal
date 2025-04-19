@@ -7,8 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"newdeal/ent/auth"
+	"newdeal/ent/book"
+	"newdeal/ent/chapter"
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
+	"newdeal/ent/phrase"
 	"newdeal/ent/predicate"
 	"newdeal/ent/role"
 	"newdeal/ent/student"
@@ -29,8 +32,11 @@ const (
 
 	// Node types.
 	TypeAuth      = "Auth"
+	TypeBook      = "Book"
+	TypeChapter   = "Chapter"
 	TypeHymn      = "Hymn"
 	TypeHymnsWork = "HymnsWork"
+	TypePhrase    = "Phrase"
 	TypeRole      = "Role"
 	TypeStudent   = "Student"
 )
@@ -625,6 +631,1080 @@ func (m *AuthMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown Auth edge %s", name)
+}
+
+// BookMutation represents an operation that mutates the Book nodes in the graph.
+type BookMutation struct {
+	config
+	op                Op
+	typ               string
+	id                *int16
+	name              *string
+	name_jp           *string
+	clearedFields     map[string]struct{}
+	to_chapter        map[int32]struct{}
+	removedto_chapter map[int32]struct{}
+	clearedto_chapter bool
+	done              bool
+	oldValue          func(context.Context) (*Book, error)
+	predicates        []predicate.Book
+}
+
+var _ ent.Mutation = (*BookMutation)(nil)
+
+// bookOption allows management of the mutation configuration using functional options.
+type bookOption func(*BookMutation)
+
+// newBookMutation creates new mutation for the Book entity.
+func newBookMutation(c config, op Op, opts ...bookOption) *BookMutation {
+	m := &BookMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeBook,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withBookID sets the ID field of the mutation.
+func withBookID(id int16) bookOption {
+	return func(m *BookMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Book
+		)
+		m.oldValue = func(ctx context.Context) (*Book, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Book.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withBook sets the old Book of the mutation.
+func withBook(node *Book) bookOption {
+	return func(m *BookMutation) {
+		m.oldValue = func(context.Context) (*Book, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m BookMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m BookMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Book entities.
+func (m *BookMutation) SetID(id int16) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *BookMutation) ID() (id int16, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *BookMutation) IDs(ctx context.Context) ([]int16, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int16{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Book.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetName sets the "name" field.
+func (m *BookMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *BookMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Book entity.
+// If the Book object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BookMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *BookMutation) ResetName() {
+	m.name = nil
+}
+
+// SetNameJp sets the "name_jp" field.
+func (m *BookMutation) SetNameJp(s string) {
+	m.name_jp = &s
+}
+
+// NameJp returns the value of the "name_jp" field in the mutation.
+func (m *BookMutation) NameJp() (r string, exists bool) {
+	v := m.name_jp
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNameJp returns the old "name_jp" field's value of the Book entity.
+// If the Book object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BookMutation) OldNameJp(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNameJp is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNameJp requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNameJp: %w", err)
+	}
+	return oldValue.NameJp, nil
+}
+
+// ResetNameJp resets all changes to the "name_jp" field.
+func (m *BookMutation) ResetNameJp() {
+	m.name_jp = nil
+}
+
+// AddToChapterIDs adds the "to_chapter" edge to the Chapter entity by ids.
+func (m *BookMutation) AddToChapterIDs(ids ...int32) {
+	if m.to_chapter == nil {
+		m.to_chapter = make(map[int32]struct{})
+	}
+	for i := range ids {
+		m.to_chapter[ids[i]] = struct{}{}
+	}
+}
+
+// ClearToChapter clears the "to_chapter" edge to the Chapter entity.
+func (m *BookMutation) ClearToChapter() {
+	m.clearedto_chapter = true
+}
+
+// ToChapterCleared reports if the "to_chapter" edge to the Chapter entity was cleared.
+func (m *BookMutation) ToChapterCleared() bool {
+	return m.clearedto_chapter
+}
+
+// RemoveToChapterIDs removes the "to_chapter" edge to the Chapter entity by IDs.
+func (m *BookMutation) RemoveToChapterIDs(ids ...int32) {
+	if m.removedto_chapter == nil {
+		m.removedto_chapter = make(map[int32]struct{})
+	}
+	for i := range ids {
+		delete(m.to_chapter, ids[i])
+		m.removedto_chapter[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedToChapter returns the removed IDs of the "to_chapter" edge to the Chapter entity.
+func (m *BookMutation) RemovedToChapterIDs() (ids []int32) {
+	for id := range m.removedto_chapter {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ToChapterIDs returns the "to_chapter" edge IDs in the mutation.
+func (m *BookMutation) ToChapterIDs() (ids []int32) {
+	for id := range m.to_chapter {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetToChapter resets all changes to the "to_chapter" edge.
+func (m *BookMutation) ResetToChapter() {
+	m.to_chapter = nil
+	m.clearedto_chapter = false
+	m.removedto_chapter = nil
+}
+
+// Where appends a list predicates to the BookMutation builder.
+func (m *BookMutation) Where(ps ...predicate.Book) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the BookMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *BookMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Book, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *BookMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *BookMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Book).
+func (m *BookMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *BookMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.name != nil {
+		fields = append(fields, book.FieldName)
+	}
+	if m.name_jp != nil {
+		fields = append(fields, book.FieldNameJp)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *BookMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case book.FieldName:
+		return m.Name()
+	case book.FieldNameJp:
+		return m.NameJp()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *BookMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case book.FieldName:
+		return m.OldName(ctx)
+	case book.FieldNameJp:
+		return m.OldNameJp(ctx)
+	}
+	return nil, fmt.Errorf("unknown Book field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BookMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case book.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case book.FieldNameJp:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNameJp(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Book field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *BookMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *BookMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BookMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Book numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *BookMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *BookMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *BookMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Book nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *BookMutation) ResetField(name string) error {
+	switch name {
+	case book.FieldName:
+		m.ResetName()
+		return nil
+	case book.FieldNameJp:
+		m.ResetNameJp()
+		return nil
+	}
+	return fmt.Errorf("unknown Book field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *BookMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.to_chapter != nil {
+		edges = append(edges, book.EdgeToChapter)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *BookMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case book.EdgeToChapter:
+		ids := make([]ent.Value, 0, len(m.to_chapter))
+		for id := range m.to_chapter {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *BookMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedto_chapter != nil {
+		edges = append(edges, book.EdgeToChapter)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *BookMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case book.EdgeToChapter:
+		ids := make([]ent.Value, 0, len(m.removedto_chapter))
+		for id := range m.removedto_chapter {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *BookMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedto_chapter {
+		edges = append(edges, book.EdgeToChapter)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *BookMutation) EdgeCleared(name string) bool {
+	switch name {
+	case book.EdgeToChapter:
+		return m.clearedto_chapter
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *BookMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Book unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *BookMutation) ResetEdge(name string) error {
+	switch name {
+	case book.EdgeToChapter:
+		m.ResetToChapter()
+		return nil
+	}
+	return fmt.Errorf("unknown Book edge %s", name)
+}
+
+// ChapterMutation represents an operation that mutates the Chapter nodes in the graph.
+type ChapterMutation struct {
+	config
+	op                  Op
+	typ                 string
+	id                  *int32
+	name                *string
+	name_jp             *string
+	clearedFields       map[string]struct{}
+	to_phrase           map[int64]struct{}
+	removedto_phrase    map[int64]struct{}
+	clearedto_phrase    bool
+	chapter_book        *int16
+	clearedchapter_book bool
+	done                bool
+	oldValue            func(context.Context) (*Chapter, error)
+	predicates          []predicate.Chapter
+}
+
+var _ ent.Mutation = (*ChapterMutation)(nil)
+
+// chapterOption allows management of the mutation configuration using functional options.
+type chapterOption func(*ChapterMutation)
+
+// newChapterMutation creates new mutation for the Chapter entity.
+func newChapterMutation(c config, op Op, opts ...chapterOption) *ChapterMutation {
+	m := &ChapterMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeChapter,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withChapterID sets the ID field of the mutation.
+func withChapterID(id int32) chapterOption {
+	return func(m *ChapterMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Chapter
+		)
+		m.oldValue = func(ctx context.Context) (*Chapter, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Chapter.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withChapter sets the old Chapter of the mutation.
+func withChapter(node *Chapter) chapterOption {
+	return func(m *ChapterMutation) {
+		m.oldValue = func(context.Context) (*Chapter, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ChapterMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ChapterMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Chapter entities.
+func (m *ChapterMutation) SetID(id int32) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ChapterMutation) ID() (id int32, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ChapterMutation) IDs(ctx context.Context) ([]int32, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int32{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Chapter.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetName sets the "name" field.
+func (m *ChapterMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *ChapterMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Chapter entity.
+// If the Chapter object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChapterMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *ChapterMutation) ResetName() {
+	m.name = nil
+}
+
+// SetNameJp sets the "name_jp" field.
+func (m *ChapterMutation) SetNameJp(s string) {
+	m.name_jp = &s
+}
+
+// NameJp returns the value of the "name_jp" field in the mutation.
+func (m *ChapterMutation) NameJp() (r string, exists bool) {
+	v := m.name_jp
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNameJp returns the old "name_jp" field's value of the Chapter entity.
+// If the Chapter object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChapterMutation) OldNameJp(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNameJp is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNameJp requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNameJp: %w", err)
+	}
+	return oldValue.NameJp, nil
+}
+
+// ResetNameJp resets all changes to the "name_jp" field.
+func (m *ChapterMutation) ResetNameJp() {
+	m.name_jp = nil
+}
+
+// SetBookID sets the "book_id" field.
+func (m *ChapterMutation) SetBookID(i int16) {
+	m.chapter_book = &i
+}
+
+// BookID returns the value of the "book_id" field in the mutation.
+func (m *ChapterMutation) BookID() (r int16, exists bool) {
+	v := m.chapter_book
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBookID returns the old "book_id" field's value of the Chapter entity.
+// If the Chapter object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChapterMutation) OldBookID(ctx context.Context) (v int16, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBookID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBookID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBookID: %w", err)
+	}
+	return oldValue.BookID, nil
+}
+
+// ResetBookID resets all changes to the "book_id" field.
+func (m *ChapterMutation) ResetBookID() {
+	m.chapter_book = nil
+}
+
+// AddToPhraseIDs adds the "to_phrase" edge to the Phrase entity by ids.
+func (m *ChapterMutation) AddToPhraseIDs(ids ...int64) {
+	if m.to_phrase == nil {
+		m.to_phrase = make(map[int64]struct{})
+	}
+	for i := range ids {
+		m.to_phrase[ids[i]] = struct{}{}
+	}
+}
+
+// ClearToPhrase clears the "to_phrase" edge to the Phrase entity.
+func (m *ChapterMutation) ClearToPhrase() {
+	m.clearedto_phrase = true
+}
+
+// ToPhraseCleared reports if the "to_phrase" edge to the Phrase entity was cleared.
+func (m *ChapterMutation) ToPhraseCleared() bool {
+	return m.clearedto_phrase
+}
+
+// RemoveToPhraseIDs removes the "to_phrase" edge to the Phrase entity by IDs.
+func (m *ChapterMutation) RemoveToPhraseIDs(ids ...int64) {
+	if m.removedto_phrase == nil {
+		m.removedto_phrase = make(map[int64]struct{})
+	}
+	for i := range ids {
+		delete(m.to_phrase, ids[i])
+		m.removedto_phrase[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedToPhrase returns the removed IDs of the "to_phrase" edge to the Phrase entity.
+func (m *ChapterMutation) RemovedToPhraseIDs() (ids []int64) {
+	for id := range m.removedto_phrase {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ToPhraseIDs returns the "to_phrase" edge IDs in the mutation.
+func (m *ChapterMutation) ToPhraseIDs() (ids []int64) {
+	for id := range m.to_phrase {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetToPhrase resets all changes to the "to_phrase" edge.
+func (m *ChapterMutation) ResetToPhrase() {
+	m.to_phrase = nil
+	m.clearedto_phrase = false
+	m.removedto_phrase = nil
+}
+
+// SetChapterBookID sets the "chapter_book" edge to the Book entity by id.
+func (m *ChapterMutation) SetChapterBookID(id int16) {
+	m.chapter_book = &id
+}
+
+// ClearChapterBook clears the "chapter_book" edge to the Book entity.
+func (m *ChapterMutation) ClearChapterBook() {
+	m.clearedchapter_book = true
+	m.clearedFields[chapter.FieldBookID] = struct{}{}
+}
+
+// ChapterBookCleared reports if the "chapter_book" edge to the Book entity was cleared.
+func (m *ChapterMutation) ChapterBookCleared() bool {
+	return m.clearedchapter_book
+}
+
+// ChapterBookID returns the "chapter_book" edge ID in the mutation.
+func (m *ChapterMutation) ChapterBookID() (id int16, exists bool) {
+	if m.chapter_book != nil {
+		return *m.chapter_book, true
+	}
+	return
+}
+
+// ChapterBookIDs returns the "chapter_book" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ChapterBookID instead. It exists only for internal usage by the builders.
+func (m *ChapterMutation) ChapterBookIDs() (ids []int16) {
+	if id := m.chapter_book; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetChapterBook resets all changes to the "chapter_book" edge.
+func (m *ChapterMutation) ResetChapterBook() {
+	m.chapter_book = nil
+	m.clearedchapter_book = false
+}
+
+// Where appends a list predicates to the ChapterMutation builder.
+func (m *ChapterMutation) Where(ps ...predicate.Chapter) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ChapterMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ChapterMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Chapter, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ChapterMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ChapterMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Chapter).
+func (m *ChapterMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ChapterMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.name != nil {
+		fields = append(fields, chapter.FieldName)
+	}
+	if m.name_jp != nil {
+		fields = append(fields, chapter.FieldNameJp)
+	}
+	if m.chapter_book != nil {
+		fields = append(fields, chapter.FieldBookID)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ChapterMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case chapter.FieldName:
+		return m.Name()
+	case chapter.FieldNameJp:
+		return m.NameJp()
+	case chapter.FieldBookID:
+		return m.BookID()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ChapterMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case chapter.FieldName:
+		return m.OldName(ctx)
+	case chapter.FieldNameJp:
+		return m.OldNameJp(ctx)
+	case chapter.FieldBookID:
+		return m.OldBookID(ctx)
+	}
+	return nil, fmt.Errorf("unknown Chapter field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ChapterMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case chapter.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case chapter.FieldNameJp:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNameJp(v)
+		return nil
+	case chapter.FieldBookID:
+		v, ok := value.(int16)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBookID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Chapter field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ChapterMutation) AddedFields() []string {
+	var fields []string
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ChapterMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ChapterMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Chapter numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ChapterMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ChapterMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ChapterMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Chapter nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ChapterMutation) ResetField(name string) error {
+	switch name {
+	case chapter.FieldName:
+		m.ResetName()
+		return nil
+	case chapter.FieldNameJp:
+		m.ResetNameJp()
+		return nil
+	case chapter.FieldBookID:
+		m.ResetBookID()
+		return nil
+	}
+	return fmt.Errorf("unknown Chapter field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ChapterMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.to_phrase != nil {
+		edges = append(edges, chapter.EdgeToPhrase)
+	}
+	if m.chapter_book != nil {
+		edges = append(edges, chapter.EdgeChapterBook)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ChapterMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case chapter.EdgeToPhrase:
+		ids := make([]ent.Value, 0, len(m.to_phrase))
+		for id := range m.to_phrase {
+			ids = append(ids, id)
+		}
+		return ids
+	case chapter.EdgeChapterBook:
+		if id := m.chapter_book; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ChapterMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removedto_phrase != nil {
+		edges = append(edges, chapter.EdgeToPhrase)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ChapterMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case chapter.EdgeToPhrase:
+		ids := make([]ent.Value, 0, len(m.removedto_phrase))
+		for id := range m.removedto_phrase {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ChapterMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedto_phrase {
+		edges = append(edges, chapter.EdgeToPhrase)
+	}
+	if m.clearedchapter_book {
+		edges = append(edges, chapter.EdgeChapterBook)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ChapterMutation) EdgeCleared(name string) bool {
+	switch name {
+	case chapter.EdgeToPhrase:
+		return m.clearedto_phrase
+	case chapter.EdgeChapterBook:
+		return m.clearedchapter_book
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ChapterMutation) ClearEdge(name string) error {
+	switch name {
+	case chapter.EdgeChapterBook:
+		m.ClearChapterBook()
+		return nil
+	}
+	return fmt.Errorf("unknown Chapter unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ChapterMutation) ResetEdge(name string) error {
+	switch name {
+	case chapter.EdgeToPhrase:
+		m.ResetToPhrase()
+		return nil
+	case chapter.EdgeChapterBook:
+		m.ResetChapterBook()
+		return nil
+	}
+	return fmt.Errorf("unknown Chapter edge %s", name)
 }
 
 // HymnMutation represents an operation that mutates the Hymn nodes in the graph.
@@ -2129,6 +3209,624 @@ func (m *HymnsWorkMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown HymnsWork edge %s", name)
+}
+
+// PhraseMutation represents an operation that mutates the Phrase nodes in the graph.
+type PhraseMutation struct {
+	config
+	op                    Op
+	typ                   string
+	id                    *int64
+	name                  *string
+	text_en               *string
+	text_jp               *string
+	change_line           *bool
+	clearedFields         map[string]struct{}
+	phrase_chapter        *int32
+	clearedphrase_chapter bool
+	done                  bool
+	oldValue              func(context.Context) (*Phrase, error)
+	predicates            []predicate.Phrase
+}
+
+var _ ent.Mutation = (*PhraseMutation)(nil)
+
+// phraseOption allows management of the mutation configuration using functional options.
+type phraseOption func(*PhraseMutation)
+
+// newPhraseMutation creates new mutation for the Phrase entity.
+func newPhraseMutation(c config, op Op, opts ...phraseOption) *PhraseMutation {
+	m := &PhraseMutation{
+		config:        c,
+		op:            op,
+		typ:           TypePhrase,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withPhraseID sets the ID field of the mutation.
+func withPhraseID(id int64) phraseOption {
+	return func(m *PhraseMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Phrase
+		)
+		m.oldValue = func(ctx context.Context) (*Phrase, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Phrase.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withPhrase sets the old Phrase of the mutation.
+func withPhrase(node *Phrase) phraseOption {
+	return func(m *PhraseMutation) {
+		m.oldValue = func(context.Context) (*Phrase, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m PhraseMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m PhraseMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Phrase entities.
+func (m *PhraseMutation) SetID(id int64) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *PhraseMutation) ID() (id int64, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *PhraseMutation) IDs(ctx context.Context) ([]int64, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int64{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Phrase.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetName sets the "name" field.
+func (m *PhraseMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *PhraseMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Phrase entity.
+// If the Phrase object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PhraseMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *PhraseMutation) ResetName() {
+	m.name = nil
+}
+
+// SetTextEn sets the "text_en" field.
+func (m *PhraseMutation) SetTextEn(s string) {
+	m.text_en = &s
+}
+
+// TextEn returns the value of the "text_en" field in the mutation.
+func (m *PhraseMutation) TextEn() (r string, exists bool) {
+	v := m.text_en
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTextEn returns the old "text_en" field's value of the Phrase entity.
+// If the Phrase object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PhraseMutation) OldTextEn(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTextEn is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTextEn requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTextEn: %w", err)
+	}
+	return oldValue.TextEn, nil
+}
+
+// ResetTextEn resets all changes to the "text_en" field.
+func (m *PhraseMutation) ResetTextEn() {
+	m.text_en = nil
+}
+
+// SetTextJp sets the "text_jp" field.
+func (m *PhraseMutation) SetTextJp(s string) {
+	m.text_jp = &s
+}
+
+// TextJp returns the value of the "text_jp" field in the mutation.
+func (m *PhraseMutation) TextJp() (r string, exists bool) {
+	v := m.text_jp
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTextJp returns the old "text_jp" field's value of the Phrase entity.
+// If the Phrase object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PhraseMutation) OldTextJp(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTextJp is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTextJp requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTextJp: %w", err)
+	}
+	return oldValue.TextJp, nil
+}
+
+// ResetTextJp resets all changes to the "text_jp" field.
+func (m *PhraseMutation) ResetTextJp() {
+	m.text_jp = nil
+}
+
+// SetChapterID sets the "chapter_id" field.
+func (m *PhraseMutation) SetChapterID(i int32) {
+	m.phrase_chapter = &i
+}
+
+// ChapterID returns the value of the "chapter_id" field in the mutation.
+func (m *PhraseMutation) ChapterID() (r int32, exists bool) {
+	v := m.phrase_chapter
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChapterID returns the old "chapter_id" field's value of the Phrase entity.
+// If the Phrase object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PhraseMutation) OldChapterID(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldChapterID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldChapterID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChapterID: %w", err)
+	}
+	return oldValue.ChapterID, nil
+}
+
+// ResetChapterID resets all changes to the "chapter_id" field.
+func (m *PhraseMutation) ResetChapterID() {
+	m.phrase_chapter = nil
+}
+
+// SetChangeLine sets the "change_line" field.
+func (m *PhraseMutation) SetChangeLine(b bool) {
+	m.change_line = &b
+}
+
+// ChangeLine returns the value of the "change_line" field in the mutation.
+func (m *PhraseMutation) ChangeLine() (r bool, exists bool) {
+	v := m.change_line
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChangeLine returns the old "change_line" field's value of the Phrase entity.
+// If the Phrase object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PhraseMutation) OldChangeLine(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldChangeLine is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldChangeLine requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChangeLine: %w", err)
+	}
+	return oldValue.ChangeLine, nil
+}
+
+// ResetChangeLine resets all changes to the "change_line" field.
+func (m *PhraseMutation) ResetChangeLine() {
+	m.change_line = nil
+}
+
+// SetPhraseChapterID sets the "phrase_chapter" edge to the Chapter entity by id.
+func (m *PhraseMutation) SetPhraseChapterID(id int32) {
+	m.phrase_chapter = &id
+}
+
+// ClearPhraseChapter clears the "phrase_chapter" edge to the Chapter entity.
+func (m *PhraseMutation) ClearPhraseChapter() {
+	m.clearedphrase_chapter = true
+	m.clearedFields[phrase.FieldChapterID] = struct{}{}
+}
+
+// PhraseChapterCleared reports if the "phrase_chapter" edge to the Chapter entity was cleared.
+func (m *PhraseMutation) PhraseChapterCleared() bool {
+	return m.clearedphrase_chapter
+}
+
+// PhraseChapterID returns the "phrase_chapter" edge ID in the mutation.
+func (m *PhraseMutation) PhraseChapterID() (id int32, exists bool) {
+	if m.phrase_chapter != nil {
+		return *m.phrase_chapter, true
+	}
+	return
+}
+
+// PhraseChapterIDs returns the "phrase_chapter" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// PhraseChapterID instead. It exists only for internal usage by the builders.
+func (m *PhraseMutation) PhraseChapterIDs() (ids []int32) {
+	if id := m.phrase_chapter; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetPhraseChapter resets all changes to the "phrase_chapter" edge.
+func (m *PhraseMutation) ResetPhraseChapter() {
+	m.phrase_chapter = nil
+	m.clearedphrase_chapter = false
+}
+
+// Where appends a list predicates to the PhraseMutation builder.
+func (m *PhraseMutation) Where(ps ...predicate.Phrase) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the PhraseMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *PhraseMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Phrase, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *PhraseMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *PhraseMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Phrase).
+func (m *PhraseMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *PhraseMutation) Fields() []string {
+	fields := make([]string, 0, 5)
+	if m.name != nil {
+		fields = append(fields, phrase.FieldName)
+	}
+	if m.text_en != nil {
+		fields = append(fields, phrase.FieldTextEn)
+	}
+	if m.text_jp != nil {
+		fields = append(fields, phrase.FieldTextJp)
+	}
+	if m.phrase_chapter != nil {
+		fields = append(fields, phrase.FieldChapterID)
+	}
+	if m.change_line != nil {
+		fields = append(fields, phrase.FieldChangeLine)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *PhraseMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case phrase.FieldName:
+		return m.Name()
+	case phrase.FieldTextEn:
+		return m.TextEn()
+	case phrase.FieldTextJp:
+		return m.TextJp()
+	case phrase.FieldChapterID:
+		return m.ChapterID()
+	case phrase.FieldChangeLine:
+		return m.ChangeLine()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *PhraseMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case phrase.FieldName:
+		return m.OldName(ctx)
+	case phrase.FieldTextEn:
+		return m.OldTextEn(ctx)
+	case phrase.FieldTextJp:
+		return m.OldTextJp(ctx)
+	case phrase.FieldChapterID:
+		return m.OldChapterID(ctx)
+	case phrase.FieldChangeLine:
+		return m.OldChangeLine(ctx)
+	}
+	return nil, fmt.Errorf("unknown Phrase field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PhraseMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case phrase.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case phrase.FieldTextEn:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTextEn(v)
+		return nil
+	case phrase.FieldTextJp:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTextJp(v)
+		return nil
+	case phrase.FieldChapterID:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChapterID(v)
+		return nil
+	case phrase.FieldChangeLine:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChangeLine(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Phrase field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *PhraseMutation) AddedFields() []string {
+	var fields []string
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *PhraseMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PhraseMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Phrase numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *PhraseMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *PhraseMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *PhraseMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Phrase nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *PhraseMutation) ResetField(name string) error {
+	switch name {
+	case phrase.FieldName:
+		m.ResetName()
+		return nil
+	case phrase.FieldTextEn:
+		m.ResetTextEn()
+		return nil
+	case phrase.FieldTextJp:
+		m.ResetTextJp()
+		return nil
+	case phrase.FieldChapterID:
+		m.ResetChapterID()
+		return nil
+	case phrase.FieldChangeLine:
+		m.ResetChangeLine()
+		return nil
+	}
+	return fmt.Errorf("unknown Phrase field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *PhraseMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.phrase_chapter != nil {
+		edges = append(edges, phrase.EdgePhraseChapter)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *PhraseMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case phrase.EdgePhraseChapter:
+		if id := m.phrase_chapter; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *PhraseMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *PhraseMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *PhraseMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedphrase_chapter {
+		edges = append(edges, phrase.EdgePhraseChapter)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *PhraseMutation) EdgeCleared(name string) bool {
+	switch name {
+	case phrase.EdgePhraseChapter:
+		return m.clearedphrase_chapter
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *PhraseMutation) ClearEdge(name string) error {
+	switch name {
+	case phrase.EdgePhraseChapter:
+		m.ClearPhraseChapter()
+		return nil
+	}
+	return fmt.Errorf("unknown Phrase unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *PhraseMutation) ResetEdge(name string) error {
+	switch name {
+	case phrase.EdgePhraseChapter:
+		m.ResetPhraseChapter()
+		return nil
+	}
+	return fmt.Errorf("unknown Phrase edge %s", name)
 }
 
 // RoleMutation represents an operation that mutates the Role nodes in the graph.

@@ -9,11 +9,20 @@ import (
 // Auth is the predicate function for auth builders.
 type Auth func(*sql.Selector)
 
+// Book is the predicate function for book builders.
+type Book func(*sql.Selector)
+
+// Chapter is the predicate function for chapter builders.
+type Chapter func(*sql.Selector)
+
 // Hymn is the predicate function for hymn builders.
 type Hymn func(*sql.Selector)
 
 // HymnsWork is the predicate function for hymnswork builders.
 type HymnsWork func(*sql.Selector)
+
+// Phrase is the predicate function for phrase builders.
+type Phrase func(*sql.Selector)
 
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
