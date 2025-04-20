@@ -11,3 +11,8 @@ const HankakuPercentMark string = "%"
 const AttrNameException string = "exception"
 
 const DefaultPageSize uint8 = 5
+
+var StrangeArray = []string{
+	"insert", "delete", "update", "create", "drop",
+	"#", "$", "%", "&", "(", ")", "\"", "'", "@", ":", "select",
+}
