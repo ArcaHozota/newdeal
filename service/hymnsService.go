@@ -88,7 +88,7 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 				Where(hymn.VisibleFlg(true)).
 				Order(hymn.ByID()).
 				Limit(int(common.DefaultPageSize)).All(ctx)
-			log.Printf("怪しいキーワード: %v\n" + keyword)
+			log.Printf("怪しいキーワード: %v\n", keyword)
 			return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
 				return pojos.HymnDTO{
 					ID:          hm.ID,
@@ -141,7 +141,7 @@ func randomFiveLoop(hymnsRecords, totalRecords []pojos.HymnDTO) []pojos.HymnDTO 
 	concernList1 := append([]pojos.HymnDTO{}, hymnsRecords...) // コピー
 	if len(hymnsRecords) < int(common.DefaultPageSize) {
 		sagaku := int(common.DefaultPageSize) - len(hymnsRecords)
-		for i := 0; i < sagaku; i++ {
+		for range sagaku {
 			index := random.Intn(len(filteredRecords))
 			concernList1 = append(concernList1, filteredRecords[index])
 		}
@@ -155,7 +155,7 @@ func randomFiveLoop(hymnsRecords, totalRecords []pojos.HymnDTO) []pojos.HymnDTO 
 
 func randomFiveLoop2(hymnsRecords []pojos.HymnDTO) []pojos.HymnDTO {
 	var concernList1 []pojos.HymnDTO
-	for i := 0; i < int(common.DefaultPageSize); i++ {
+	for range int(common.DefaultPageSize) {
 		index := random.Intn(len(hymnsRecords))
 		concernList1 = append(concernList1, hymnsRecords[index])
 	}
