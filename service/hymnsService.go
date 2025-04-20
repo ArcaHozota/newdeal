@@ -88,7 +88,7 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 				Where(hymn.VisibleFlg(true)).
 				Order(hymn.ByID()).
 				Limit(int(common.DefaultPageSize)).All(ctx)
-			log.Fatalf("怪しいキーワード: %v" + keyword)
+			log.Printf("怪しいキーワード: %v\n" + keyword)
 			return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
 				return pojos.HymnDTO{
 					ID:          hm.ID,
