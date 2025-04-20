@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"slices"
+
 	"github.com/samber/lo"
 )
 
@@ -138,7 +140,7 @@ func randomFiveLoop(hymnsRecords, totalRecords []pojos.HymnDTO) []pojos.HymnDTO 
 			filteredRecords = append(filteredRecords, item)
 		}
 	}
-	concernList1 := append([]pojos.HymnDTO{}, hymnsRecords...) // コピー
+	concernList1 := slices.Clone(hymnsRecords) // コピー
 	if len(hymnsRecords) < int(common.DefaultPageSize) {
 		sagaku := int(common.DefaultPageSize) - len(hymnsRecords)
 		for range sagaku {
