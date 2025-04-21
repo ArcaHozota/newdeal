@@ -1,18 +1,18 @@
-$(document).ready(function() {
-	$("#torokuBox").on('click', '.toroku-title', function() {
+$(document).ready(function () {
+	$("#torokuBox").on('click', '.toroku-title', function () {
 		if ($("#torokuBox").hasClass('slide-up')) {
 			$("#loginBox").addClass('slide-up');
 			$("#torokuBox").removeClass('slide-up');
 		}
 	});
-	$("#loginBox").on('click', '.login-title', function() {
+	$("#loginBox").on('click', '.login-title', function () {
 		if ($("#loginBox").hasClass('slide-up')) {
 			$("#torokuBox").addClass('slide-up');
 			$("#loginBox").removeClass('slide-up');
 		}
 	});
 	let flag = 0;
-	$("#eyeIcons").on('click', function() {
+	$("#eyeIcons").on('click', function () {
 		if (flag === 0) {
 			$("#passwordIpt").attr('type', 'text');
 			$(this).attr('name', 'eye-off-outline');
@@ -28,7 +28,7 @@ $(document).ready(function() {
 		layer.msg(message1);
 	}
 });
-$("#emailIpt").on("change", function() {
+$("#emailIpt").on("change", function () {
 	let inputEmail = this.value;
 	let regularEmail = /^^[a-zA-Z\d._%+-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
 	if (inputEmail.includes("@")) {
@@ -37,7 +37,7 @@ $("#emailIpt").on("change", function() {
 		}
 	}
 });
-$("#loginBtn").on('click', function() {
+$("#loginBtn").on('click', function () {
 	let account = $("#accountIpt").val().trim();
 	let password = $("#passwordIpt").val().trim();
 	if (account === '' && password === '') {
@@ -48,12 +48,12 @@ $("#loginBtn").on('click', function() {
 		layer.msg('パスワードを入力してください。');
 	} else {
 		$.ajax({
-			url: '/students/preLogin.action',
+			url: '/students/pre-login',
 			data: {
 				'loginAccount': account,
 				'password': password
 			},
-			error: function(xhr) {
+			error: function (xhr) {
 				let message = xhr.responseText.replace(/^"|"$/g, emptyString);
 				layer.msg(message);
 			}
@@ -61,7 +61,7 @@ $("#loginBtn").on('click', function() {
 		$("#loginForm").submit();
 	}
 });
-$("#torokuBtn").on('click', function() {
+$("#torokuBtn").on('click', function () {
 	let inputArrays = ["#emailIpt", "#passwordIpt1", "#passwordIpt2"];
 	for (const element of inputArrays) {
 		if ($(element).val().trim() === '') {

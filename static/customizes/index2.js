@@ -48,7 +48,7 @@ $("#tableBody").on("click", '.form-check-input', function () {
 	if ($(this).prop('checked')) {
 		let idVal = $(this).val();
 		$.ajax({
-			url: '/hymns/getInfoById.action',
+			url: '/hymns/get-info-id',
 			data: 'hymnId=' + idVal,
 			success: function (response) {
 				$("#nameDisplay").text(response.nameJp);
@@ -64,7 +64,7 @@ $("#tableBody").on("click", '.form-check-input', function () {
 		for (const element of checkBoxArray) {
 			if ($(element).prop('checked')) {
 				$.ajax({
-					url: '/hymns/getInfoById.action',
+					url: '/hymns/get-info-id',
 					data: 'hymnId=' + $(element).val(),
 					success: function (response) {
 						$("#nameDisplay").text(response.nameJp);
@@ -87,7 +87,7 @@ $("#tableBody").on("click", '.link-btn', function (e) {
 });
 function initialPagination(pageNum, keyword) {
 	$.ajax({
-		url: '/hymns/pagination.action',
+		url: '/hymns/pagination',
 		data: 'pageNum=' + pageNum,
 		success: function (response) {
 			buildTableBody1(response);
@@ -127,16 +127,16 @@ function buildPageNavi(result) {
 	let ul = $("<ul></ul>").addClass('pagination');
 	let firstPageLi = $("<li class='page-item'></li>").append(
 		$("<a class='page-link'></a>").append("最初へ").attr("href", "#"));
-	let previousPageLi = $("<li class='page-item'></li>").append(
+	let prevPageLi = $("<li class='page-item'></li>").append(
 		$("<a class='page-link'></a>").append("&laquo;").attr("href", "#"));
 	if (!result.hasPrevPage) {
 		firstPageLi.addClass('disabled');
-		previousPageLi.addClass('disabled');
+		prevPageLi.addClass('disabled');
 	} else {
 		firstPageLi.click(function () {
 			initialPagination(1, keyword);
 		});
-		previousPageLi.click(function () {
+		prevPageLi.click(function () {
 			initialPagination(pageNum - 1, keyword);
 		});
 	}
@@ -156,7 +156,7 @@ function buildPageNavi(result) {
 			initialPagination(totalPages, keyword);
 		});
 	}
-	ul.append(firstPageLi).append(previousPageLi);
+	ul.append(firstPageLi).append(prevPageLi);
 	$.each(result.navigateNums, (index, item) => {
 		let numsLi = $("<li class='page-item'></li>").append(
 			$("<a class='page-link'></a>").append(item).attr("href", "#"));
@@ -173,7 +173,7 @@ function buildPageNavi(result) {
 }
 function kanumiRetrieve(hymnId) {
 	$.ajax({
-		url: '/hymns/kanumiRetrieve.action',
+		url: '/hymns/kanumi-retrieve',
 		data: 'hymnId=' + hymnId,
 		success: function (response) {
 			buildTableBody2(response);

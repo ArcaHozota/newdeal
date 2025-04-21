@@ -1,20 +1,20 @@
 let pageNum = $("#pageNumContainer").val();
-$(document).ready(function() {
+$(document).ready(function () {
 	$("#toCollection").css('color', '#006b3c');
 	$("#toCollection").addClass('animate__animated animate__flipInY');
 });
-$("#toHymnPages").on("click", function(e) {
+$("#toHymnPages").on("click", function (e) {
 	e.preventDefault();
-	let url = '/hymns/toPages?pageNum=' + pageNum;
+	let url = '/hymns/to-pages?pageNum=' + pageNum;
 	checkPermissionAndTransfer(url);
 });
-$("#nameJpInput").on("change", function() {
+$("#nameJpInput").on("change", function () {
 	checkHymnName(this, null);
 });
-$("#nameKrInput").on("change", function() {
+$("#nameKrInput").on("change", function () {
 	checkHymnName2(this, null);
 });
-$("#infoStorageBtn").on("click", function() {
+$("#infoStorageBtn").on("click", function () {
 	let inputArrays = ["#nameJpInput", "#nameKrInput", "#linkInput", "#serifInput"];
 	for (const array of inputArrays) {
 		$(array).removeClass('is-valid is-invalid');
@@ -34,16 +34,16 @@ $("#infoStorageBtn").on("click", function() {
 			'serif': $("#serifInput").val(),
 			'updatedUser': $("#toPersonal").find("input").val().replace(/,/g, emptyString)
 		});
-		projectAjaxModify('/hymns/infoStorage', 'POST', postData, hymnsPostSuccessFunction);
+		projectAjaxModify('/hymns/info-storage', 'POST', postData, hymnsPostSuccessFunction);
 	}
 });
-$("#nameJpEdit").on("change", function() {
+$("#nameJpEdit").on("change", function () {
 	checkHymnName(this, $("#idContainer").val());
 });
-$("#nameKrEdit").on("change", function() {
+$("#nameKrEdit").on("change", function () {
 	checkHymnName2(this, $("#idContainer").val());
 });
-$("#infoUpdationBtn").on("click", function() {
+$("#infoUpdationBtn").on("click", function () {
 	let inputArrays = ["#nameJpEdit", "#nameKrEdit", "#linkEdit", "#serifEdit"];
 	for (const array of inputArrays) {
 		$(array).removeClass('is-valid is-invalid');
@@ -65,22 +65,22 @@ $("#infoUpdationBtn").on("click", function() {
 			'updatedTime': $("#datestampContainer").val(),
 			'updatedUser': $("#toPersonal").find("input").val().replace(/,/g, emptyString)
 		});
-		projectAjaxModify('/hymns/infoUpdation', 'PUT', putData, hymnsPutSuccessFunction);
+		projectAjaxModify('/hymns/info-updation', 'PUT', putData, hymnsPutSuccessFunction);
 	}
 });
 function hymnsPostSuccessFunction(response) {
 	localStorage.setItem('redirectMessage', inputedString);
-	window.location.replace('/hymns/toPages?pageNum=' + response);
+	window.location.replace('/hymns/to-pages?pageNum=' + response);
 }
 function hymnsPutSuccessFunction(response) {
 	let message = response.replace(/^"|"$/g, emptyString);
 	localStorage.setItem('redirectMessage', message);
-	window.location.replace('/hymns/toPages?pageNum=' + pageNum);
+	window.location.replace('/hymns/to-pages?pageNum=' + pageNum);
 }
-$("#resetBtn").on("click", function() {
+$("#resetBtn").on("click", function () {
 	formReset("#inputForm");
 });
-$("#restoreBtn").on("click", function() {
+$("#restoreBtn").on("click", function () {
 	formReset("#editForm");
 });
 function checkHymnName(hymnName, idVal) {
@@ -89,15 +89,15 @@ function checkHymnName(hymnName, idVal) {
 		showValidationMsg(hymnName, responseFailure, showVadMsgError);
 	} else {
 		$.ajax({
-			url: '/hymns/checkDuplicated',
+			url: '/hymns/check-duplicated',
 			data: {
 				'id': idVal,
 				'nameJp': nameVal
 			},
-			success: function(response) {
+			success: function (response) {
 				showValidationMsg(hymnName, responseSuccess, response);
 			},
-			error: function(xhr) {
+			error: function (xhr) {
 				showValidationMsg(hymnName, responseFailure, xhr.responseText);
 			}
 		});
@@ -109,15 +109,15 @@ function checkHymnName2(hymnName, idVal) {
 		showValidationMsg(hymnName, responseFailure, showVadMsgError);
 	} else {
 		$.ajax({
-			url: '/hymns/checkDuplicated2',
+			url: '/hymns/check-duplicated2',
 			data: {
 				'id': idVal,
 				'nameKr': nameVal
 			},
-			success: function(response) {
+			success: function (response) {
 				showValidationMsg(hymnName, responseSuccess, response);
 			},
-			error: function(xhr) {
+			error: function (xhr) {
 				showValidationMsg(hymnName, responseFailure, xhr.responseText);
 			}
 		});

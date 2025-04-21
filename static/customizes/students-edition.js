@@ -1,12 +1,12 @@
 let pageNum = $("#pageNumContainer").val();
-$("#toStudentsPages").on("click", function(e) {
+$("#toStudentsPages").on("click", function (e) {
 	e.preventDefault();
 	layer.msg(delayApology);
 });
-$("#accountEdit").on("change", function() {
+$("#accountEdit").on("change", function () {
 	checkStudentName(this, $("#idContainer").val());
 });
-$("#infoUpdationBtn").on("click", function() {
+$("#infoUpdationBtn").on("click", function () {
 	let inputArrays = ["#accountEdit", "#nameEdit", "#passwordEdit", "#birthdayEdit", "#emailEdit"];
 	for (const array of inputArrays) {
 		$(array).removeClass("is-valid is-invalid");
@@ -33,15 +33,15 @@ $("#infoUpdationBtn").on("click", function() {
 			'email': $("#emailEdit").val(),
 			'dateOfBirth': $("#birthdayEdit").val()
 		});
-		projectAjaxModify('/students/infoUpdation.action', 'PUT', putData, studentsPutSuccessFunction);
+		projectAjaxModify('/students/info-updation', 'PUT', putData, studentsPutSuccessFunction);
 	}
 });
 function studentsPutSuccessFunction(response) {
 	let message = response.replace(/^"|"$/g, emptyString);
 	localStorage.setItem('redirectMessage', message);
-	window.location.replace('/category/toMainmenu.action');
+	window.location.replace('/category/to-mainmenu');
 }
-$("#restoreBtn").on("click", function() {
+$("#restoreBtn").on("click", function () {
 	formReset("#editForm");
 });
 function checkStudentName(studentName, idVal) {
@@ -50,15 +50,15 @@ function checkStudentName(studentName, idVal) {
 		showValidationMsg(studentName, responseFailure, "名称を空になってはいけません。");
 	} else {
 		$.ajax({
-			url: '/students/checkDuplicated.action',
+			url: '/students/check-duplicated',
 			data: {
 				'id': idVal,
 				'loginAccount': nameVal
 			},
-			success: function(xhr) {
+			success: function (xhr) {
 				showValidationMsg(studentName, responseSuccess, xhr.responseText);
 			},
-			error: function(xhr) {
+			error: function (xhr) {
 				showValidationMsg(studentName, responseFailure, xhr.responseText);
 			}
 		});

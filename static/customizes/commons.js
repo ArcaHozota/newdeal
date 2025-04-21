@@ -6,7 +6,7 @@ const inputedString = '追加済み';
 const delimiter = '　/　';
 const delayApology = 'すみませんが、当機能はまだ実装されていません';
 const showVadMsgError = '名称を空になってはいけません。';
-$(document).ready(function() {
+$(document).ready(function () {
 	let treeData = [
 		{
 			text: "聖書奉読",
@@ -51,7 +51,7 @@ $(document).ready(function() {
 		parentsMarginLeft: '1.25rem',
 		openNodeLinkOnNewTab: true
 	});
-	$("#logoutBtn").on("click", function() {
+	$("#logoutBtn").on("click", function () {
 		swal.fire({
 			title: '警告',
 			text: 'ログアウトしてよろしいでしょうか。',
@@ -69,42 +69,42 @@ $(document).ready(function() {
 			}
 		});
 	});
-	$("#toMainmenu").on("click", function(e) {
+	$("#toMainmenu").on("click", function (e) {
 		e.preventDefault();
-		window.location.replace('/category/toMainmenu.action');
+		window.location.replace('/category/to-mainmenu');
 	});
-	$("#toMainmenu2").on("click", function(e) {
+	$("#toMainmenu2").on("click", function (e) {
 		e.preventDefault();
-		window.location.replace('/category/toMainmenu.action');
+		window.location.replace('/category/to-mainmenu');
 	});
-	$("#toPersonal").on("click", function(e) {
+	$("#toPersonal").on("click", function (e) {
 		e.preventDefault();
 		let userId = $(this).find("input").val().replace(/,/g, emptyString);
-		let url = '/students/toEdition.action?editId=' + userId;
+		let url = '/students/to-edition?editId=' + userId;
 		checkPermissionAndTransfer(url);
 	});
-	$("#toMessage").on("click", function(e) {
+	$("#toMessage").on("click", function (e) {
 		e.preventDefault();
 		layer.msg(delayApology);
 	});
-	$("#toBookSearch").on("click", function(e) {
+	$("#toBookSearch").on("click", function (e) {
 		e.preventDefault();
 		layer.msg(delayApology);
-		// let url = '/books/toPages?pageNum=1';
+		// let url = '/books/to-pages?pageNum=1';
 		// checkPermissionAndTransfer(url);
 	});
-	$("#toTemporary").on("click", function(e) {
-		let url = '/books/toAddition.action';
+	$("#toTemporary").on("click", function (e) {
+		let url = '/books/to-addition';
 		checkPermissionAndTransfer(url);
 	});
-	$("#toCollection").on("click", function(e) {
+	$("#toCollection").on("click", function (e) {
 		e.preventDefault();
-		let url = '/hymns/toPages.action?pageNum=1';
+		let url = '/hymns/to-pages?pageNum=1';
 		checkPermissionAndTransfer(url);
 	});
-	$("#toRandomFive").on("click", function(e) {
+	$("#toRandomFive").on("click", function (e) {
 		e.preventDefault();
-		let url = '/hymns/toRandomFive.action';
+		let url = '/hymns/to-random-five';
 		checkPermissionAndTransfer(url);
 	});
 });
@@ -133,16 +133,16 @@ function buildPageNavi(result) {
 	let ul = $("<ul></ul>").addClass('pagination');
 	let firstPageLi = $("<li class='page-item'></li>").append(
 		$("<a class='page-link'></a>").append("最初へ").attr("href", "#"));
-	let previousPageLi = $("<li class='page-item'></li>").append(
+	let prevPageLi = $("<li class='page-item'></li>").append(
 		$("<a class='page-link'></a>").append("&laquo;").attr("href", "#"));
-	if (!result.hasPreviousPage) {
+	if (!result.hasPrevPage) {
 		firstPageLi.addClass('disabled');
-		previousPageLi.addClass('disabled');
+		prevPageLi.addClass('disabled');
 	} else {
-		firstPageLi.click(function() {
+		firstPageLi.click(function () {
 			toSelectedPg(1, keyword);
 		});
-		previousPageLi.click(function() {
+		prevPageLi.click(function () {
 			toSelectedPg(pageNum - 1, keyword);
 		});
 	}
@@ -155,21 +155,21 @@ function buildPageNavi(result) {
 		lastPageLi.addClass('disabled');
 	} else {
 		lastPageLi.addClass('success');
-		nextPageLi.click(function() {
+		nextPageLi.click(function () {
 			toSelectedPg(pageNum + 1, keyword);
 		});
-		lastPageLi.click(function() {
+		lastPageLi.click(function () {
 			toSelectedPg(totalPages, keyword);
 		});
 	}
-	ul.append(firstPageLi).append(previousPageLi);
-	$.each(result.navigatePageNums, (index, item) => {
+	ul.append(firstPageLi).append(prevPageLi);
+	$.each(result.navigateNums, (index, item) => {
 		let numsLi = $("<li class='page-item'></li>").append(
 			$("<a class='page-link'></a>").append(item).attr("href", "#"));
 		if (pageNum === item) {
 			numsLi.attr("href", "#").addClass("active");
 		}
-		numsLi.click(function() {
+		numsLi.click(function () {
 			toSelectedPg(item, keyword);
 		});
 		ul.append(numsLi);
@@ -209,7 +209,7 @@ function projectAjaxModify(url, type, data, successFunction) {
 		dataType: 'json',
 		contentType: 'application/json;charset=UTF-8',
 		success: successFunction,
-		error: function(xhr) {
+		error: function (xhr) {
 			let message = xhr.responseText.replace(/^"|"$/g, emptyString);
 			layer.msg(message);
 		}
@@ -259,9 +259,9 @@ function normalAddbtnFunction(checkUrl, modalName) {
 }
 function normalDeletebtnFunction(url, message, deleteId) {
 	$.ajax({
-		url: url + 'deletionCheck',
+		url: url + 'deletion-check',
 		type: 'GET',
-		success: function() {
+		success: function () {
 			swal.fire({
 				title: 'メッセージ',
 				text: message,
@@ -271,13 +271,13 @@ function normalDeletebtnFunction(url, message, deleteId) {
 				confirmButtonColor: '#7F0020'
 			}).then((result) => {
 				if (result.isConfirmed) {
-					projectAjaxModify(url + 'infoDelete?id=' + deleteId, 'DELETE', null, normalDeleteSuccessFunction);
+					projectAjaxModify(url + 'info-delete?id=' + deleteId, 'DELETE', null, normalDeleteSuccessFunction);
 				} else {
 					$(this).close();
 				}
 			});
 		},
-		error: function(response) {
+		error: function (response) {
 			layer.msg(response.responseJSON.message);
 		}
 	});
