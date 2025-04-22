@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"newdeal/common"
+	"newdeal/common/tools"
 	"newdeal/ent"
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
@@ -65,20 +66,7 @@ func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
 		Order(hymn.ByID()).
 		Limit(int(common.DefaultPageSize)).
 		Offset(offset).All(ctx)
-	return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
-		return pojos.HymnDTO{
-			ID:          hm.ID,
-			NameJP:      hm.NameJp,
-			NameKR:      hm.NameKr,
-			Serif:       hm.Serif,
-			Link:        hm.Link,
-			Score:       nil,
-			Biko:        common.EmptyString,
-			UpdatedUser: hm.UpdatedUser,
-			UpdatedTime: hm.UpdatedTime,
-			LineNumber:  0,
-		}
-	}), err
+	return map2DTOs(hymns, pojos.LineNumber(5)), err
 }
 
 func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
@@ -91,42 +79,94 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 				Order(hymn.ByID()).
 				Limit(int(common.DefaultPageSize)).All(ctx)
 			log.Printf("怪しいキーワード: %v\n", keyword)
-			return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
-				return pojos.HymnDTO{
-					ID:          hm.ID,
-					NameJP:      hm.NameJp,
-					NameKR:      hm.NameKr,
-					Serif:       hm.Serif,
-					Link:        hm.Link,
-					Score:       nil,
-					Biko:        common.EmptyString,
-					UpdatedUser: hm.UpdatedUser,
-					UpdatedTime: hm.UpdatedTime,
-					LineNumber:  0,
-				}
-			}), err
+			return map2DTOs(hymns, pojos.LineNumber(5)), err
 		}
 	}
 	if keyword == common.EmptyString {
 		hymns, err := EntCore.Hymn.Query().
 			Where(hymn.VisibleFlg(true)).All(ctx)
-		hymnDtos := lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
-			return pojos.HymnDTO{
-				ID:          hm.ID,
-				NameJP:      hm.NameJp,
-				NameKR:      hm.NameKr,
-				Serif:       hm.Serif,
-				Link:        hm.Link,
-				Score:       nil,
-				Biko:        common.EmptyString,
-				UpdatedUser: hm.UpdatedUser,
-				UpdatedTime: hm.UpdatedTime,
-				LineNumber:  0,
-			}
-		})
+		hymnDtos := map2DTOs(hymns, pojos.LineNumber(5))
 		return randomFiveLoop2(hymnDtos), err
 	}
-	return nil, err
+	hymns, err := EntCore.Hymn.Query().
+		Where(hymn.VisibleFlg(true),
+			hymn.Or(
+				hymn.NameJpEQ(keyword),
+				hymn.NameKrEQ(keyword),
+				hymn.HasToWorkWith(
+					hymnswork.NameJpRationalContains("["+keyword+"]"),
+				),
+			),
+		).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	withName := map2DTOs(hymns, pojos.LineNumber(1))
+	hymnDtos := slices.Clone(withName)
+	withNameIds := lo.Map(withName, func(hm pojos.HymnDTO, _ int) int64 {
+		return hm.ID
+	})
+	hymns2, err := EntCore.Hymn.Query().
+		Where(hymn.VisibleFlg(true),
+			hymn.Or(
+				hymn.NameJpContains(keyword),
+				hymn.NameKrContains(keyword),
+				hymn.HasToWorkWith(
+					hymnswork.NameJpRationalContains(keyword),
+				),
+			),
+		).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	hymns2 = lo.Filter(hymns2, func(a *ent.Hymn, _ int) bool {
+		return !lo.Contains(withNameIds, a.ID)
+	})
+	withNameLike := map2DTOs(hymns2, pojos.LineNumber(2))
+	hymnDtos = append(hymnDtos, withNameLike...)
+	if len(hymnDtos) >= int(common.DefaultPageSize) {
+		return randomFiveLoop2(hymnDtos), err
+	}
+	withNameLikeIds := lo.Map(withNameLike, func(hm pojos.HymnDTO, _ int) int64 {
+		return hm.ID
+	})
+	keyword = tools.GetDetailKeyword(keyword)
+	hymns3, err := EntCore.Hymn.Query().
+		Where(hymn.VisibleFlg(true),
+			hymn.Or(
+				hymn.NameJpContains(keyword),
+				hymn.NameKrContains(keyword),
+				hymn.SerifContains(keyword),
+				hymn.HasToWorkWith(
+					hymnswork.NameJpRationalContains(keyword),
+				),
+			),
+		).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	hymns3 = lo.Filter(hymns3, func(a *ent.Hymn, _ int) bool {
+		return !lo.Contains(withNameIds, a.ID) && !lo.Contains(withNameLikeIds, a.ID)
+	})
+	withSerifLike := map2DTOs(hymns3, pojos.LineNumber(3))
+	hymnDtos = append(hymnDtos, withSerifLike...)
+	if len(hymnDtos) >= int(common.DefaultPageSize) {
+		return randomFiveLoop2(hymnDtos), err
+	}
+	withSerifLikeIds := lo.Map(withSerifLike, func(hm pojos.HymnDTO, _ int) int64 {
+		return hm.ID
+	})
+	hymns4, err := EntCore.Hymn.Query().
+		Where(hymn.VisibleFlg(true)).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	hymns4 = lo.Filter(hymns4, func(a *ent.Hymn, _ int) bool {
+		return !lo.Contains(withNameIds, a.ID) && !lo.Contains(withNameLikeIds, a.ID) && !lo.Contains(withSerifLikeIds, a.ID)
+	})
+	filteredRecords := map2DTOs(hymns4, pojos.LineNumber(5))
+	hymnDtos = randomFiveLoop(hymnDtos, filteredRecords)
+	return hymnDtos, err
 }
 
 func randomFiveLoop(hymnsRecords, totalRecords []pojos.HymnDTO) []pojos.HymnDTO {
@@ -178,4 +218,21 @@ func distinctHymnDtos(input []pojos.HymnDTO) []pojos.HymnDTO {
 		}
 	}
 	return result
+}
+
+func map2DTOs(hymns []*ent.Hymn, lineNo pojos.LineNumber) []pojos.HymnDTO {
+	return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
+		return pojos.HymnDTO{
+			ID:          hm.ID,
+			NameJP:      hm.NameJp,
+			NameKR:      hm.NameKr,
+			Serif:       hm.Serif,
+			Link:        hm.Link,
+			Score:       nil,
+			Biko:        common.EmptyString,
+			UpdatedUser: hm.UpdatedUser,
+			UpdatedTime: hm.UpdatedTime,
+			LineNumber:  lineNo,
+		}
+	})
 }

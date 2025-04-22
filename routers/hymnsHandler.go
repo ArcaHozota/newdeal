@@ -15,7 +15,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 
 	hymnsRouter := r.Group("/hymns")
 	{
-		hymnsRouter.GET("pagination.action", func(ctx *gin.Context) {
+		hymnsRouter.GET("pagination", func(ctx *gin.Context) {
 			// 未指定時は 1 にしたいので DefaultQuery
 			pageNumStr := ctx.DefaultQuery("pageNum", "1")
 			pageNum, err := strconv.Atoi(pageNumStr)
@@ -39,6 +39,15 @@ func HymnsHandlerInit(r *gin.Engine) {
 				ctx.JSON(http.StatusBadRequest, err)
 			}
 			ctx.JSON(http.StatusOK, pageInfos)
+		})
+		hymnsRouter.GET("common-retrieve", func(ctx *gin.Context) {
+			keyword := ctx.DefaultQuery("keyword", common.EmptyString)
+			dtos, err := service.GetHymnsRandomFive(keyword)
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err)
+			}
+			ctx.JSON(http.StatusOK, dtos)
 		})
 	}
 

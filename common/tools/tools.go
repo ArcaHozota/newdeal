@@ -3,6 +3,7 @@ package tools
 import (
 	"hash/fnv"
 	"newdeal/common"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -30,8 +31,17 @@ func Substr(rawString string, startIndex, endIndex int) string {
 	return string(r[startIndex:endIndex])
 }
 
-func GetDetailKeyword1(keyword string) string {
-	return common.HankakuPercentMark + keyword + common.HankakuPercentMark
+func GetDetailKeyword(keyword string) string {
+	if isEmpty(keyword) {
+		return common.HankakuPercentMark
+	}
+	var builder strings.Builder
+	builder.WriteString(common.HankakuPercentMark)
+	for _, ch := range keyword {
+		builder.WriteString(string(ch))
+		builder.WriteString(common.HankakuPercentMark)
+	}
+	return builder.String()
 }
 
 func PtString2String(str *string) string {
@@ -45,4 +55,8 @@ func UUIDToInt64(u uuid.UUID) int64 {
 	h := fnv.New64a()
 	h.Write(u[:]) // 全体を使う
 	return int64(h.Sum64())
+}
+
+func isEmpty(s string) bool {
+	return strings.TrimSpace(s) == ""
 }
