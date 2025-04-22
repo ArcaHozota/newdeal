@@ -32,7 +32,7 @@ func Substr(rawString string, startIndex, endIndex int) string {
 }
 
 func GetDetailKeyword(keyword string) string {
-	if isEmpty(keyword) {
+	if IsEmptyStr(keyword) {
 		return common.HankakuPercentMark
 	}
 	var builder strings.Builder
@@ -60,6 +60,6 @@ func UUIDToInt64(u uuid.UUID) int64 {
 	return int64(write)
 }
 
-func isEmpty(s string) bool {
+func IsEmptyStr(s string) bool {
 	return strings.TrimSpace(s) == common.EmptyString
 }

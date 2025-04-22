@@ -36,6 +36,9 @@ var docFreq map[string]int
 // コーパスサイズ
 var corpusSize int
 
+// 空文字列スライス
+var emptyStrArray []string = []string{common.EmptyString}
+
 func CountHymnsAll() (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -290,6 +293,9 @@ func distinctHymnDtos(input []pojos.HymnDTO) []pojos.HymnDTO {
 
 // 韓国語単語を取得する
 func analyzeKorean(koreanText string) ([]string, error) {
+	if tools.IsEmptyStr(koreanText) {
+		return emptyStrArray, nil
+	}
 	execDir, _ := getExecutableDir() // main.go と同じ階層のスクリプトのパスを取得
 	scriptPath := filepath.Join(execDir, "komoran.py")
 	if err != nil {
@@ -336,7 +342,10 @@ func tokenizeKoreanTextWithFq(originalText string) map[string]int {
 		log.Println(err)
 		return nil
 	}
-	return lo.CountValues(koreanTokens)
+	noEmptyTokens := lo.Filter(koreanTokens, func(str string, _ int) bool {
+		return !tools.IsEmptyStr(str)
+	})
+	return lo.CountValues(noEmptyTokens)
 }
 
 // コーパスを取得する
