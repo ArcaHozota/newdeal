@@ -1,7 +1,6 @@
 package service
 
 import (
-	"container/heap"
 	"context"
 	"log"
 	"math"
@@ -12,6 +11,7 @@ import (
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
 	"newdeal/pojos"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -290,8 +290,11 @@ func distinctHymnDtos(input []pojos.HymnDTO) []pojos.HymnDTO {
 
 // 韓国語単語を取得する
 func analyzeKorean(koreanText string) ([]string, error) {
-	// main.go と同じ階層のスクリプトのパスを取得
-	scriptPath, err := filepath.Abs(filepath.Join("..", "komoran.py"))
+	execDir, err := getExecutableDir() // main.go と同じ階層のスクリプトのパスを取得
+	if err != nil {
+		return nil, err
+	}
+	scriptPath := filepath.Join(execDir, "komoran.py")
 	if err != nil {
 		return nil, err
 	}
@@ -388,7 +391,7 @@ func cosineSimilarity(vectorA []float64, vectorB []float64) float64 {
 	dotProduct := 0.00
 	normA := 0.00
 	normB := 0.00
-	for i := 0; i < len(vectorA); i++ {
+	for i := range vectorA {
 		dotProduct += vectorA[i] * vectorB[i]
 		normA += math.Pow(vectorA[i], 2)
 		normB += math.Pow(vectorB[i], 2)
@@ -409,17 +412,32 @@ func findMatches(target string, hymns []*ent.Hymn) []*ent.Hymn {
 	elementVectors := lo.Map(hymns, func(hm *ent.Hymn, _ int) []float64 {
 		return computeTFIDFVector(hm.Serif)
 	})
-	// MaxHeap は既に定義済みと仮定
-	maxHeap := &MaxHeap{}
-	heap.Init(maxHeap)
-	for i := 0; i < len(hymns); i++ {
+	// mapを定義する
+	heapMap := map[*ent.Hymn]float64{}
+	for i := range hymns {
 		similarity := cosineSimilarity(targetVector, elementVectors[i])
-		heap.Push(maxHeap, Entry{hymns[i], similarity})
+		heapMap[hymns[i]] = similarity
 	}
-	var matches []*ent.Hymn
-	for i := 0; i < 3; i++ {
-		entry := heap.Pop(maxHeap).(Entry) // Popするとスコアが高い順に出てくる
-		matches = append(matches, entry.Hymn)
+	pairs := lo.Entries(heapMap)
+	slices.SortFunc(pairs, func(a, b lo.Entry[*ent.Hymn, float64]) int {
+		if a.Value > b.Value {
+			return -1
+		} else if a.Value < b.Value {
+			return 1
+		}
+		return 0 // 降順なので `-` をつける
+	})
+	matches := []*ent.Hymn{}
+	for _, pair := range pairs {
+		matches = append(matches, pair.Key)
 	}
-	return matches
+	return lo.Slice(matches, 0, 3)
+}
+
+func getExecutableDir() (string, error) {
+	exePath, err := os.Executable()
+	if err != nil {
+		return common.EmptyString, err
+	}
+	return filepath.Dir(exePath), nil
 }
