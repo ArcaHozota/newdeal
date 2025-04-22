@@ -1,7 +1,9 @@
 package main
 
 import (
+	"log"
 	"newdeal/common/tools"
+	"newdeal/ent"
 	"newdeal/routers"
 	"newdeal/service"
 	"text/template"
@@ -13,7 +15,12 @@ func main() {
 
 	// ENTを初期化する
 	service.InitEntClient()
-	defer service.EntCore.Close()
+	defer func(EntCore *ent.Client) {
+		err := EntCore.Close()
+		if err != nil {
+			log.Fatalf("failed to close ent core: %v", err)
+		}
+	}(service.EntCore)
 
 	// Ginを配置する
 	r := gin.Default()
@@ -27,6 +34,9 @@ func main() {
 	routers.CategoryHandlerInit(r)
 	routers.HymnsHandlerInit(r)
 
-	r.Run(":8277")
+	err := r.Run(":8277")
+	if err != nil {
+		log.Fatalf("failed to run router: %v", err)
+	}
 
 }
