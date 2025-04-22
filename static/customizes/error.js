@@ -1,3 +1,3 @@
 $("#backBtn").on('click', function () {
-	$("#logoutForm").submit();
+    $("#logoutForm").submit();
 });
