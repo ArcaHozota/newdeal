@@ -438,10 +438,13 @@ func findMatches(target string, hymns []*ent.Hymn) []*ent.Hymn {
 		return 0 // 降順なので `-` をつける
 	})
 	matches := []*ent.Hymn{}
-	for _, pair := range pairs {
+	for index, pair := range pairs {
 		matches = append(matches, pair.Key)
+		if index > 2 {
+			break
+		}
 	}
-	return lo.Slice(matches, 0, 3)
+	return matches
 }
 
 func getExecutableDir() (string, error) {
