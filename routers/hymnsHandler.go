@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"newdeal/common"
 	"newdeal/common/pagination"
+	"newdeal/pojos"
 	"newdeal/service"
 	"strconv"
 
@@ -61,7 +62,19 @@ func HymnsHandlerInit(r *gin.Engine) {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
 			}
-			ctx.JSON(http.StatusOK, hymn)
+			hymnDto := pojos.HymnDTO{
+				ID:          strconv.FormatInt(hymn.ID, 10),
+				NameJP:      hymn.NameJp,
+				NameKR:      hymn.NameKr,
+				Serif:       hymn.Serif,
+				Link:        hymn.Link,
+				Score:       nil,
+				Biko:        common.EmptyString,
+				UpdatedUser: strconv.FormatInt(hymn.UpdatedUser, 10),
+				UpdatedTime: hymn.UpdatedTime,
+				LineNumber:  pojos.LineNumber(5),
+			}
+			ctx.JSON(http.StatusOK, hymnDto)
 		})
 	}
 
