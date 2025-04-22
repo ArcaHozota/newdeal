@@ -1,6 +1,7 @@
 import sys
 from konlpy.tag import Komoran
 
+text = sys.stdin.read()
 komoran = Komoran()
-tokens = komoran.morphs(sys.argv[1])
+tokens = komoran.morphs(text)
 print(" ".join(tokens))

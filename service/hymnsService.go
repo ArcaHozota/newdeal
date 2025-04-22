@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"io"
 	"log"
 	"math"
 	"math/rand"
@@ -37,7 +38,7 @@ var docFreq map[string]int
 var corpusSize int
 
 // 空文字列スライス
-var emptyStrArray []string = []string{common.EmptyString}
+var emptyStrArray map[string]int = map[string]int{common.EmptyString: 0}
 
 func CountHymnsAll() (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -293,15 +294,15 @@ func distinctHymnDtos(input []pojos.HymnDTO) []pojos.HymnDTO {
 
 // 韓国語単語を取得する
 func analyzeKorean(koreanText string) ([]string, error) {
-	if tools.IsEmptyStr(koreanText) {
-		return emptyStrArray, nil
-	}
 	execDir, _ := getExecutableDir() // main.go と同じ階層のスクリプトのパスを取得
 	scriptPath := filepath.Join(execDir, "komoran.py")
-	if err != nil {
-		return nil, err
-	}
-	out, err := exec.Command("python3", scriptPath, koreanText).Output()
+	cmd := exec.Command("python3", scriptPath)
+	stdin, _ := cmd.StdinPipe()
+	go func() {
+		defer stdin.Close()
+		io.WriteString(stdin, koreanText)
+	}()
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, err
 	}
@@ -337,15 +338,15 @@ func tokenizeKoreanTextWithFq(originalText string) map[string]int {
 		}
 	}
 	koreanText := builder.String()
+	if tools.IsEmptyStr(koreanText) {
+		return emptyStrArray
+	}
 	koreanTokens, err := analyzeKorean(koreanText)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
-	noEmptyTokens := lo.Filter(koreanTokens, func(str string, _ int) bool {
-		return !tools.IsEmptyStr(str)
-	})
-	return lo.CountValues(noEmptyTokens)
+	return lo.CountValues(koreanTokens)
 }
 
 // コーパスを取得する
