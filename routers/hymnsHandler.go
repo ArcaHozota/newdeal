@@ -29,12 +29,12 @@ func HymnsHandlerInit(r *gin.Engine) {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
 			}
-			dtos, err := service.GetHymnsByKeyword(common.EmptyString, pageNum)
+			hymnDtos, err := service.GetHymnsByKeyword(common.EmptyString, pageNum)
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
 			}
-			pageInfos, err := pagination.NewPagination(dtos, cnt, pageNum, int(common.DefaultPageSize), 5)
+			pageInfos, err := pagination.NewPagination(hymnDtos, cnt, pageNum, int(common.DefaultPageSize), 5)
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
@@ -43,12 +43,12 @@ func HymnsHandlerInit(r *gin.Engine) {
 		})
 		hymnsRouter.GET("common-retrieve", func(ctx *gin.Context) {
 			keyword := ctx.DefaultQuery("keyword", common.EmptyString)
-			dtos, err := service.GetHymnsRandomFive(keyword)
+			hymnDtos, err := service.GetHymnsRandomFive(keyword)
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
 			}
-			ctx.JSON(http.StatusOK, dtos)
+			ctx.JSON(http.StatusOK, hymnDtos)
 		})
 		hymnsRouter.GET("get-info-id", func(ctx *gin.Context) {
 			keyword := ctx.DefaultQuery("hymnId", common.EmptyString)
