@@ -38,22 +38,22 @@ func HomeHandlerInit(r *gin.Engine) {
 
 	homeRouter2 := r.Group("/home")
 	{
-		homeRouter2.GET("index.action", func(ctx *gin.Context) {
+		homeRouter2.GET("index", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "index.html", gin.H{
 				"totalRecords": count,
 			})
 		})
-		homeRouter2.GET("page.action", func(ctx *gin.Context) {
+		homeRouter2.GET("page", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "index.html", gin.H{
 				"totalRecords": count,
 			})
 		})
-		homeRouter2.GET("toHomePage.action", func(ctx *gin.Context) {
+		homeRouter2.GET("to-home-page", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "index.html", gin.H{
 				"totalRecords": count,
 			})
 		})
-		homeRouter2.GET("toIchiranhyo.action", func(ctx *gin.Context) {
+		homeRouter2.GET("to-list", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "index2.html", gin.H{
 				"totalRecords": count,
 			})

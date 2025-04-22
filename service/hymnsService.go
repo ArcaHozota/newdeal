@@ -24,17 +24,25 @@ var random = rand.New(rand.NewSource(time.Now().UnixNano()))
 func CountHymnsAll() (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	kennsu, err := EntCore.Hymn.Query().
+	return EntCore.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
 		).Count(ctx)
-	return kennsu, err
+}
+
+func GetHymnById(id int64) (*ent.Hymn, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	return EntCore.Hymn.Query().Where(
+		hymn.VisibleFlg(true),
+		hymn.ID(id),
+	).Only(ctx)
 }
 
 func CountHymnsByKeyword(keyword string) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	kennsu, err := EntCore.Hymn.Query().
+	return EntCore.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
 			hymn.Or(
@@ -45,7 +53,6 @@ func CountHymnsByKeyword(keyword string) (int, error) {
 				),
 			),
 		).Count(ctx)
-	return kennsu, err
 }
 
 func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
@@ -104,7 +111,11 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 	withName := map2DTOs(hymns, pojos.LineNumber(1))
 	hymnDtos := slices.Clone(withName)
 	withNameIds := lo.Map(withName, func(hm pojos.HymnDTO, _ int) int64 {
-		return hm.ID
+		parseInt, err := strconv.ParseInt(hm.ID, 10, 64)
+		if err != nil {
+			return 0
+		}
+		return parseInt
 	})
 	hymns2, err := EntCore.Hymn.Query().
 		Where(hymn.VisibleFlg(true),
@@ -128,7 +139,11 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 		return randomFiveLoop2(hymnDtos), err
 	}
 	withNameLikeIds := lo.Map(withNameLike, func(hm pojos.HymnDTO, _ int) int64 {
-		return hm.ID
+		parseInt, err := strconv.ParseInt(hm.ID, 10, 64)
+		if err != nil {
+			return 0
+		}
+		return parseInt
 	})
 	keyword = tools.GetDetailKeyword(keyword)
 	hymns3, err := EntCore.Hymn.Query().
@@ -154,7 +169,11 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 		return randomFiveLoop2(hymnDtos), err
 	}
 	withSerifLikeIds := lo.Map(withSerifLike, func(hm pojos.HymnDTO, _ int) int64 {
-		return hm.ID
+		parseInt, err := strconv.ParseInt(hm.ID, 10, 64)
+		if err != nil {
+			return 0
+		}
+		return parseInt
 	})
 	hymns4, err := EntCore.Hymn.Query().
 		Where(hymn.VisibleFlg(true)).All(ctx)
@@ -172,11 +191,11 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 func randomFiveLoop(hymnsRecords, totalRecords []pojos.HymnDTO) []pojos.HymnDTO {
 	idSet := make(map[string]struct{})
 	for _, h := range hymnsRecords {
-		idSet[strconv.FormatInt(h.ID, 10)] = struct{}{}
+		idSet[h.ID] = struct{}{}
 	}
 	var filteredRecords []pojos.HymnDTO
 	for _, item := range totalRecords {
-		if _, exists := idSet[strconv.FormatInt(item.ID, 10)]; !exists {
+		if _, exists := idSet[item.ID]; !exists {
 			filteredRecords = append(filteredRecords, item)
 		}
 	}
@@ -212,8 +231,8 @@ func distinctHymnDtos(input []pojos.HymnDTO) []pojos.HymnDTO {
 	seen := make(map[string]struct{})
 	var result []pojos.HymnDTO
 	for _, h := range input {
-		if _, exists := seen[strconv.FormatInt(h.ID, 10)]; !exists {
-			seen[strconv.FormatInt(h.ID, 10)] = struct{}{}
+		if _, exists := seen[h.ID]; !exists {
+			seen[h.ID] = struct{}{}
 			result = append(result, h)
 		}
 	}
@@ -223,14 +242,14 @@ func distinctHymnDtos(input []pojos.HymnDTO) []pojos.HymnDTO {
 func map2DTOs(hymns []*ent.Hymn, lineNo pojos.LineNumber) []pojos.HymnDTO {
 	return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
 		return pojos.HymnDTO{
-			ID:          hm.ID,
+			ID:          strconv.FormatInt(hm.ID, 10),
 			NameJP:      hm.NameJp,
 			NameKR:      hm.NameKr,
 			Serif:       hm.Serif,
 			Link:        hm.Link,
 			Score:       nil,
 			Biko:        common.EmptyString,
-			UpdatedUser: hm.UpdatedUser,
+			UpdatedUser: strconv.FormatInt(hm.UpdatedUser, 10),
 			UpdatedTime: hm.UpdatedTime,
 			LineNumber:  lineNo,
 		}
