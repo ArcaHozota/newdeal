@@ -37,7 +37,7 @@ $("#saraniSearchBtn").on("click", function (e) {
                     let slashIndex = nameJp.indexOf('/');
                     $("#nameDisplay").text('検索完了---' + nameJp.substring(0, slashIndex));
                     $("#nameDisplay").attr('idVal', 0);
-                }, 200000);
+                }, 330000);
             } else if (result.isDenied) {
                 $(this).close();
             }
