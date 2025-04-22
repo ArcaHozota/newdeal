@@ -50,6 +50,20 @@ func HymnsHandlerInit(r *gin.Engine) {
 			}
 			ctx.JSON(http.StatusOK, hymnDtos)
 		})
+		hymnsRouter.GET("kanumi-retrieve", func(ctx *gin.Context) {
+			hymnId := ctx.DefaultQuery("hymnId", common.EmptyString)
+			id, err := strconv.Atoi(hymnId)
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err)
+			}
+			hymnDtos, err := service.GetHymnsKanumi(int64(id))
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err)
+			}
+			ctx.JSON(http.StatusOK, hymnDtos)
+		})
 		hymnsRouter.GET("get-info-id", func(ctx *gin.Context) {
 			keyword := ctx.DefaultQuery("hymnId", common.EmptyString)
 			hymnId, err := strconv.ParseInt(keyword, 10, 64)

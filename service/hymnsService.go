@@ -1,8 +1,10 @@
 package service
 
 import (
+	"container/heap"
 	"context"
 	"log"
+	"math"
 	"math/rand"
 	"newdeal/common"
 	"newdeal/common/tools"
@@ -10,6 +12,9 @@ import (
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
 	"newdeal/pojos"
+	"os/exec"
+	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -19,7 +24,17 @@ import (
 	"github.com/samber/lo"
 )
 
+// RANDOM数
 var random = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+// 計算マップ1
+var termToIndex map[string]int
+
+// 計算マップ2
+var docFreq map[string]int
+
+// コーパスサイズ
+var corpusSize int
 
 func CountHymnsAll() (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -188,6 +203,38 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 	return hymnDtos, err
 }
 
+func GetHymnsKanumi(id int64) ([]pojos.HymnDTO, error) {
+	hymnById, err := GetHymnById(id)
+	if err != nil {
+		return nil, err
+	}
+	hymnDtos := make([]pojos.HymnDTO, 0)
+	hymnDto := pojos.HymnDTO{
+		ID:          strconv.FormatInt(hymnById.ID, 10),
+		NameJP:      hymnById.NameJp,
+		NameKR:      hymnById.NameKr,
+		Serif:       hymnById.Serif,
+		Link:        hymnById.Link,
+		Score:       nil,
+		Biko:        common.EmptyString,
+		UpdatedUser: strconv.FormatInt(hymnById.UpdatedUser, 10),
+		UpdatedTime: hymnById.UpdatedTime,
+		LineNumber:  pojos.LineNumber(2),
+	}
+	hymnDtos = append(hymnDtos, hymnDto)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	hymns, err := EntCore.Hymn.Query().
+		Where(hymn.VisibleFlg(true),
+			hymn.IDNEQ(id),
+		).All(ctx)
+	matchHymns := findMatches(hymnById.Serif, hymns)
+	matchDtos := map2DTOs(matchHymns, pojos.LineNumber(3))
+	hymnDtos = append(hymnDtos, matchDtos...)
+	return hymnDtos, err
+}
+
+// 任意の５つの賛美歌を選択する
 func randomFiveLoop(hymnsRecords, totalRecords []pojos.HymnDTO) []pojos.HymnDTO {
 	idSet := make(map[string]struct{})
 	for _, h := range hymnsRecords {
@@ -214,6 +261,7 @@ func randomFiveLoop(hymnsRecords, totalRecords []pojos.HymnDTO) []pojos.HymnDTO 
 	return randomFiveLoop(concernList2, filteredRecords)
 }
 
+// 任意の５つの賛美歌を選択する
 func randomFiveLoop2(hymnsRecords []pojos.HymnDTO) []pojos.HymnDTO {
 	var concernList1 []pojos.HymnDTO
 	for range int(common.DefaultPageSize) {
@@ -227,6 +275,7 @@ func randomFiveLoop2(hymnsRecords []pojos.HymnDTO) []pojos.HymnDTO {
 	return randomFiveLoop(concernList2, hymnsRecords)
 }
 
+// 重複したエレメントを除外する
 func distinctHymnDtos(input []pojos.HymnDTO) []pojos.HymnDTO {
 	seen := make(map[string]struct{})
 	var result []pojos.HymnDTO
@@ -239,6 +288,21 @@ func distinctHymnDtos(input []pojos.HymnDTO) []pojos.HymnDTO {
 	return result
 }
 
+// 韓国語単語を取得する
+func analyzeKorean(koreanText string) ([]string, error) {
+	// main.go と同じ階層のスクリプトのパスを取得
+	scriptPath, err := filepath.Abs(filepath.Join("..", "komoran.py"))
+	if err != nil {
+		return nil, err
+	}
+	out, err := exec.Command("python3", scriptPath, koreanText).Output()
+	if err != nil {
+		return nil, err
+	}
+	return strings.Fields(string(out)), nil
+}
+
+// DTOへマップする
 func map2DTOs(hymns []*ent.Hymn, lineNo pojos.LineNumber) []pojos.HymnDTO {
 	return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
 		return pojos.HymnDTO{
@@ -254,4 +318,108 @@ func map2DTOs(hymns []*ent.Hymn, lineNo pojos.LineNumber) []pojos.HymnDTO {
 			LineNumber:  lineNo,
 		}
 	})
+}
+
+// テキストによって韓国語単語を取得する
+func tokenizeKoreanTextWithFq(originalText string) map[string]int {
+	// \p{Hangul} に相当するGoの正規表現
+	regex := regexp.MustCompile(`\p{Hangul}`)
+	var builder strings.Builder
+	for _, ch := range originalText {
+		if regex.MatchString(string(ch)) {
+			builder.WriteRune(ch)
+		}
+	}
+	koreanText := builder.String()
+	koreanTokens, err := analyzeKorean(koreanText)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	return lo.CountValues(koreanTokens)
+}
+
+// コーパスを取得する
+func preprocessCorpus(originalTexts []string) {
+	termToIndex = map[string]int{}
+	docFreq = map[string]int{}
+	corpusSize = len(originalTexts)
+	// 第一遍：建立文档频率
+	for _, doc := range originalTexts {
+		termFreq := tokenizeKoreanTextWithFq(doc)
+		keySet := lo.Keys(termFreq)
+		for _, term := range keySet {
+			docFreq[term] += 1
+		}
+	}
+	// 第二遍：建立词汇表索引
+	docKeySet := lo.Keys(docFreq)
+	for index, doc := range docKeySet {
+		termToIndex[doc] = index
+	}
+}
+
+// TF-IDFベクターを計算する
+func computeTFIDFVector(originalText string) []float64 {
+	termFreq := tokenizeKoreanTextWithFq(originalText)
+	// 総単語数の計算（TF の分母）
+	termVals := lo.Values(termFreq)
+	totalTerms := lo.Reduce(termVals, func(agg int, val int, _ int) int {
+		return agg + val
+	}, 0)
+	// 結果ベクトルの初期化（全部 0.0）
+	vector := make([]float64, len(termToIndex))
+	// TF-IDF の計算と格納
+	for term, count := range termFreq {
+		index, ok := termToIndex[term]
+		if !ok {
+			continue
+		}
+		tf := float64(count) / float64(totalTerms)
+		df := docFreq[term] // getOrDefault 相当で 0 に初期化される
+		idf := math.Log(float64(corpusSize) / float64(df+1))
+		vector[index] = tf * idf
+	}
+	return vector
+}
+
+// コサイン類似度を計算する
+func cosineSimilarity(vectorA []float64, vectorB []float64) float64 {
+	dotProduct := 0.00
+	normA := 0.00
+	normB := 0.00
+	for i := 0; i < len(vectorA); i++ {
+		dotProduct += vectorA[i] * vectorB[i]
+		normA += math.Pow(vectorA[i], 2)
+		normB += math.Pow(vectorB[i], 2)
+	}
+	if normA == 0 || normB == 0 {
+		return 0.00
+	}
+	return dotProduct / (math.Sqrt(normA) * math.Sqrt(normB))
+}
+
+// 歌詞が似てる三つの賛美歌を取得する
+func findMatches(target string, hymns []*ent.Hymn) []*ent.Hymn {
+	serifs := lo.Map(hymns, func(hm *ent.Hymn, _ int) string {
+		return hm.Serif
+	})
+	preprocessCorpus(serifs)
+	targetVector := computeTFIDFVector(target)
+	elementVectors := lo.Map(hymns, func(hm *ent.Hymn, _ int) []float64 {
+		return computeTFIDFVector(hm.Serif)
+	})
+	// MaxHeap は既に定義済みと仮定
+	maxHeap := &MaxHeap{}
+	heap.Init(maxHeap)
+	for i := 0; i < len(hymns); i++ {
+		similarity := cosineSimilarity(targetVector, elementVectors[i])
+		heap.Push(maxHeap, Entry{hymns[i], similarity})
+	}
+	var matches []*ent.Hymn
+	for i := 0; i < 3; i++ {
+		entry := heap.Pop(maxHeap).(Entry) // Popするとスコアが高い順に出てくる
+		matches = append(matches, entry.Hymn)
+	}
+	return matches
 }

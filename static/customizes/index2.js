@@ -51,8 +51,9 @@ $("#tableBody").on("click", '.form-check-input', function () {
             url: '/hymns/get-info-id',
             data: 'hymnId=' + idVal,
             success: function (response) {
-                $("#nameDisplay").text(response.nameJp);
-                $("#nameDisplay").attr('idVal', response.id);
+                let $nameDisplay = $("#nameDisplay");
+                $nameDisplay.text(response.nameJp);
+                $nameDisplay.attr('idVal', response.id);
             },
             error: function (xhr) {
                 let message = xhr.responseText.replace(/^"|"$/g, emptyString);
@@ -67,8 +68,9 @@ $("#tableBody").on("click", '.form-check-input', function () {
                     url: '/hymns/get-info-id',
                     data: 'hymnId=' + $(element).val(),
                     success: function (response) {
-                        $("#nameDisplay").text(response.nameJp);
-                        $("#nameDisplay").attr('idVal', response.id);
+                        let $nameDisplay = $("#nameDisplay");
+                        $nameDisplay.text(response.nameJp);
+                        $nameDisplay.attr('idVal', response.id);
                     },
                     error: function (xhr) {
                         let message = xhr.responseText.replace(/^"|"$/g, emptyString);
