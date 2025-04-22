@@ -53,10 +53,13 @@ func PtString2String(str *string) string {
 
 func UUIDToInt64(u uuid.UUID) int64 {
 	h := fnv.New64a()
-	h.Write(u[:]) // 全体を使う
-	return int64(h.Sum64())
+	write, err := h.Write(u[:])
+	if err != nil {
+		return 0
+	} // 全体を使う
+	return int64(write)
 }
 
 func isEmpty(s string) bool {
-	return strings.TrimSpace(s) == ""
+	return strings.TrimSpace(s) == common.EmptyString
 }
