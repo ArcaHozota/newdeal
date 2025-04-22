@@ -290,10 +290,7 @@ func distinctHymnDtos(input []pojos.HymnDTO) []pojos.HymnDTO {
 
 // 韓国語単語を取得する
 func analyzeKorean(koreanText string) ([]string, error) {
-	execDir, err := getExecutableDir() // main.go と同じ階層のスクリプトのパスを取得
-	if err != nil {
-		return nil, err
-	}
+	execDir, _ := getExecutableDir() // main.go と同じ階層のスクリプトのパスを取得
 	scriptPath := filepath.Join(execDir, "komoran.py")
 	if err != nil {
 		return nil, err
