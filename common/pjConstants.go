@@ -12,13 +12,9 @@ const AttrNameException string = "exception"
 
 const DefaultPageSize uint8 = 5
 
-const LoginMsg string = "ログインしてください"
+const NeedLoginMsg string = "ログインしてください"
 
-const LoginMsg2 string = "ログイン成功!"
-
-const Logined string = "ログインままの状態"
-
-const NotLogin string = "ログイン待ちの状態"
+const LoginedMsg string = "ログイン成功!"
 
 const PasswordError string = "パスワードが不一致になります。"
 

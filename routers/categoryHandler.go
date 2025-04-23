@@ -18,12 +18,12 @@ func CategoryHandlerInit(r *gin.Engine) {
 
 	categoryRouter := r.Group("/category")
 	{
-		categoryRouter.GET("/login", func(ctx *gin.Context) {
+		categoryRouter.GET("login", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "logintoroku.html", gin.H{
 				"Title": common.EmptyString,
 			})
 		})
-		categoryRouter.GET("/login-with-error", func(ctx *gin.Context) {
+		categoryRouter.GET("login-with-error", func(ctx *gin.Context) {
 			count, err := service.CountHymnsAll()
 			if err != nil {
 				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
@@ -32,10 +32,10 @@ func CategoryHandlerInit(r *gin.Engine) {
 			}
 			ctx.HTML(http.StatusOK, "index.html", gin.H{
 				"totalRecords": count,
-				"torokuMsg":    common.LoginMsg,
+				"torokuMsg":    common.NeedLoginMsg,
 			})
 		})
-		categoryRouter.POST("/do-login", func(ctx *gin.Context) {
+		categoryRouter.POST("do-login", func(ctx *gin.Context) {
 			var req service.LoginRequest
 			// JSONバインディング（リクエストボディから取得）
 			if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -66,13 +66,16 @@ func CategoryHandlerInit(r *gin.Engine) {
 				true,                                    // secure（HTTPSのみならtrue）
 				true,                                    // httpOnly（JavaScriptからアクセス不可）
 			)
-			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
-				"loginMsg": common.LoginMsg2,
-			})
+			ctx.Redirect(http.StatusFound, "/category/to-mainmenu-with-login")
 		})
-		categoryRouter.GET("/to-mainmenu", AuthMiddleware, func(ctx *gin.Context) {
+		categoryRouter.GET("to-mainmenu", AuthMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
 				"loginMsg": common.EmptyString,
+			})
+		})
+		categoryRouter.GET("to-mainmenu-with-login", AuthMiddleware, func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
+				"loginMsg": common.LoginedMsg,
 			})
 		})
 	}
