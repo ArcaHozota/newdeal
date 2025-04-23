@@ -10,7 +10,7 @@ import (
 )
 
 type LoginRequest struct {
-	Username string `form:"username"`
+	Username string `form:"loginAcct"`
 	Password string `form:"password"`
 }
 
