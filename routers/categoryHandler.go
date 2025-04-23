@@ -108,7 +108,9 @@ func AuthMiddleware(ctx *gin.Context) {
 	// Cookieから取得（"token" という名前で保存されている想定）
 	tokenString, err := ctx.Cookie("token")
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "トークンが見つかりません"})
+		ctx.HTML(http.StatusUnauthorized, "index.html", gin.H{
+			"torokuMsg": common.NeedLoginMsg,
+		})
 		return
 	}
 	// トークンのパース
@@ -120,6 +122,8 @@ func AuthMiddleware(ctx *gin.Context) {
 		ctx.Set("username", claims["username"])
 		ctx.Next()
 	} else {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "無効なトークン"})
+		ctx.HTML(http.StatusUnauthorized, "index.html", gin.H{
+			"torokuMsg": common.JwtErrorMsg,
+		})
 	}
 }

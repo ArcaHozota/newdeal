@@ -12,6 +12,8 @@ const AttrNameException string = "exception"
 
 const DefaultPageSize uint8 = 5
 
+const JwtErrorMsg string = "トークンの有効期間過ぎでまたは無効です。"
+
 const NeedLoginMsg string = "ログインしてください"
 
 const LoginedMsg string = "ログイン成功!"
