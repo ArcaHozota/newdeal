@@ -47,11 +47,7 @@
                 <span>すでにアカウント持ち？</span>ログイン
             </h2>
             <form action="/category/do-login" class="input-box" id="loginForm" method="post">
-                {{if ne .registeredEmail nil}}
                 <input id="accountIpt" name="loginAcct" placeholder="アカウント" type="text" value="{{.registeredEmail}}">
-                {{else}}
-                <input id="accountIpt" name="loginAcct" placeholder="アカウント" type="text">
-                {{end}}
                 <ion-icon id="eyeIcons" name="eye-outline"></ion-icon>
                 <input id="passwordIpt" name="password" placeholder="パスワード" type="password">
             </form>
