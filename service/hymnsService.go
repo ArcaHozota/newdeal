@@ -299,8 +299,16 @@ func analyzeKorean(koreanText string) ([]string, error) {
 	cmd := exec.Command("python3", scriptPath)
 	stdin, _ := cmd.StdinPipe()
 	go func() {
-		defer stdin.Close()
-		io.WriteString(stdin, koreanText)
+		defer func(stdin io.WriteCloser) {
+			err := stdin.Close()
+			if err != nil {
+				log.Fatalf("failed to close stdin %v", err)
+			}
+		}(stdin)
+		_, err := io.WriteString(stdin, koreanText)
+		if err != nil {
+			log.Fatalf("failed to write to stdin %v", err)
+		}
 	}()
 	out, err := cmd.Output()
 	if err != nil {
@@ -437,7 +445,7 @@ func findMatches(target string, hymns []*ent.Hymn) []*ent.Hymn {
 		}
 		return 0 // 降順なので `-` をつける
 	})
-	matches := []*ent.Hymn{}
+	var matches []*ent.Hymn
 	for index, pair := range pairs {
 		matches = append(matches, pair.Key)
 		if index == 2 {
