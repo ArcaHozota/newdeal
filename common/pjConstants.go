@@ -16,6 +16,8 @@ const NeedLoginMsg string = "ログインしてください"
 
 const LoginedMsg string = "ログイン成功!"
 
+const StudentError string = "当ユーザが存在しません。"
+
 const PasswordError string = "パスワードが不一致になります。"
 
 const LoginFormError string = "正しい形式で入力してください"

@@ -10,8 +10,8 @@ import (
 )
 
 type LoginRequest struct {
-	Username string `json:"loginAcct" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Username string `form:"username"`
+	Password string `form:"password"`
 }
 
 func ProcessLogin(loginForm LoginRequest) (string, error) {
@@ -27,7 +27,7 @@ func ProcessLogin(loginForm LoginRequest) (string, error) {
 			),
 		).Only(ctx)
 	if err != nil {
-		return common.EmptyString, err
+		return common.EmptyString, errors.New(common.StudentError)
 	}
 	checkPass := tools.CheckHashPassword(loginUser.Password, loginForm.Password)
 	if !checkPass {
