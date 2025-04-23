@@ -1,12 +1,13 @@
 package routers
 
 import (
-	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"net/http"
 	"newdeal/common"
 	"newdeal/service"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/gin-gonic/gin"
 )
@@ -94,7 +95,7 @@ func AuthMiddleware(ctx *gin.Context) {
 		return
 	}
 	// トークンのパース
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		return jwtSecret, nil
 	})
 	// クレーム確認
