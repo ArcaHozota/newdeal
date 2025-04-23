@@ -20,7 +20,12 @@ func CategoryHandlerInit(r *gin.Engine) {
 	{
 		categoryRouter.GET("login", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "logintoroku.html", gin.H{
-				"Title": common.EmptyString,
+				"errorMsg": common.EmptyString,
+			})
+		})
+		categoryRouter.GET("login-with-out", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "logintoroku.html", gin.H{
+				"errorMsg": common.LogoutMsg,
 			})
 		})
 		categoryRouter.GET("login-with-error", func(ctx *gin.Context) {
@@ -82,7 +87,7 @@ func CategoryHandlerInit(r *gin.Engine) {
 				true,    // Secure
 				true,    // HttpOnly
 			)
-			ctx.Redirect(http.StatusSeeOther, "/category/login") // ログアウト後ログインページへ
+			ctx.Redirect(http.StatusSeeOther, "/category/login-with-out") // ログアウト後ログインページへ
 		})
 		categoryRouter.GET("to-mainmenu", AuthMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
