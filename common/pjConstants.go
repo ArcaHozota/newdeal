@@ -12,6 +12,8 @@ const AttrNameException string = "exception"
 
 const DefaultPageSize uint8 = 5
 
+const LoginMsg string = "ログインしてください"
+
 var StrangeArray = []string{
 	"insert", "delete", "update", "create", "drop",
 	"#", "$", "%", "&", "(", ")", "\"", "'", "@", ":", "select",
