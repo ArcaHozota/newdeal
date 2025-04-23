@@ -20,6 +20,8 @@ const Logined string = "ログインままの状態"
 
 const NotLogin string = "ログイン待ちの状態"
 
+const PasswordError string = "パスワードが不一致になります。"
+
 var StrangeArray = []string{
 	"insert", "delete", "update", "create", "drop",
 	"#", "$", "%", "&", "(", ")", "\"", "'", "@", ":", "select",

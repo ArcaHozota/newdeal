@@ -43,14 +43,14 @@ func CategoryHandlerInit(r *gin.Engine) {
 					"errorMsg": "正しい形式で入力してください",
 				})
 			}
-			loginProcess, err := service.ProcessLogin(req)
+			loginAccount, err := service.ProcessLogin(req)
 			if err != nil {
 				ctx.HTML(http.StatusBadRequest, "logintoroku.html", gin.H{
 					"errorMsg": err,
 				})
 			}
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-				"username": loginProcess,
+				"username": loginAccount,
 				"exp":      time.Now().Add(time.Hour * 3).Unix(), // 有効期限：24時間
 			})
 			tokenString, err := token.SignedString(jwtSecret)

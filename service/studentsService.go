@@ -31,7 +31,7 @@ func ProcessLogin(loginForm LoginRequest) (string, error) {
 	}
 	checkPass := tools.CheckHashPassword(loginUser.Password, loginForm.Password)
 	if !checkPass {
-		return common.EmptyString, errors.New("password error")
+		return common.EmptyString, errors.New(common.PasswordError)
 	}
 	return loginUser.LoginAccount, nil
 }
