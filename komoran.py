@@ -3,5 +3,5 @@ from konlpy.tag import Komoran
 
 text = sys.stdin.read()
 komoran = Komoran()
-tokens = komoran.morphs(text)
+tokens = komoran.nouns(text)
 print(" ".join(tokens))

@@ -302,7 +302,7 @@ func analyzeKorean(koreanText string) ([]string, error) {
 		defer stdin.Close()
 		io.WriteString(stdin, koreanText)
 	}()
-	out, err := cmd.CombinedOutput()
+	out, err := cmd.Output()
 	if err != nil {
 		return nil, err
 	}
