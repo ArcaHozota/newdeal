@@ -86,11 +86,11 @@ func CategoryHandlerInit(r *gin.Engine) {
 }
 
 // JWT認証ミドルウェア
-func AuthMiddleware(c *gin.Context) {
+func AuthMiddleware(ctx *gin.Context) {
 	// Cookieから取得（"token" という名前で保存されている想定）
-	tokenString, err := c.Cookie("token")
+	tokenString, err := ctx.Cookie("token")
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "トークンが見つかりません"})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "トークンが見つかりません"})
 		return
 	}
 	// トークンのパース
@@ -99,9 +99,9 @@ func AuthMiddleware(c *gin.Context) {
 	})
 	// クレーム確認
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		c.Set("username", claims["username"])
-		c.Next()
+		ctx.Set("username", claims["username"])
+		ctx.Next()
 	} else {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "無効なトークン"})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "無効なトークン"})
 	}
 }
