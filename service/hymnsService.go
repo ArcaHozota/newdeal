@@ -440,7 +440,7 @@ func findMatches(target string, hymns []*ent.Hymn) []*ent.Hymn {
 	matches := []*ent.Hymn{}
 	for index, pair := range pairs {
 		matches = append(matches, pair.Key)
-		if index > 2 {
+		if index == 2 {
 			break
 		}
 	}
