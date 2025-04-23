@@ -38,7 +38,7 @@ var docFreq map[string]int
 var corpusSize int
 
 // 空文字列スライス
-var emptyStrArray map[string]int = map[string]int{common.EmptyString: 0}
+var emptyStrArray = map[string]int{common.EmptyString: 0}
 
 func CountHymnsAll() (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)

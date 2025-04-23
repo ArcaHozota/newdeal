@@ -1,12 +1,17 @@
 package routers
 
 import (
+	"github.com/golang-jwt/jwt/v5"
+	"log"
 	"net/http"
 	"newdeal/common"
 	"newdeal/service"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+var jwtSecret = []byte("mySecretKey")
 
 func CategoryHandlerInit(r *gin.Engine) {
 
@@ -30,20 +35,41 @@ func CategoryHandlerInit(r *gin.Engine) {
 			})
 		})
 		categoryRouter.POST("/do-login", func(ctx *gin.Context) {
-			account := ctx.DefaultQuery("loginAcct", common.EmptyString)
-			password := ctx.DefaultQuery("userPswd", common.EmptyString)
-			loginProcess, err := service.ProcessLogin(account, password)
-			if err != nil {
-				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
-					"exception": err,
+			var req service.LoginRequest
+			// JSONバインディング（リクエストボディから取得）
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.HTML(http.StatusBadRequest, "logintoroku.html", gin.H{
+					"errorMsg": "正しい形式で入力してください",
 				})
 			}
+			loginProcess, err := service.ProcessLogin(req)
+			if err != nil {
+				ctx.HTML(http.StatusBadRequest, "logintoroku.html", gin.H{
+					"errorMsg": err,
+				})
+			}
+			token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+				"username": loginProcess,
+				"exp":      time.Now().Add(time.Hour * 3).Unix(), // 有効期限：24時間
+			})
+			tokenString, err := token.SignedString(jwtSecret)
+			if err != nil {
+				log.Fatalf("トークン作成失敗%v", err)
+			}
+			ctx.SetCookie(
+				"token",          // name
+				tokenString,      // value
+				3600*3,           // maxAge（秒）
+				"/",              // path
+				"yourdomain.com", // domain（ローカルなら ""）
+				true,             // secure（HTTPSのみならtrue）
+				true,             // httpOnly（JavaScriptからアクセス不可）
+			)
 			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
-				"loginMsg":    common.LoginMsg2,
-				"loginStatus": loginProcess,
+				"loginMsg": common.LoginMsg2,
 			})
 		})
-		categoryRouter.GET("/to-mainmenu", func(ctx *gin.Context) {
+		categoryRouter.GET("/to-mainmenu", AuthMiddleware, func(ctx *gin.Context) {
 			count, err := service.CountHymnsAll()
 			if err != nil {
 				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
@@ -57,4 +83,25 @@ func CategoryHandlerInit(r *gin.Engine) {
 		})
 	}
 
+}
+
+// JWT認証ミドルウェア
+func AuthMiddleware(c *gin.Context) {
+	// Cookieから取得（"token" という名前で保存されている想定）
+	tokenString, err := c.Cookie("token")
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "トークンが見つかりません"})
+		return
+	}
+	// トークンのパース
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return jwtSecret, nil
+	})
+	// クレーム確認
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		c.Set("username", claims["username"])
+		c.Next()
+	} else {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "無効なトークン"})
+	}
 }

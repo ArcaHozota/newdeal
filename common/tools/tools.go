@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"golang.org/x/crypto/bcrypt"
 	"hash/fnv"
 	"newdeal/common"
 	"strings"
@@ -58,6 +59,17 @@ func UUIDToInt64(u uuid.UUID) int64 {
 		return 0
 	} // 全体を使う
 	return int64(write)
+}
+
+func GenerateHashPassword(password string) (string, error) {
+	// 第2引数はコスト（デフォルトは bcrypt.DefaultCost ≒ 10）
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(hash), err
+}
+
+func CheckHashPassword(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
 
 func IsEmptyStr(s string) bool {
