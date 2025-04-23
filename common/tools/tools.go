@@ -28,7 +28,7 @@ func DateTime2Unix(str string) int64 {
 func Substr(rawString string, startIndex, endIndex int) string {
 	r := []rune(rawString)
 	if startIndex < 0 || endIndex > len(r) || startIndex > endIndex {
-		return ""
+		return common.EmptyString
 	}
 	return string(r[startIndex:endIndex])
 }
