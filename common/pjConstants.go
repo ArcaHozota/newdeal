@@ -14,6 +14,12 @@ const DefaultPageSize uint8 = 5
 
 const LoginMsg string = "ログインしてください"
 
+const LoginMsg2 string = "ログイン成功!"
+
+const Logined string = "ログインままの状態"
+
+const NotLogin string = "ログイン待ちの状態"
+
 var StrangeArray = []string{
 	"insert", "delete", "update", "create", "drop",
 	"#", "$", "%", "&", "(", ")", "\"", "'", "@", ":", "select",
