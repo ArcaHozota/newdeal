@@ -82,7 +82,7 @@ func CategoryHandlerInit(r *gin.Engine) {
 				true,    // Secure
 				true,    // HttpOnly
 			)
-			ctx.Redirect(http.StatusSeeOther, "/login") // ログアウト後ログインページへ
+			ctx.Redirect(http.StatusSeeOther, "/category/login") // ログアウト後ログインページへ
 		})
 		categoryRouter.GET("to-mainmenu", AuthMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
