@@ -40,7 +40,7 @@ func CategoryHandlerInit(r *gin.Engine) {
 			// JSONバインディング（リクエストボディから取得）
 			if err := ctx.ShouldBindJSON(&req); err != nil {
 				ctx.HTML(http.StatusBadRequest, "logintoroku.html", gin.H{
-					"errorMsg": "正しい形式で入力してください",
+					"errorMsg": common.LoginFormError,
 				})
 			}
 			loginAccount, err := service.ProcessLogin(req)
@@ -71,15 +71,8 @@ func CategoryHandlerInit(r *gin.Engine) {
 			})
 		})
 		categoryRouter.GET("/to-mainmenu", AuthMiddleware, func(ctx *gin.Context) {
-			count, err := service.CountHymnsAll()
-			if err != nil {
-				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
-					"exception": err,
-				})
-			}
-			ctx.HTML(http.StatusOK, "index.html", gin.H{
-				"totalRecords": count,
-				"torokuMsg":    common.LoginMsg,
+			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
+				"loginMsg": common.EmptyString,
 			})
 		})
 	}
