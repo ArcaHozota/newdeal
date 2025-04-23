@@ -1,11 +1,12 @@
 package tools
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"hash/fnv"
 	"newdeal/common"
 	"strings"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/google/uuid"
 )
@@ -67,8 +68,8 @@ func GenerateHashPassword(password string) (string, error) {
 	return string(hash), err
 }
 
-func CheckHashPassword(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+func CheckHashPassword(hashPass, rawPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashPass), []byte(rawPassword))
 	return err == nil
 }
 
