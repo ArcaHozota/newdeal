@@ -30,10 +30,12 @@ func main() {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/static", "./static")
 
+	// ハンドラを配置する
 	routers.HomeHandlerInit(r)
 	routers.CategoryHandlerInit(r)
 	routers.HymnsHandlerInit(r)
 
+	// ポートを定義する
 	err := r.Run(":8277")
 	if err != nil {
 		log.Fatalf("failed to run router: %v", err)
