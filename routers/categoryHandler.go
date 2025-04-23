@@ -61,15 +61,28 @@ func CategoryHandlerInit(r *gin.Engine) {
 				log.Fatalf("トークン作成失敗%v", err)
 			}
 			ctx.SetCookie(
-				"token",                                 // name
-				tokenString,                             // value
-				3600*3,                                  // maxAge（秒）
-				"/",                                     // path
-				"shinjukujunfukuinkyokainasb1995.co.uk", // domain（ローカルなら ""）
-				true,                                    // secure（HTTPSのみならtrue）
-				true,                                    // httpOnly（JavaScriptからアクセス不可）
+				"token",     // name
+				tokenString, // value
+				3600*3,      // maxAge（秒）
+				"/",         // path
+				"",          // domain（ローカルなら ""）shinjukujunfukuinkyokainasb1995.co.uk
+				true,        // secure（HTTPSのみならtrue）
+				true,        // httpOnly（JavaScriptからアクセス不可）
 			)
 			ctx.Redirect(http.StatusSeeOther, "/category/to-mainmenu-with-login")
+		})
+		categoryRouter.POST("do-logout", AuthMiddleware, func(ctx *gin.Context) {
+			// Cookieを削除（有効期限を過去に設定）
+			ctx.SetCookie(
+				"token", // Cookie名
+				"",      // 空にする
+				-1,      // 負数の maxAge で削除
+				"/",     // パス
+				"",      // ドメイン（ローカルなら空でOK）shinjukujunfukuinkyokainasb1995.co.uk
+				true,    // Secure
+				true,    // HttpOnly
+			)
+			ctx.Redirect(http.StatusSeeOther, "/login") // ログアウト後ログインページへ
 		})
 		categoryRouter.GET("to-mainmenu", AuthMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
