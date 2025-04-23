@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var jwtSecret = []byte("mySecretKey")
+var jwtSecret = []byte("nasbWebToken")
 
 func CategoryHandlerInit(r *gin.Engine) {
 
@@ -57,13 +57,13 @@ func CategoryHandlerInit(r *gin.Engine) {
 				log.Fatalf("トークン作成失敗%v", err)
 			}
 			ctx.SetCookie(
-				"token",          // name
-				tokenString,      // value
-				3600*3,           // maxAge（秒）
-				"/",              // path
-				"yourdomain.com", // domain（ローカルなら ""）
-				true,             // secure（HTTPSのみならtrue）
-				true,             // httpOnly（JavaScriptからアクセス不可）
+				"token",                                 // name
+				tokenString,                             // value
+				3600*3,                                  // maxAge（秒）
+				"/",                                     // path
+				"shinjukujunfukuinkyokainasb1995.co.uk", // domain（ローカルなら ""）
+				true,                                    // secure（HTTPSのみならtrue）
+				true,                                    // httpOnly（JavaScriptからアクセス不可）
 			)
 			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
 				"loginMsg": common.LoginMsg2,
@@ -85,7 +85,7 @@ func CategoryHandlerInit(r *gin.Engine) {
 
 }
 
-// JWT認証ミドルウェア
+// AuthMiddleware JWT認証ミドルウェア
 func AuthMiddleware(ctx *gin.Context) {
 	// Cookieから取得（"token" という名前で保存されている想定）
 	tokenString, err := ctx.Cookie("token")
