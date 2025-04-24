@@ -5,6 +5,7 @@ import (
 	"errors"
 	"newdeal/common"
 	"newdeal/common/tools"
+	"newdeal/ent"
 	"newdeal/ent/student"
 	"time"
 )
@@ -29,9 +30,26 @@ func ProcessLogin(loginForm LoginRequest) (string, error) {
 	if err != nil {
 		return common.EmptyString, errors.New(common.StudentError)
 	}
+	err = preLogin(*loginUser)
+	if err != nil {
+		return common.EmptyString, err
+	}
 	checkPass := tools.CheckHashPassword(loginUser.Password, loginForm.Password)
 	if !checkPass {
 		return common.EmptyString, errors.New(common.PasswordError)
 	}
 	return loginUser.LoginAccount, nil
+}
+
+func preLogin(loginUser ent.Student) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	err := EntCore.Student.UpdateOneID(loginUser.ID).
+		SetUpdatedTime(time.Now()).
+		Where(student.VisibleFlg(true)).
+		Exec(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
 }

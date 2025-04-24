@@ -47,17 +47,6 @@ $("#loginBtn").on('click', function () {
     } else if (password === '') {
         layer.msg('パスワードを入力してください。');
     } else {
-        $.ajax({
-            url: '/students/pre-login',
-            data: {
-                'loginAccount': account,
-                'password': password
-            },
-            error: function (xhr) {
-                let message = xhr.responseText.replace(/^"|"$/g, emptyString);
-                layer.msg(message);
-            }
-        });
         $("#loginForm").submit();
     }
 });
