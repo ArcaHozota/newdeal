@@ -13,7 +13,8 @@
     <link href="/static/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css2?family=Corinthia:wght@700&family=Noto+Sans+JP:wght@100..900&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Corinthia:wght@700&family=Noto+Sans+JP:wght@100..900&display=swap"
         rel="stylesheet">
     <style>
         .bg-dark {
@@ -37,7 +38,7 @@
     </nav>
     <div class="container" style="margin-top: 60px;">
         <div class="text-center">
-            <h2>システム情報</h2>
+            <h1>システム情報</h1>
             {{if gt .exception 120}}
             <p style="margin-top: 33px;font-size: 22px;">{{Substr .exception 0 120}}</p>
             {{else}}
