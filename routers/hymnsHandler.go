@@ -23,21 +23,25 @@ func HymnsHandlerInit(r *gin.Engine) {
 			if err != nil || pageNum < 1 {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
+				return
 			}
 			cnt, err := service.CountHymnsByKeyword(common.EmptyString)
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
+				return
 			}
 			hymnDtos, err := service.GetHymnsByKeyword(common.EmptyString, pageNum)
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
+				return
 			}
 			pageInfos, err := pagination.NewPagination(hymnDtos, cnt, pageNum, int(common.DefaultPageSize), 5)
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
+				return
 			}
 			ctx.JSON(http.StatusOK, pageInfos)
 		})
@@ -47,6 +51,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
+				return
 			}
 			ctx.JSON(http.StatusOK, hymnDtos)
 		})
@@ -56,11 +61,13 @@ func HymnsHandlerInit(r *gin.Engine) {
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
+				return
 			}
 			hymnDtos, err := service.GetHymnsKanumi(int64(id))
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
+				return
 			}
 			ctx.JSON(http.StatusOK, hymnDtos)
 		})
@@ -70,11 +77,13 @@ func HymnsHandlerInit(r *gin.Engine) {
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
+				return
 			}
 			hymn, err := service.GetHymnById(hymnId)
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
+				return
 			}
 			hymnDto := pojos.HymnDTO{
 				ID:          strconv.FormatInt(hymn.ID, 10),
