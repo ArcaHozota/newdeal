@@ -44,11 +44,3 @@ function booksPostSuccessFunction(response) {
 	formReset("#inputForm2");
 	layer.msg(response);
 }
-
-chrome.runtime.sendMessage({ data: "test" }, (response) => {
-	if (chrome.runtime.lastError) {
-		console.error("通信エラー:", chrome.runtime.lastError.message);
-	} else {
-		console.log("応答:", response);
-	}
-});
