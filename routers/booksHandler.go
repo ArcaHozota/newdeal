@@ -32,7 +32,7 @@ func BookHandlerInit(r *gin.Engine) {
 			ctx.JSON(http.StatusOK, chapterDtos)
 		})
 		bookRouter.POST("info-storage", func(ctx *gin.Context) {
-			var req pojos.ChapterDTO
+			var req pojos.PhraseDTO
 			// JSONバインディング（リクエストボディから取得）
 			if err := ctx.ShouldBindJSON(&req); err != nil {
 				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
@@ -40,7 +40,13 @@ func BookHandlerInit(r *gin.Engine) {
 				})
 				return
 			}
-			ctx.HTML(http.StatusOK, "books-addition.html", gin.H{})
+			phInfoMsg, err := service.PhraseInfoStorage(req)
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err)
+				return
+			}
+			ctx.JSON(http.StatusOK, phInfoMsg)
 		})
 		bookRouter.GET("to-addition", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "books-addition.html", gin.H{})
