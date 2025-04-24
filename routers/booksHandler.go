@@ -15,7 +15,7 @@ func BookHandlerInit(r *gin.Engine) {
 
 	bookRouter := r.Group("/books")
 	{
-		bookRouter.GET("get-chapters", func(ctx *gin.Context) {
+		bookRouter.GET("get-chapters", authMiddleware, func(ctx *gin.Context) {
 			bookId := ctx.DefaultQuery("bookId", common.EmptyString)
 			id, err := strconv.Atoi(bookId)
 			if err != nil {
@@ -31,7 +31,7 @@ func BookHandlerInit(r *gin.Engine) {
 			}
 			ctx.JSON(http.StatusOK, chapterDtos)
 		})
-		bookRouter.POST("info-storage", func(ctx *gin.Context) {
+		bookRouter.POST("info-storage", authMiddleware, func(ctx *gin.Context) {
 			var req pojos.PhraseDTO
 			// JSONバインディング（リクエストボディから取得）
 			if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -48,7 +48,7 @@ func BookHandlerInit(r *gin.Engine) {
 			}
 			ctx.JSON(http.StatusOK, phInfoMsg)
 		})
-		bookRouter.GET("to-addition", func(ctx *gin.Context) {
+		bookRouter.GET("to-addition", authMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "books-addition.html", gin.H{})
 		})
 	}
