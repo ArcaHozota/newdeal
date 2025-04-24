@@ -49,7 +49,24 @@ func BookHandlerInit(r *gin.Engine) {
 			ctx.JSON(http.StatusOK, phInfoMsg)
 		})
 		bookRouter.GET("to-addition", authMiddleware, func(ctx *gin.Context) {
-			ctx.HTML(http.StatusOK, "books-addition.html", gin.H{})
+			bookDtos, err := service.GetBooks()
+			if err != nil {
+				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
+					common.AttrNameException: err,
+				})
+				return
+			}
+			chapterDtos, err := service.GetChaptersByBookId(1)
+			if err != nil {
+				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
+					common.AttrNameException: err,
+				})
+				return
+			}
+			ctx.HTML(http.StatusOK, "books-addition.html", gin.H{
+				"bookDtos":    bookDtos,
+				"chapterDtos": chapterDtos,
+			})
 		})
 	}
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"newdeal/common"
 	"newdeal/ent"
+	"newdeal/ent/book"
 	"newdeal/ent/chapter"
 	"newdeal/ent/phrase"
 	"newdeal/pojos"
@@ -12,8 +13,21 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/samber/lo"
 )
+
+func GetBooks() ([]pojos.BookDTO, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	books, err := EntCore.Book.Query().
+		Order(book.ByID(sql.OrderAsc())).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return map2BookDTOs(books), nil
+}
 
 func GetChaptersByBookId(bookId int16) ([]pojos.ChapterDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -81,7 +95,18 @@ func PhraseInfoStorage(phraseDto pojos.PhraseDTO) (string, error) {
 	return common.UpsertedMsg, nil
 }
 
-// DTOへマップする
+// BookDTOへマップする
+func map2BookDTOs(books []*ent.Book) []pojos.BookDTO {
+	return lo.Map(books, func(bk *ent.Book, _ int) pojos.BookDTO {
+		return pojos.BookDTO{
+			ID:     strconv.Itoa(int(bk.ID)),
+			Name:   bk.Name,
+			NameJP: bk.NameJp,
+		}
+	})
+}
+
+// ChapterDTOへマップする
 func map2ChapterDTOs(chapters []*ent.Chapter) []pojos.ChapterDTO {
 	return lo.Map(chapters, func(ch *ent.Chapter, _ int) pojos.ChapterDTO {
 		return pojos.ChapterDTO{
