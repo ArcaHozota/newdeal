@@ -1,14 +1,14 @@
-$(document).ready(function() {
+$(document).ready(function () {
 	$("#toTemporary").css('color', '#006b3c');
 	$("#toTemporary").addClass('animate__animated animate__flipInY');
 });
-$("#bookInput").on('change', function() {
+$("#bookInput").on('change', function () {
 	$("#chapterInput").empty();
 	let bookId = $(this).val();
 	$.ajax({
 		url: '/books/get-chapters',
 		data: 'bookId=' + bookId,
-		success: function(response) {
+		success: function (response) {
 			$.each(response, (response, item) => {
 				let optionElement = $("<option></option>").val(item.id).text(item.name);
 				optionElement.appendTo("#chapterInput");
@@ -16,7 +16,7 @@ $("#bookInput").on('change', function() {
 		}
 	});
 });
-$("#infoStorageBtn").on('click', function() {
+$("#infoStorageBtn").on('click', function () {
 	let inputArrays = ["#phraseIdInput", "#phraseTextEnInput", "#phraseTextJpInput"];
 	for (const array of inputArrays) {
 		$(array).removeClass("is-valid is-invalid");
@@ -38,8 +38,17 @@ $("#infoStorageBtn").on('click', function() {
 		projectAjaxModify('/books/info-storage', 'POST', postData, booksPostSuccessFunction);
 	}
 });
+
 function booksPostSuccessFunction(response) {
 	formReset("#inputForm");
 	formReset("#inputForm2");
 	layer.msg(response);
 }
+
+chrome.runtime.sendMessage({ data: "test" }, (response) => {
+	if (chrome.runtime.lastError) {
+		console.error("通信エラー:", chrome.runtime.lastError.message);
+	} else {
+		console.log("応答:", response);
+	}
+});

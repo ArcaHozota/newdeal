@@ -35,9 +35,7 @@ func BookHandlerInit(r *gin.Engine) {
 			var req pojos.PhraseDTO
 			// JSONバインディング（リクエストボディから取得）
 			if err := ctx.ShouldBindJSON(&req); err != nil {
-				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
-					common.AttrNameException: err,
-				})
+				ctx.JSON(http.StatusBadRequest, err)
 				return
 			}
 			phInfoMsg, err := service.PhraseInfoStorage(req)
