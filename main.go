@@ -31,9 +31,10 @@ func main() {
 	r.Static("/static", "./static")
 
 	// ハンドラを配置する
-	routers.HomeHandlerInit(r)
+	routers.BookHandlerInit(r)
 	routers.CategoryHandlerInit(r)
 	routers.HymnsHandlerInit(r)
+	routers.HomeHandlerInit(r)
 
 	// ポートを定義する
 	err := r.Run(":8277")
