@@ -36,7 +36,7 @@ func CategoryHandlerInit(r *gin.Engine) {
 				})
 				return
 			}
-			ctx.HTML(http.StatusOK, "index.html", gin.H{
+			ctx.HTML(http.StatusUnauthorized, "index.html", gin.H{
 				"totalRecords": count,
 				"torokuMsg":    common.NeedLoginMsg,
 			})
@@ -108,9 +108,7 @@ func AuthMiddleware(ctx *gin.Context) {
 	// Cookieから取得（"token" という名前で保存されている想定）
 	tokenString, err := ctx.Cookie("token")
 	if err != nil {
-		ctx.HTML(http.StatusUnauthorized, "index.html", gin.H{
-			"torokuMsg": common.NeedLoginMsg,
-		})
+		ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
 		return
 	}
 	// トークンのパース
@@ -122,8 +120,7 @@ func AuthMiddleware(ctx *gin.Context) {
 		ctx.Set("username", claims["username"])
 		ctx.Next()
 	} else {
-		ctx.HTML(http.StatusUnauthorized, "index.html", gin.H{
-			"torokuMsg": common.JwtErrorMsg,
-		})
+		ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+		return
 	}
 }
