@@ -70,8 +70,8 @@ type SnowflakeIDGenerator struct {
 	lastTS       int64
 }
 
-// NewSnowflakeIDGenerator validates IDs and returns a generator.
-func NewSnowflakeIDGenerator(workerID, datacenterID int64) (*SnowflakeIDGenerator, error) {
+// newSnowflakeIDGenerator validates IDs and returns a generator.
+func newSnowflakeIDGenerator(workerID, datacenterID int64) (*SnowflakeIDGenerator, error) {
 	if workerID < 0 || workerID > maxWorkerID {
 		return nil, fmt.Errorf("worker ID must be between 0 and %d", maxWorkerID)
 	}
@@ -86,8 +86,8 @@ func NewSnowflakeIDGenerator(workerID, datacenterID int64) (*SnowflakeIDGenerato
 	}, nil
 }
 
-// NextID returns the next unique ID. Thread‑safe.
-func (s *SnowflakeIDGenerator) NextID() (uint64, error) {
+// nextID returns the next unique ID. Thread‑safe.
+func (s *SnowflakeIDGenerator) nextID() (uint64, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -122,11 +122,11 @@ func SnowflakeID() int64 {
 	worker := rand.Int63n(maxWorkerID + 1)
 	dc := rand.Int63n(maxDatacenterID + 1)
 
-	gen, err := NewSnowflakeIDGenerator(worker, dc)
+	gen, err := newSnowflakeIDGenerator(worker, dc)
 	if err != nil {
 		log.Fatalf("failed generate Snowflake key: %v", err)
 	}
-	id, err := gen.NextID()
+	id, err := gen.nextID()
 	if err != nil {
 		log.Fatalf("failed generate Snowflake id: %v", err)
 	}
@@ -137,11 +137,11 @@ func SnowflakeIDUint64() uint64 {
 	worker := rand.Int63n(maxWorkerID + 1)
 	dc := rand.Int63n(maxDatacenterID + 1)
 
-	gen, err := NewSnowflakeIDGenerator(worker, dc)
+	gen, err := newSnowflakeIDGenerator(worker, dc)
 	if err != nil {
 		log.Fatalf("failed generate Snowflake key: %v", err)
 	}
-	id, err := gen.NextID()
+	id, err := gen.nextID()
 	if err != nil {
 		log.Fatalf("failed generate Snowflake id: %v", err)
 	}
