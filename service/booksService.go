@@ -32,9 +32,12 @@ func GetBooks() ([]pojos.BookDTO, error) {
 func GetChaptersByBookId(bookId int16) ([]pojos.ChapterDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	chapters, err := EntCore.Chapter.Query().Where(
-		chapter.BookIDEQ(bookId),
-	).All(ctx)
+	chapters, err := EntCore.Chapter.Query().
+		Where(
+			chapter.BookIDEQ(bookId),
+		).
+		Order(chapter.ByID(sql.OrderAsc())).
+		All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -59,8 +62,10 @@ func PhraseInfoStorage(phraseDto pojos.PhraseDTO) (string, error) {
 		return common.EmptyString, err
 	}
 	changeLineMark := false
-	if strings.HasSuffix(phraseDto.TextEN, "#") {
+	textEn := phraseDto.TextEN
+	if strings.HasSuffix(textEn, "#") {
 		changeLineMark = true
+		textEn = strings.ReplaceAll(textEn, "#", common.EmptyString)
 	}
 	phraseId := int64(chapterId*100 + id)
 	count, _ := EntCore.Phrase.Query().
@@ -71,7 +76,7 @@ func PhraseInfoStorage(phraseDto pojos.PhraseDTO) (string, error) {
 	if count != 0 {
 		err = EntCore.Phrase.UpdateOneID(phraseId).
 			SetName(fmt.Sprintf("%s:%d", queriedCh.Name, id)).
-			SetTextEn(phraseDto.TextEN).
+			SetTextEn(textEn).
 			SetTextJp(phraseDto.TextJP).
 			SetChapterID(queriedCh.ID).
 			SetChangeLine(changeLineMark).
@@ -84,7 +89,7 @@ func PhraseInfoStorage(phraseDto pojos.PhraseDTO) (string, error) {
 	err = EntCore.Phrase.Create().
 		SetID(phraseId).
 		SetName(fmt.Sprintf("%s:%d", queriedCh.Name, id)).
-		SetTextEn(phraseDto.TextEN).
+		SetTextEn(textEn).
 		SetTextJp(phraseDto.TextJP).
 		SetChapterID(queriedCh.ID).
 		SetChangeLine(changeLineMark).

@@ -216,7 +216,7 @@ function projectAjaxModify(url, type, data, successFunction) {
         contentType: 'application/json;charset=UTF-8',
         success: successFunction,
         error: function (xhr) {
-            let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+            let message = xhr.responseText;
             layer.msg(message);
         }
     });
