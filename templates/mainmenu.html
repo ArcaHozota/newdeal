@@ -21,11 +21,7 @@
 		<div class="row">
 			{{template "include-sidebar.html" .}}
 			<div class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">
-				{{if ne .loginMsg nil}}
-				<input type="hidden" value="{{.loginMsg}}" id="loginMsgContainer">
-				{{else}}
-				<input type="hidden" id="loginMsgContainer">
-				{{end}}
+				<input type="hidden" value="{{.torokuMsg}}" id="torokuMsgContainer">
 				<h1 class="page-header" style="color: #7F0020; margin: 10px 0 0 0;">メインメニュー</h1>
 				<div class="row">
 					<div class="col" id="booksKanriMainmenu" role="button" style="height: 55vh;">

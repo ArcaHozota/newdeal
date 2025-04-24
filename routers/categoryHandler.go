@@ -91,12 +91,12 @@ func CategoryHandlerInit(r *gin.Engine) {
 		})
 		categoryRouter.GET("to-mainmenu", authMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
-				"loginMsg": common.EmptyString,
+				common.AttrNameTorokuMsg: common.EmptyString,
 			})
 		})
 		categoryRouter.GET("to-mainmenu-with-login", authMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
-				"loginMsg": common.LoginedMsg,
+				common.AttrNameTorokuMsg: common.LoginedMsg,
 			})
 		})
 	}
