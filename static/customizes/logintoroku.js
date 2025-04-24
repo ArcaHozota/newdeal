@@ -23,7 +23,7 @@ $(document).ready(function () {
             flag = 0;
         }
     });
-    let message1 = $("#errorMsgContainer").val();
+    let message1 = $("#torokuMsgContainer").val();
     if (message1 !== '' && message1 !== null && message1 !== undefined) {
         layer.msg(message1);
     }

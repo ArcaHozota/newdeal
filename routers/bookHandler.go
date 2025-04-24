@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"newdeal/common"
+	"newdeal/pojos"
 	"newdeal/service"
 	"strconv"
 
@@ -11,6 +12,7 @@ import (
 )
 
 func BookHandlerInit(r *gin.Engine) {
+
 	bookRouter := r.Group("/books")
 	{
 		bookRouter.GET("get-chapters", func(ctx *gin.Context) {
@@ -29,5 +31,20 @@ func BookHandlerInit(r *gin.Engine) {
 			}
 			ctx.JSON(http.StatusOK, chapterDtos)
 		})
+		bookRouter.POST("info-storage", func(ctx *gin.Context) {
+			var req pojos.ChapterDTO
+			// JSONバインディング（リクエストボディから取得）
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
+					common.AttrNameException: err,
+				})
+				return
+			}
+			ctx.HTML(http.StatusOK, "books-addition.html", gin.H{})
+		})
+		bookRouter.GET("to-addition", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "books-addition.html", gin.H{})
+		})
 	}
+
 }

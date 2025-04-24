@@ -1,7 +1,6 @@
 package routers
 
 import (
-	"log"
 	"net/http"
 	"newdeal/common"
 	"newdeal/service"
@@ -11,16 +10,7 @@ import (
 
 func HomeHandlerInit(r *gin.Engine) {
 
-	count, err := service.CountHymnsAll()
-
-	if err != nil {
-		log.Println(err)
-		r.GET("toSystemError.action", func(ctx *gin.Context) {
-			ctx.HTML(http.StatusOK, "error.html", gin.H{
-				common.AttrNameException: err.Error(),
-			})
-		})
-	}
+	count, _ := service.CountHymnsAll()
 
 	homeRouter1 := r.Group("/")
 	{

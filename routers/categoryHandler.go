@@ -20,25 +20,25 @@ func CategoryHandlerInit(r *gin.Engine) {
 	{
 		categoryRouter.GET("login", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "logintoroku.html", gin.H{
-				"errorMsg": common.EmptyString,
+				common.AttrNameTorokuMsg: common.EmptyString,
 			})
 		})
 		categoryRouter.GET("login-with-out", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "logintoroku.html", gin.H{
-				"errorMsg": common.LogoutMsg,
+				common.AttrNameTorokuMsg: common.LogoutMsg,
 			})
 		})
 		categoryRouter.GET("login-with-error", func(ctx *gin.Context) {
 			count, err := service.CountHymnsAll()
 			if err != nil {
 				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
-					"exception": err,
+					common.AttrNameException: err,
 				})
 				return
 			}
 			ctx.HTML(http.StatusUnauthorized, "index.html", gin.H{
-				"totalRecords": count,
-				"torokuMsg":    common.NeedLoginMsg,
+				"totalRecords":           count,
+				common.AttrNameTorokuMsg: common.NeedLoginMsg,
 			})
 		})
 		categoryRouter.POST("do-login", func(ctx *gin.Context) {
@@ -46,14 +46,14 @@ func CategoryHandlerInit(r *gin.Engine) {
 			// JSONバインディング（リクエストボディから取得）
 			if err := ctx.ShouldBind(&req); err != nil {
 				ctx.HTML(http.StatusBadRequest, "logintoroku.html", gin.H{
-					"errorMsg": common.LoginFormError,
+					common.AttrNameTorokuMsg: common.LoginFormError,
 				})
 				return
 			}
 			loginAccount, err := service.ProcessLogin(req)
 			if err != nil {
 				ctx.HTML(http.StatusBadRequest, "logintoroku.html", gin.H{
-					"errorMsg": err,
+					common.AttrNameTorokuMsg: err,
 				})
 				return
 			}

@@ -10,6 +10,8 @@ const HankakuPercentMark string = "%"
 
 const AttrNameException string = "exception"
 
+const AttrNameTorokuMsg string = "torokuMsg"
+
 const DefaultPageSize uint8 = 5
 
 const JwtErrorMsg string = "トークンの有効期間過ぎでまたは無効です。"
