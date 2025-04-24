@@ -6,6 +6,7 @@ import (
 	"newdeal/common"
 	"newdeal/ent"
 	"newdeal/ent/chapter"
+	"newdeal/ent/phrase"
 	"newdeal/pojos"
 	"strconv"
 	"strings"
@@ -47,8 +48,27 @@ func PhraseInfoStorage(phraseDto pojos.PhraseDTO) (string, error) {
 	if strings.HasSuffix(phraseDto.TextEN, "#") {
 		changeLineMark = true
 	}
+	phraseId := int64(chapterId*100 + id)
+	count, _ := EntCore.Phrase.Query().
+		Where(
+			phrase.IDEQ(phraseId),
+		).
+		Count(ctx)
+	if count != 0 {
+		err = EntCore.Phrase.UpdateOneID(phraseId).
+			SetName(fmt.Sprintf("%s:%d", queriedCh.Name, id)).
+			SetTextEn(phraseDto.TextEN).
+			SetTextJp(phraseDto.TextJP).
+			SetChapterID(queriedCh.ID).
+			SetChangeLine(changeLineMark).
+			Exec(ctx)
+		if err != nil {
+			return common.EmptyString, err
+		}
+		return common.UpsertedMsg, nil
+	}
 	err = EntCore.Phrase.Create().
-		SetID(int64(chapterId*100 + id)).
+		SetID(phraseId).
 		SetName(fmt.Sprintf("%s:%d", queriedCh.Name, id)).
 		SetTextEn(phraseDto.TextEN).
 		SetTextJp(phraseDto.TextJP).
