@@ -53,7 +53,7 @@ func PhraseInfoStorage(phraseDto pojos.PhraseDTO) (string, error) {
 	if err != nil {
 		return common.EmptyString, err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	queriedCh, err := EntCore.Chapter.Query().Where(
 		chapter.IDEQ(int32(chapterId)),

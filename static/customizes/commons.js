@@ -6,6 +6,12 @@ const inputedString = '追加済み';
 const delimiter = '　/　';
 const delayApology = 'すみませんが、当機能はまだ実装されていません';
 const showVadMsgError = '名称を空になってはいけません。';
+const trimQuotes = str => {
+    if (typeof str !== "string") return str;
+    if (str.startsWith('"')) str = str.slice(1);
+    if (str.endsWith('"')) str = str.slice(0, -1);
+    return str;
+};
 $(document).ready(function () {
     let treeData = [
         {
@@ -216,7 +222,7 @@ function projectAjaxModify(url, type, data, successFunction) {
         contentType: 'application/json;charset=UTF-8',
         success: successFunction,
         error: function (xhr) {
-            let message = xhr.responseText;
+            let message = trimQuotes(xhr.responseText);
             layer.msg(message);
         }
     });
