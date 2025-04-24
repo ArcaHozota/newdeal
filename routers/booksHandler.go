@@ -33,7 +33,6 @@ func BookHandlerInit(r *gin.Engine) {
 		})
 		bookRouter.POST("info-storage", authMiddleware, func(ctx *gin.Context) {
 			var req pojos.PhraseDTO
-			// JSONバインディング（リクエストボディから取得）
 			if err := ctx.ShouldBindJSON(&req); err != nil {
 				ctx.JSON(http.StatusBadRequest, err)
 				return

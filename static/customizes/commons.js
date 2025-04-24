@@ -209,15 +209,10 @@ function showValidationMsg(element, status, msg) {
 }
 
 function projectAjaxModify(url, type, data, successFunction) {
-    let header = $("meta[name=_csrf_header]").attr("content");
-    let token = $("meta[name=_csrf_token]").attr("content");
     $.ajax({
         url: url,
         type: type,
         data: data,
-        headers: {
-            [header]: token
-        },
         dataType: 'json',
         contentType: 'application/json;charset=UTF-8',
         success: successFunction,
