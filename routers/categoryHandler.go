@@ -76,7 +76,7 @@ func CategoryHandlerInit(r *gin.Engine) {
 			)
 			ctx.Redirect(http.StatusSeeOther, "/category/to-mainmenu-with-login")
 		})
-		categoryRouter.POST("do-logout", AuthMiddleware, func(ctx *gin.Context) {
+		categoryRouter.POST("do-logout", authMiddleware, func(ctx *gin.Context) {
 			// Cookieを削除（有効期限を過去に設定）
 			ctx.SetCookie(
 				"token", // Cookie名
@@ -89,12 +89,12 @@ func CategoryHandlerInit(r *gin.Engine) {
 			)
 			ctx.Redirect(http.StatusSeeOther, "/category/login-with-out") // ログアウト後ログインページへ
 		})
-		categoryRouter.GET("to-mainmenu", AuthMiddleware, func(ctx *gin.Context) {
+		categoryRouter.GET("to-mainmenu", authMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
 				"loginMsg": common.EmptyString,
 			})
 		})
-		categoryRouter.GET("to-mainmenu-with-login", AuthMiddleware, func(ctx *gin.Context) {
+		categoryRouter.GET("to-mainmenu-with-login", authMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
 				"loginMsg": common.LoginedMsg,
 			})
@@ -103,8 +103,8 @@ func CategoryHandlerInit(r *gin.Engine) {
 
 }
 
-// AuthMiddleware JWT認証ミドルウェア
-func AuthMiddleware(ctx *gin.Context) {
+// authMiddleware JWT認証ミドルウェア
+func authMiddleware(ctx *gin.Context) {
 	// Cookieから取得（"token" という名前で保存されている想定）
 	tokenString, err := ctx.Cookie("token")
 	if err != nil {
