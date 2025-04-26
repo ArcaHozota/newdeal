@@ -1,26 +1,30 @@
+let $tableBody = $("#tableBody");
+let $randomSearchBtn = $("#randomSearchBtn");
+let $loadingContainer = $("#loadingContainer");
+let $loadingBackground = $("#loadingBackground");
 $(document).ready(() => {
 	adjustWidth();
-	$("#tableBody").hide();
+	$tableBody.hide();
 	let message2 = $("#torokuMsgContainer").val();
 	if (message2 !== '' && message2 !== null && message2 !== undefined) {
 		layer.msg(message2);
 	}
 });
-$("#randomSearchBtn").on("click", () => {
+$randomSearchBtn.on("click", () => {
 	adjustWidth();
-	$("#loadingBackground").show();
-	$("#loadingContainer").show();
-	$("#tableBody").show();
-	$("#randomSearchBtn").prop("disabled", true);
+	$loadingBackground.show();
+	$loadingContainer.show();
+	$tableBody.show();
+	$randomSearchBtn.prop("disabled", true);
 	let keyword = $("#keywordInput").val();
 	commonRetrieve(keyword);
 	setTimeout(() => {
-		$("#loadingContainer").hide();
-		$("#loadingBackground").hide();
-		$("#randomSearchBtn").prop("disabled", false);
+		$loadingContainer.hide();
+		$loadingBackground.hide();
+		$randomSearchBtn.prop("disabled", false);
 	}, 3300);
 });
-$("#tableBody").on("click", '.link-btn', (e) => {
+$tableBody.on("click", '.link-btn', (e) => {
 	e.preventDefault();
 	let transferVal = $(this).attr('transferVal');
 	window.open(transferVal);
@@ -56,7 +60,7 @@ function commonRetrieve(keyword) {
 }
 
 function buildTableBody(response) {
-	$("#tableBody").empty();
+	$tableBody.empty();
 	$.each(response, (response, item) => {
 		let nameMixTd = $("<td class='text-center' style='vertical-align: middle;'></td>")
 			.append($("<a href='#' class='link-btn' transferVal='" + item.link + "'>" + item.nameJp + "/" + item.nameKr + "</a>"));

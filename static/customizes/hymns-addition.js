@@ -1,7 +1,8 @@
 let pageNum = $("#pageNumContainer").val();
 $(document).ready(() => {
-	$("#toCollection").css('color', '#006b3c');
-	$("#toCollection").addClass('animate__animated animate__flipInY');
+	let $toCollection = $("#toCollection");
+	$toCollection.css('color', '#006b3c');
+	$toCollection.addClass('animate__animated animate__flipInY');
 });
 $("#toHymnPages").on("click", (e) => {
 	e.preventDefault();
@@ -76,7 +77,7 @@ $("#restoreBtn").on("click", () => {
 });
 
 function hymnsPostSuccessFunction(response) {
-	localStorage.setItem('redirectMessage', inputedString);
+	localStorage.setItem('redirectMessage', inputString);
 	window.location.replace('/hymns/to-pages?pageNum=' + response);
 }
 

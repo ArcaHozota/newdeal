@@ -1,7 +1,8 @@
 let pageNum = $("#pageNumContainer").val();
 $(document).ready(() => {
-	$("#toCollection").css('color', '#006b3c');
-	$("#toCollection").addClass('animate__animated animate__flipInY');
+	let $toCollection = $("#toCollection");
+	$toCollection.css('color', '#006b3c');
+	$toCollection.addClass('animate__animated animate__flipInY');
 });
 $("#toHymnPages").on("click", (e) => {
 	e.preventDefault();

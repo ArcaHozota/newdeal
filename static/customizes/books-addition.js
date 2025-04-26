@@ -1,6 +1,7 @@
 $(document).ready(() => {
-    $("#toTemporary").css('color', '#006b3c');
-    $("#toTemporary").addClass('animate__animated animate__flipInY');
+    let $toTemporary = $("#toTemporary");
+    $toTemporary.css('color', '#006b3c');
+    $toTemporary.addClass('animate__animated animate__flipInY');
 });
 $("#bookInput").on("change", () => {
     $("#chapterInput").empty();

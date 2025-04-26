@@ -116,12 +116,12 @@ function checkPermissionAndTransfer(stringUrl) {
 }
 
 function buildPageInfos(response) {
-	let pageInfos = $("#pageInfos");
-	pageInfos.empty();
+	let $pageInfos = $("#pageInfos");
+	$pageInfos.empty();
 	pageNum = response.pageNum;
 	totalPages = response.totalPages;
 	totalRecords = response.totalRecords;
-	pageInfos.append(totalPages + "ページ中の" + pageNum + "ページ、" + totalRecords + "件のレコードが見つかりました。");
+	$pageInfos.append(totalPages + "ページ中の" + pageNum + "ページ、" + totalRecords + "件のレコードが見つかりました。");
 }
 
 function buildPageNavi(result) {

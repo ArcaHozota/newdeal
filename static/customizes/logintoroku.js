@@ -1,14 +1,16 @@
+let $torokuBox = $("#torokuBox");
+let $loginBox = $("#loginBox");
 $(document).ready(() => {
-	$("#torokuBox").on("click", '.toroku-title', () => {
-		if ($("#torokuBox").hasClass('slide-up')) {
-			$("#loginBox").addClass('slide-up');
-			$("#torokuBox").removeClass('slide-up');
+	$torokuBox.on("click", '.toroku-title', () => {
+		if ($torokuBox.hasClass('slide-up')) {
+			$loginBox.addClass('slide-up');
+			$torokuBox.removeClass('slide-up');
 		}
 	});
-	$("#loginBox").on("click", '.login-title', () => {
-		if ($("#loginBox").hasClass('slide-up')) {
-			$("#torokuBox").addClass('slide-up');
-			$("#loginBox").removeClass('slide-up');
+	$loginBox.on("click", '.login-title', () => {
+		if ($loginBox.hasClass('slide-up')) {
+			$torokuBox.addClass('slide-up');
+			$loginBox.removeClass('slide-up');
 		}
 	});
 	let flag = 0;

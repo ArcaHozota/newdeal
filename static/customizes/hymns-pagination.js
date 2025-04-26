@@ -1,8 +1,10 @@
+let $tableBody = $("#tableBody");
 let pageNum = $("#pageNumContainer").val();
 let totalRecords, totalPages, keyword;
 $(document).ready(() => {
-	$("#toCollection").css('color', '#006b3c');
-	$("#toCollection").addClass('animate__animated animate__flipInY');
+	let $toCollection = $("#toCollection");
+	$toCollection.css('color', '#006b3c');
+	$toCollection.addClass('animate__animated animate__flipInY');
 	if (keyword === undefined) {
 		keyword = emptyString;
 	}
@@ -17,7 +19,7 @@ $("#searchBtn2").on("click", () => {
 	keyword = $("#keywordInput").val();
 	toSelectedPg(1, keyword);
 });
-$("#tableBody").on("click", '.delete-btn', () => {
+$tableBody.on("click", '.delete-btn', () => {
 	let deleteId = $(this).attr("deleteId");
 	let nameJp = $(this).parents("tr").find("th").text().trim();
 	normalDeletebtnFunction('/hymns/', 'この「' + nameJp + '」という歌の情報を削除するとよろしいでしょうか。', deleteId);
@@ -27,22 +29,22 @@ $("#infoAdditionBtn").on("click", (e) => {
 	let url = '/hymns/to-addition?pageNum=' + pageNum;
 	checkPermissionAndTransfer(url);
 });
-$("#tableBody").on("click", '.edit-btn', () => {
+$tableBody.on("click", '.edit-btn', () => {
 	let editId = $(this).attr("editId");
 	let url = '/hymns/to-edition?editId=' + editId + '&pageNum=' + pageNum;
 	checkPermissionAndTransfer(url);
 });
-$("#tableBody").on("click", '.score-btn', () => {
+$tableBody.on("click", '.score-btn', () => {
 	let scoreId = $(this).attr('scoreId');
 	let url = '/hymns/to-score-upload?scoreId=' + scoreId + '&pageNum=' + pageNum;
 	checkPermissionAndTransfer(url);
 });
-$("#tableBody").on("click", '.link-btn', (e) => {
+$tableBody.on("click", '.link-btn', (e) => {
 	e.preventDefault();
 	let transferVal = $(this).attr('transferVal');
 	window.open(transferVal);
 });
-$("#tableBody").on("click", '.score-download-btn', (e) => {
+$tableBody.on("click", '.score-download-btn', (e) => {
 	e.preventDefault();
 	let scoreId = $(this).attr('scoreId');
 	window.location.href = '/hymns/score-download?scoreId=' + scoreId;
@@ -68,7 +70,7 @@ function toSelectedPg(pageNum, keyword) {
 }
 
 function buildTableBody(response) {
-	$("#tableBody").empty();
+	$tableBody.empty();
 	let index = response.records;
 	$.each(index, (index, item) => {
 		let nameJpTd = $("<th class='text-left' style='width: 130px;vertical-align: middle;'></th>").append(item.nameJp);

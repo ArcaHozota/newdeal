@@ -100,7 +100,9 @@ func HymnsHandlerInit(r *gin.Engine) {
 			ctx.JSON(http.StatusOK, hymnDto)
 		})
 		hymnsRouter.GET("to-pages", func(ctx *gin.Context) {
-			pageNum := ctx.DefaultQuery("pageNum", common.EmptyString)
+			ctx.HTML(http.StatusOK, "hymns-pagination.html", gin.H{
+				"pageNum": 1,
+			})
 		})
 	}
 
