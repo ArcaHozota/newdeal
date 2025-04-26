@@ -1,11 +1,13 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"log"
 	"math"
 	"math/rand"
+	"net/http"
 	"newdeal/common"
 	"newdeal/common/tools"
 	"newdeal/ent"
@@ -242,6 +244,66 @@ func GetHymnsKanumi(id int64) ([]pojos.HymnDTO, error) {
 	return hymnDtos, err
 }
 
+func HymnScoreStorage(hymnDto pojos.HymnDTO) (string, error) {
+	hymnId, err := strconv.Atoi(hymnDto.ID)
+	if err != nil {
+		return common.EmptyString, err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	hymnById, err := EntCore.HymnsWork.Query().Where(
+		hymnswork.WorkIDEQ(int64(hymnId)),
+	).Only(ctx)
+	if err != nil {
+		return common.EmptyString, err
+	}
+	if bytes.Equal(hymnById.Score, hymnDto.Score) {
+		return common.NochangeMsg, nil
+	}
+	fileType := checkFileTypeFromBytes(hymnDto.Score)
+	err = EntCore.HymnsWork.UpdateOneID(hymnById.ID).
+		SetScore(hymnDto.Score).
+		SetBiko(fileType).
+		Where(
+			hymnswork.WorkIDEQ(int64(hymnId)),
+		).
+		Exec(ctx)
+	if err != nil {
+		return common.EmptyString, err
+	}
+	return common.UpdatedMsg, nil
+}
+
+func HymnInfoUpdate(hymnDto pojos.HymnDTO) (string, error) {
+	hymnId, err := strconv.Atoi(hymnDto.ID)
+	if err != nil {
+		return common.EmptyString, err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	hymnById, err := EntCore.HymnsWork.Query().Where(
+		hymnswork.WorkIDEQ(int64(hymnId)),
+	).Only(ctx)
+	if err != nil {
+		return common.EmptyString, err
+	}
+	if bytes.Equal(hymnById.Score, hymnDto.Score) {
+		return common.NochangeMsg, nil
+	}
+	fileType := checkFileTypeFromBytes(hymnDto.Score)
+	err = EntCore.HymnsWork.UpdateOneID(hymnById.ID).
+		SetScore(hymnDto.Score).
+		SetBiko(fileType).
+		Where(
+			hymnswork.WorkIDEQ(int64(hymnId)),
+		).
+		Exec(ctx)
+	if err != nil {
+		return common.EmptyString, err
+	}
+	return common.UpdatedMsg, nil
+}
+
 // 任意の５つの賛美歌を選択する
 func randomFiveLoop(hymnsRecords, totalRecords []pojos.HymnDTO) []pojos.HymnDTO {
 	idSet := make(map[string]struct{})
@@ -465,4 +527,13 @@ func getExecutableDir() (string, error) {
 		return common.EmptyString, err
 	}
 	return filepath.Dir(exePath), nil
+}
+
+func checkFileTypeFromBytes(fileBytes []byte) string {
+	sniffLen := 512
+	if len(fileBytes) < 512 {
+		sniffLen = len(fileBytes)
+	}
+	contentType := http.DetectContentType(fileBytes[:sniffLen])
+	return contentType
 }

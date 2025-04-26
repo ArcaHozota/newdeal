@@ -21,8 +21,6 @@ $("#scoreUploadBtn").on("click", () => {
 		projectNullInputboxDiscern(inputArrays);
 		return;
 	}
-	let header = $("meta[name=_csrf_header]").attr('content');
-	let token = $("meta[name=_csrf_token]").attr('content');
 	let editId = $("#idContainer").val();
 	let fileInput = document.getElementById("scoreEdit");
 	let file = fileInput.files[0];
@@ -40,9 +38,6 @@ $("#scoreUploadBtn").on("click", () => {
 			url: '/hymns/score-upload',
 			type: 'POST',
 			data: jsonData,
-			headers: {
-				[header]: token
-			},
 			contentType: 'application/json',
 			success: (response) => {
 				let message = response.replace(/^"|"$/g, emptyString);

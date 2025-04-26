@@ -66,7 +66,7 @@ $("#infoUpdationBtn").on("click", () => {
 			'updatedTime': $("#datestampContainer").val(),
 			'updatedUser': $("#toPersonal").find("input").val().replace(/,/g, emptyString)
 		});
-		projectAjaxModify('/hymns/info-updation', 'PUT', putData, hymnsPutSuccessFunction);
+		projectAjaxModify('/hymns/info-update', 'PUT', putData, hymnsPutSuccessFunction);
 	}
 });
 $("#resetBtn").on("click", () => {

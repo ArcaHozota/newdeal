@@ -26,6 +26,10 @@ const LogoutMsg string = "ログアウトしました、必要な場合はもう
 
 const UpsertedMsg string = "更新または追加済み"
 
+const UpdatedMsg string = "更新済み"
+
+const NochangeMsg string = "変更なし"
+
 const StudentError string = "当ユーザが存在しません。"
 
 const PasswordError string = "パスワードが不一致になります。"

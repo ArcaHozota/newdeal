@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"newdeal/common"
 	"newdeal/common/pagination"
+	"newdeal/pojos"
 	"newdeal/service"
 	"strconv"
 
@@ -148,9 +149,37 @@ func HymnsHandlerInit(r *gin.Engine) {
 				ctx.JSON(http.StatusBadRequest, err)
 				return
 			}
+			scoreId := ctx.DefaultQuery("scoreId", common.EmptyString)
 			ctx.HTML(http.StatusOK, "hymns-pagination.html", gin.H{
 				common.AttrNamePageNo: pageNum,
+				"scoreId":             scoreId,
 			})
+		})
+		hymnsRouter.POST("score-upload", func(ctx *gin.Context) {
+			var req pojos.HymnDTO
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.JSON(http.StatusBadRequest, err)
+				return
+			}
+			storageInfo, err := service.HymnScoreStorage(req)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, err)
+				return
+			}
+			ctx.JSON(http.StatusOK, storageInfo)
+		})
+		hymnsRouter.PUT("info-update", func(ctx *gin.Context) {
+			var req pojos.HymnDTO
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.JSON(http.StatusBadRequest, err)
+				return
+			}
+			storageInfo, err := service.HymnScoreStorage(req)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, err)
+				return
+			}
+			ctx.JSON(http.StatusOK, storageInfo)
 		})
 		hymnsRouter.GET("to-random-five", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "hymns-random-five.html", gin.H{})
