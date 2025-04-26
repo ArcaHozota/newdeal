@@ -50,13 +50,28 @@ func CountHymnsAll() (int, error) {
 		).Count(ctx)
 }
 
-func GetHymnById(id int64) (*ent.Hymn, error) {
+func GetHymnById(id int64) (pojos.HymnDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	return EntCore.Hymn.Query().Where(
+	hymnById, err := EntCore.Hymn.Query().Where(
 		hymn.VisibleFlg(true),
 		hymn.ID(id),
 	).Only(ctx)
+	if err != nil {
+		return pojos.HymnDTO{}, err
+	}
+	return pojos.HymnDTO{
+		ID:          strconv.FormatInt(hymnById.ID, 10),
+		NameJP:      hymnById.NameJp,
+		NameKR:      hymnById.NameKr,
+		Serif:       hymnById.Serif,
+		Link:        hymnById.Link,
+		Score:       nil,
+		Biko:        common.EmptyString,
+		UpdatedUser: strconv.FormatInt(hymnById.UpdatedUser, 10),
+		UpdatedTime: hymnById.UpdatedTime,
+		LineNumber:  pojos.LineNumber(5),
+	}, nil
 }
 
 func CountHymnsByKeyword(keyword string) (int, error) {
@@ -209,23 +224,11 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 }
 
 func GetHymnsKanumi(id int64) ([]pojos.HymnDTO, error) {
-	hymnById, err := GetHymnById(id)
+	hymnDto, err := GetHymnById(id)
 	if err != nil {
 		return nil, err
 	}
 	hymnDtos := make([]pojos.HymnDTO, 0)
-	hymnDto := pojos.HymnDTO{
-		ID:          strconv.Itoa(int(hymnById.ID)),
-		NameJP:      hymnById.NameJp,
-		NameKR:      hymnById.NameKr,
-		Serif:       hymnById.Serif,
-		Link:        hymnById.Link,
-		Score:       nil,
-		Biko:        common.EmptyString,
-		UpdatedUser: strconv.Itoa(int(hymnById.UpdatedUser)),
-		UpdatedTime: hymnById.UpdatedTime,
-		LineNumber:  pojos.LineNumber(2),
-	}
 	hymnDtos = append(hymnDtos, hymnDto)
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -233,7 +236,7 @@ func GetHymnsKanumi(id int64) ([]pojos.HymnDTO, error) {
 		Where(hymn.VisibleFlg(true),
 			hymn.IDNEQ(id),
 		).All(ctx)
-	matchHymns := findMatches(hymnById.Serif, hymns)
+	matchHymns := findMatches(hymnDto.Serif, hymns)
 	matchDtos := map2HymnDTOs(matchHymns, pojos.LineNumber(3))
 	hymnDtos = append(hymnDtos, matchDtos...)
 	return hymnDtos, err

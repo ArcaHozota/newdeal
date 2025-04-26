@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"newdeal/common"
 	"newdeal/common/pagination"
-	"newdeal/pojos"
 	"newdeal/service"
 	"strconv"
 
@@ -79,30 +78,82 @@ func HymnsHandlerInit(r *gin.Engine) {
 				ctx.JSON(http.StatusBadRequest, err)
 				return
 			}
-			hymn, err := service.GetHymnById(hymnId)
+			hymnDto, err := service.GetHymnById(hymnId)
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
 				return
 			}
-			hymnDto := pojos.HymnDTO{
-				ID:          strconv.FormatInt(hymn.ID, 10),
-				NameJP:      hymn.NameJp,
-				NameKR:      hymn.NameKr,
-				Serif:       hymn.Serif,
-				Link:        hymn.Link,
-				Score:       nil,
-				Biko:        common.EmptyString,
-				UpdatedUser: strconv.FormatInt(hymn.UpdatedUser, 10),
-				UpdatedTime: hymn.UpdatedTime,
-				LineNumber:  pojos.LineNumber(5),
-			}
 			ctx.JSON(http.StatusOK, hymnDto)
 		})
 		hymnsRouter.GET("to-pages", func(ctx *gin.Context) {
+			pageNumStr := ctx.DefaultQuery("pageNum", "1")
+			pageNum, err := strconv.Atoi(pageNumStr)
+			if err != nil || pageNum < 1 {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err)
+				return
+			}
 			ctx.HTML(http.StatusOK, "hymns-pagination.html", gin.H{
-				"pageNum": 1,
+				"pageNum": pageNum,
 			})
+		})
+		hymnsRouter.GET("to-addition", func(ctx *gin.Context) {
+			pageNumStr := ctx.DefaultQuery("pageNum", "1")
+			pageNum, err := strconv.Atoi(pageNumStr)
+			if err != nil || pageNum < 1 {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err)
+				return
+			}
+			ctx.HTML(http.StatusOK, "hymns-addition.html", gin.H{
+				"pageNum": pageNum,
+			})
+		})
+		hymnsRouter.GET("to-edition", func(ctx *gin.Context) {
+			pageNumStr := ctx.DefaultQuery("pageNum", "1")
+			pageNum, err := strconv.Atoi(pageNumStr)
+			if err != nil || pageNum < 1 {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err)
+				return
+			}
+			editId := ctx.DefaultQuery("editId", common.EmptyString)
+			hymnId, err := strconv.Atoi(editId)
+			if err != nil {
+				log.Println(err)
+				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
+					common.AttrNameException: err.Error(),
+				})
+				return
+			}
+			hymnDto, err := service.GetHymnById(int64(hymnId))
+			if err != nil {
+				log.Println(err)
+				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
+					common.AttrNameException: err.Error(),
+				})
+				return
+			}
+			ctx.HTML(http.StatusOK, "hymns-edition.html", gin.H{
+				"pageNum":             pageNum,
+				common.AttrNameEntity: hymnDto,
+			})
+		})
+		hymnsRouter.GET("to-pages", func(ctx *gin.Context) {
+			pageNumStr := ctx.DefaultQuery("pageNum", "1")
+			pageNum, err := strconv.Atoi(pageNumStr)
+			if err != nil || pageNum < 1 {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err)
+				return
+			}
+			ctx.HTML(http.StatusOK, "hymns-pagination.html", gin.H{
+				"pageNum": pageNum,
+			})
+		})
+		hymnsRouter.GET("to-random-five", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "hymns-random-five.html", gin.H{})
 		})
 	}
 
