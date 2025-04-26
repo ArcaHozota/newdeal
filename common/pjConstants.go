@@ -12,6 +12,8 @@ const AttrNameException string = "exception"
 
 const AttrNameTorokuMsg string = "torokuMsg"
 
+const AttrNamePageNo string = "pageNum"
+
 const DefaultPageSize uint8 = 5
 
 const JwtErrorMsg string = "トークンの有効期間過ぎでまたは無効です。"

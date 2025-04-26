@@ -17,7 +17,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 	{
 		hymnsRouter.GET("pagination", func(ctx *gin.Context) {
 			// 未指定時は 1 にしたいので DefaultQuery
-			pageNumStr := ctx.DefaultQuery("pageNum", "1")
+			pageNumStr := ctx.DefaultQuery(common.AttrNamePageNo, "1")
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
 				log.Println(err)
@@ -87,7 +87,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			ctx.JSON(http.StatusOK, hymnDto)
 		})
 		hymnsRouter.GET("to-pages", func(ctx *gin.Context) {
-			pageNumStr := ctx.DefaultQuery("pageNum", "1")
+			pageNumStr := ctx.DefaultQuery(common.AttrNamePageNo, "1")
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
 				log.Println(err)
@@ -95,11 +95,11 @@ func HymnsHandlerInit(r *gin.Engine) {
 				return
 			}
 			ctx.HTML(http.StatusOK, "hymns-pagination.html", gin.H{
-				"pageNum": pageNum,
+				common.AttrNamePageNo: pageNum,
 			})
 		})
 		hymnsRouter.GET("to-addition", func(ctx *gin.Context) {
-			pageNumStr := ctx.DefaultQuery("pageNum", "1")
+			pageNumStr := ctx.DefaultQuery(common.AttrNamePageNo, "1")
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
 				log.Println(err)
@@ -107,11 +107,11 @@ func HymnsHandlerInit(r *gin.Engine) {
 				return
 			}
 			ctx.HTML(http.StatusOK, "hymns-addition.html", gin.H{
-				"pageNum": pageNum,
+				common.AttrNamePageNo: pageNum,
 			})
 		})
 		hymnsRouter.GET("to-edition", func(ctx *gin.Context) {
-			pageNumStr := ctx.DefaultQuery("pageNum", "1")
+			pageNumStr := ctx.DefaultQuery(common.AttrNamePageNo, "1")
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
 				log.Println(err)
@@ -136,12 +136,12 @@ func HymnsHandlerInit(r *gin.Engine) {
 				return
 			}
 			ctx.HTML(http.StatusOK, "hymns-edition.html", gin.H{
-				"pageNum":             pageNum,
+				common.AttrNamePageNo: pageNum,
 				common.AttrNameEntity: hymnDto,
 			})
 		})
-		hymnsRouter.GET("to-pages", func(ctx *gin.Context) {
-			pageNumStr := ctx.DefaultQuery("pageNum", "1")
+		hymnsRouter.GET("to-score-upload", func(ctx *gin.Context) {
+			pageNumStr := ctx.DefaultQuery(common.AttrNamePageNo, "1")
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
 				log.Println(err)
@@ -149,7 +149,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 				return
 			}
 			ctx.HTML(http.StatusOK, "hymns-pagination.html", gin.H{
-				"pageNum": pageNum,
+				common.AttrNamePageNo: pageNum,
 			})
 		})
 		hymnsRouter.GET("to-random-five", func(ctx *gin.Context) {
