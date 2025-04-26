@@ -20,7 +20,7 @@ type Pagination[T any] struct {
 	NavigatePages int   `json:"navigatePages"` // 最大导航页数
 	NaviFirstPage int   `json:"naviFirstPage"` // 导航条第一个页码
 	NaviLastPage  int   `json:"naviLastPage"`  // 导航条最后一个页码
-	NavigateNums  []int `json:"navigateNums"`  // 实际导航页码切片
+	NavigateNums  []int `json:"navigateNos"`   // 实际导航页码切片
 }
 
 // NewPagination 创建分页对象；pageNum 从 1 开始。
