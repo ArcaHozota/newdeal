@@ -17,6 +17,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -63,14 +64,14 @@ func GetHymnById(id int64) (pojos.HymnDTO, error) {
 		return pojos.HymnDTO{}, err
 	}
 	return pojos.HymnDTO{
-		ID:          strconv.FormatInt(hymnById.ID, 10),
+		ID:          strconv.Itoa(int(hymnById.ID)),
 		NameJP:      hymnById.NameJp,
 		NameKR:      hymnById.NameKr,
 		Serif:       hymnById.Serif,
 		Link:        hymnById.Link,
 		Score:       nil,
 		Biko:        common.EmptyString,
-		UpdatedUser: strconv.FormatInt(hymnById.UpdatedUser, 10),
+		UpdatedUser: strconv.Itoa(int(hymnById.UpdatedUser)),
 		UpdatedTime: hymnById.UpdatedTime,
 		LineNumber:  pojos.LineNumber(5),
 	}, nil
@@ -135,8 +136,8 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 	hymns, err := EntCore.Hymn.Query().
 		Where(hymn.VisibleFlg(true),
 			hymn.Or(
-				hymn.NameJpEQ(keyword),
-				hymn.NameKrEQ(keyword),
+				hymn.NameJp(keyword),
+				hymn.NameKr(keyword),
 				hymn.HasToWorkWith(
 					hymnswork.NameJpRationalContains("["+keyword+"]"),
 				),
@@ -235,7 +236,8 @@ func GetHymnsKanumi(id int64) ([]pojos.HymnDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	hymns, err := EntCore.Hymn.Query().
-		Where(hymn.VisibleFlg(true),
+		Where(
+			hymn.VisibleFlg(true),
 			hymn.IDNEQ(id),
 		).All(ctx)
 	matchHymns := findMatches(hymnDto.Serif, hymns)
@@ -252,7 +254,7 @@ func HymnScoreStorage(hymnDto pojos.HymnDTO) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	hymnById, err := EntCore.HymnsWork.Query().Where(
-		hymnswork.WorkIDEQ(int64(hymnId)),
+		hymnswork.WorkID(int64(hymnId)),
 	).Only(ctx)
 	if err != nil {
 		return common.EmptyString, err
@@ -265,7 +267,7 @@ func HymnScoreStorage(hymnDto pojos.HymnDTO) (string, error) {
 		SetScore(hymnDto.Score).
 		SetBiko(fileType).
 		Where(
-			hymnswork.WorkIDEQ(int64(hymnId)),
+			hymnswork.WorkID(int64(hymnId)),
 		).
 		Exec(ctx)
 	if err != nil {
@@ -281,22 +283,33 @@ func HymnInfoUpdate(hymnDto pojos.HymnDTO) (string, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	hymnById, err := EntCore.HymnsWork.Query().Where(
-		hymnswork.WorkIDEQ(int64(hymnId)),
+	hymnById, err := EntCore.Hymn.Query().Where(
+		hymn.VisibleFlg(true),
+		hymn.ID(int64(hymnId)),
 	).Only(ctx)
 	if err != nil {
 		return common.EmptyString, err
 	}
-	if bytes.Equal(hymnById.Score, hymnDto.Score) {
+	hikakuHymnDto := pojos.HymnDTO{
+		ID:          strconv.Itoa(int(hymnById.ID)),
+		NameJP:      hymnById.NameJp,
+		NameKR:      hymnById.NameKr,
+		Serif:       hymnById.Serif,
+		Link:        hymnById.Link,
+		Score:       hymnDto.Score,
+		Biko:        hymnDto.Biko,
+		UpdatedUser: hymnDto.UpdatedUser,
+		UpdatedTime: hymnDto.UpdatedTime,
+		LineNumber:  hymnDto.LineNumber,
+	}
+	if reflect.DeepEqual(hymnDto, hikakuHymnDto) {
 		return common.NochangeMsg, nil
 	}
-	fileType := checkFileTypeFromBytes(hymnDto.Score)
-	err = EntCore.HymnsWork.UpdateOneID(hymnById.ID).
-		SetScore(hymnDto.Score).
-		SetBiko(fileType).
-		Where(
-			hymnswork.WorkIDEQ(int64(hymnId)),
-		).
+	err = EntCore.Hymn.UpdateOneID(hymnById.ID).
+		SetNameJp(hymnDto.NameJP).
+		SetNameKr(hymnDto.NameKR).
+		SetLink(hymnDto.Link).
+		SetSerif(hymnDto.Serif).
 		Exec(ctx)
 	if err != nil {
 		return common.EmptyString, err
