@@ -174,12 +174,12 @@ func HymnsHandlerInit(r *gin.Engine) {
 				ctx.JSON(http.StatusBadRequest, err)
 				return
 			}
-			storageInfo, err := service.HymnScoreStorage(req)
+			updateInfo, err := service.HymnInfoUpdate(req)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, err)
 				return
 			}
-			ctx.JSON(http.StatusOK, storageInfo)
+			ctx.JSON(http.StatusOK, updateInfo)
 		})
 		hymnsRouter.GET("to-random-five", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "hymns-random-five.html", gin.H{})
