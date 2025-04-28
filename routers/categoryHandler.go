@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"newdeal/common"
@@ -58,7 +59,7 @@ func CategoryHandlerInit(r *gin.Engine) {
 				return
 			}
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-				"username": loginUser.LoginAccount,
+				"username": loginUser.Username,
 				"loginId":  loginUser.ID,
 				"exp":      time.Now().Add(time.Hour * 3).Unix(), // 有効期限：24時間
 			})
@@ -106,22 +107,31 @@ func CategoryHandlerInit(r *gin.Engine) {
 
 // authMiddleware JWT認証ミドルウェア
 func authMiddleware(ctx *gin.Context) {
-	// Cookieから取得（"token" という名前で保存されている想定）
 	tokenString, err := ctx.Cookie("token")
 	if err != nil {
 		ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+		ctx.Abort()
 		return
 	}
-	// トークンのパース
-	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+	// トークンのパースと署名方式チェック
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		// algがHS256かチェック
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
 		return jwtSecret, nil
 	})
-	// クレーム確認
+	if err != nil || !token.Valid {
+		ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+		ctx.Abort()
+		return
+	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		ctx.Set("username", claims["username"])
+		ctx.Set("loginId", claims["loginId"])
 		ctx.Next()
 	} else {
 		ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
-		return
+		ctx.Abort()
 	}
 }
