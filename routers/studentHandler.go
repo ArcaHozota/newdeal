@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"newdeal/common"
+	"newdeal/pojos"
 	"newdeal/service"
 	"strconv"
 )
@@ -40,6 +41,14 @@ func StudentsHandlerInit(r *gin.Engine) {
 				return
 			}
 			ctx.JSON(http.StatusOK, studentById)
+		})
+		studentsRouter.PUT("info-update", authMiddleware, func(ctx *gin.Context) {
+			var req pojos.StudentDTO
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				ctx.JSON(http.StatusBadRequest, err)
+				return
+			}
+
 		})
 	}
 }

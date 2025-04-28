@@ -35,7 +35,7 @@ $("#infoUpdateBtn").on("click", () => {
             'email': $("#emailEdit").val(),
             'dateOfBirth': $("#birthdayEdit").val()
         });
-        projectAjaxModify('/students/info-updation', 'PUT', putData, studentsPutSuccessFunction);
+        projectAjaxModify('/students/info-update', PUT, putData, studentsPutSuccessFunction);
     }
 });
 $("#restoreBtn").on("click", () => {
@@ -79,7 +79,7 @@ function initialStudent() {
             $("#accountEdit").val(response.loginAccount);
             $("#nameEdit").val(response.username);
             $("#passwordEdit").val(response.password);
-            $("#birthdayEdit").val(response.dateOfBirth);
+            $("#birthdayEdit").val(toDateInputValue(response.dateOfBirth));
             $("#emailEdit").val(response.email);
         },
         error: (xhr) => {
@@ -87,4 +87,20 @@ function initialStudent() {
             layer.msg(message);
         }
     });
+}
+
+/**
+ * 文字列・数値・Date 何が来ても HTML date 用の YYYY-MM-DD に整形
+ */
+function toDateInputValue(src) {
+    if (!src) return '';
+    // すでに YYYY-MM-DD ならそのまま
+    if (/^\d{4}-\d{2}-\d{2}$/.test(src)) return src;
+    // ISO 8601 やタイムスタンプを Date に変換
+    const d = new Date(src);
+    // タイムゾーン影響を避けつつローカル日付を取り出す
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
 }

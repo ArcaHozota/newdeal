@@ -283,10 +283,11 @@ func HymnInfoUpdate(hymnDto pojos.HymnDTO) (string, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	hymnById, err := EntCore.Hymn.Query().Where(
-		hymn.VisibleFlg(true),
-		hymn.ID(int64(hymnId)),
-	).Only(ctx)
+	hymnById, err := EntCore.Hymn.Query().
+		Where(
+			hymn.VisibleFlg(true),
+			hymn.ID(int64(hymnId)),
+		).Only(ctx)
 	if err != nil {
 		return common.EmptyString, err
 	}
@@ -302,7 +303,7 @@ func HymnInfoUpdate(hymnDto pojos.HymnDTO) (string, error) {
 		UpdatedTime: hymnDto.UpdatedTime,
 		LineNumber:  hymnDto.LineNumber,
 	}
-	if reflect.DeepEqual(hymnDto, hikakuHymnDto) {
+	if reflect.DeepEqual(hikakuHymnDto, hymnDto) {
 		return common.NochangeMsg, nil
 	}
 	err = EntCore.Hymn.UpdateOneID(hymnById.ID).
@@ -310,6 +311,9 @@ func HymnInfoUpdate(hymnDto pojos.HymnDTO) (string, error) {
 		SetNameKr(hymnDto.NameKR).
 		SetLink(hymnDto.Link).
 		SetSerif(hymnDto.Serif).
+		Where(
+			hymn.VisibleFlg(true),
+		).
 		Exec(ctx)
 	if err != nil {
 		return common.EmptyString, err
