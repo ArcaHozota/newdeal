@@ -35,6 +35,7 @@ func main() {
 	routers.CategoryHandlerInit(r)
 	routers.HymnsHandlerInit(r)
 	routers.HomeHandlerInit(r)
+	routers.StudentsHandlerInit(r)
 
 	// ポートを定義する
 	err := r.Run(":8277")
