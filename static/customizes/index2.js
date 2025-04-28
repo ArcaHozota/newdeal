@@ -1,20 +1,20 @@
 let $tableBody = $("#tableBody");
-let $kanumiSearchBtn = $("#saraniSearchBtn");
+let $kanumiSearchBtn = $("#kanamiSearchBtn");
 let $nameDisplay = $("#nameDisplay");
 let $loadingBackground2 = $("#loadingBackground2");
 $(document).ready(() => {
 	adjustWidth();
 	initialPagination(1, null);
 	$kanumiSearchBtn.on("mousemove", (e) => {
-		let x = e.pageX - $(this).offset().left;
-		let y = e.pageY - $(this).offset().top;
-		$(this).css("--x", x + "px");
-		$(this).css("--y", y + "px");
+		let x = e.pageX - this.offset().left;
+		let y = e.pageY - this.offset().top;
+		this.css("--x", x + "px");
+		this.css("--y", y + "px");
 	});
 });
 $kanumiSearchBtn.on("click", (e) => {
 	e.preventDefault();
-	let hymnId = $nameDisplay.attr('idVal');
+	let hymnId = $nameDisplay.attr('id-val');
 	if (hymnId === "0" || hymnId === 0 || hymnId === null || hymnId === undefined) {
 		layer.msg('賛美歌を選択してください');
 	} else {
@@ -86,7 +86,7 @@ $tableBody.on("click", '.form-check-input', () => {
 });
 $tableBody.on("click", '.link-btn', (e) => {
 	e.preventDefault();
-	let transferVal = $(this).attr('transferVal');
+	let transferVal = $(this).attr('transfer-val');
 	window.open(transferVal);
 });
 
@@ -113,7 +113,7 @@ function buildTableBody1(response) {
 		let checkBoxTd = $("<td class='text-center' style='width: 10%;vertical-align: middle;'></td>")
 			.append($("<input class='form-check-input mt-0' style='vertical-align: middle;' type='checkbox' value='" + item.id + "'>"));
 		let nameMixTd = $("<td class='text-left' style='width: 70%;vertical-align: middle;'></td>")
-			.append($("<a href='#' class='link-btn' transferVal='" + item.link + "'>" + item.nameJp + "/" + item.nameKr + "</a>"));
+			.append($("<a href='#' class='link-btn' transfer-val='" + item.link + "'>" + item.nameJp + delimiter + item.nameKr + "</a>"));
 		let scoreTd = $("<td class='text-center' style='width: 20%;vertical-align: middle;'></td>")
 			.append($("<a href='#' class='score-download-btn' scoreId='" + item.id + "'>&#x1D11E;</a>"));
 		$("<tr></tr>").append(checkBoxTd).append(nameMixTd).append(scoreTd).appendTo("#tableBody");
