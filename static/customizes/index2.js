@@ -28,17 +28,17 @@ $kanumiSearchBtn.on("click", (e) => {
             showDenyButton: true,
             denyButtonText: 'いいえ',
             confirmButtonText: 'はい',
-            confirmButtonColor: '#7F0020',
-            denyButtonColor: '#002FA7'
+            confirmButtonColor: '#7f0020',
+            denyButtonColor: '#002fa7'
         }).then((result) => {
             if (result.isConfirmed) {
                 adjustWidth();
                 $loadingBackground2.show();
-                $kanumiSearchBtn.css("pointer-events", "none");
+                $kanumiSearchBtn.css('pointer-events', "none");
                 kanumiRetrieve(hymnId);
                 setTimeout(() => {
                     $loadingBackground2.hide();
-                    $kanumiSearchBtn.css("pointer-events", "auto");
+                    $kanumiSearchBtn.css('pointer-events', "auto");
                     let nameJp = $('.table-danger').find("td:eq(1)").children("a").text();
                     let slashIndex = nameJp.indexOf('/');
                     $nameDisplay.text('検索完了---' + nameJp.substring(0, slashIndex));

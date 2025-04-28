@@ -1,130 +1,130 @@
 let pageNum = $("#pageNumContainer").val();
 $(document).ready(() => {
-	let $toCollection = $("#toCollection");
-	$toCollection.css('color', '#006b3c');
-	$toCollection.addClass('animate__animated animate__flipInY');
+    let $toCollection = $("#toCollection");
+    $toCollection.css('color', '#006b3c');
+    $toCollection.addClass('animate__animated animate__flipInY');
 });
 $("#toHymnPages").on("click", (e) => {
-	e.preventDefault();
-	let url = '/hymns/to-pages?pageNum=' + pageNum;
-	checkPermissionAndTransfer(url);
+    e.preventDefault();
+    let url = '/hymns/to-pages?pageNum=' + pageNum;
+    checkPermissionAndTransfer(url);
 });
 $("#nameJpInput").on("change", () => {
-	checkHymnName(this, null);
+    checkHymnName(this, null);
 });
 $("#nameKrInput").on("change", () => {
-	checkHymnName2(this, null);
+    checkHymnName2(this, null);
 });
 $("#infoStorageBtn").on("click", () => {
-	let inputArrays = ["#nameJpInput", "#nameKrInput", "#linkInput", "#serifInput"];
-	for (const array of inputArrays) {
-		$(array).removeClass('is-valid is-invalid');
-		$(array).next("span").removeClass('valid-feedback invalid-feedback');
-		$(array).next("span").text(emptyString);
-	}
-	let listArray = projectInputContextGet(inputArrays);
-	if (listArray.includes(emptyString)) {
-		projectNullInputBoxDiscern(inputArrays);
-	} else if ($("#inputForm").find("*").hasClass('is-invalid')) {
-		layer.msg(inputWarning);
-	} else {
-		let postData = JSON.stringify({
-			'nameJp': $("#nameJpInput").val().trim(),
-			'nameKr': $("#nameKrInput").val().trim(),
-			'link': $("#linkInput").val(),
-			'serif': $("#serifInput").val(),
-			'updatedUser': $("#toPersonal").find("input").val().replace(/,/g, emptyString)
-		});
-		projectAjaxModify('/hymns/info-storage', 'POST', postData, hymnsPostSuccessFunction);
-	}
+    let inputArrays = ["#nameJpInput", "#nameKrInput", "#linkInput", "#serifInput"];
+    for (const array of inputArrays) {
+        $(array).removeClass('is-valid is-invalid');
+        $(array).next("span").removeClass('valid-feedback invalid-feedback');
+        $(array).next("span").text(emptyString);
+    }
+    let listArray = projectInputContextGet(inputArrays);
+    if (listArray.includes(emptyString)) {
+        projectNullInputBoxDiscern(inputArrays);
+    } else if ($("#inputForm").find("*").hasClass('is-invalid')) {
+        layer.msg(inputWarning);
+    } else {
+        let postData = JSON.stringify({
+            'nameJp': $("#nameJpInput").val().trim(),
+            'nameKr': $("#nameKrInput").val().trim(),
+            'link': $("#linkInput").val(),
+            'serif': $("#serifInput").val(),
+            'updatedUser': $("#toPersonal").find("input").val().replace(/,/g, emptyString)
+        });
+        projectAjaxModify('/hymns/info-storage', POST, postData, hymnsPostSuccessFunction);
+    }
 });
 $("#nameJpEdit").on("change", () => {
-	checkHymnName(this, $("#idContainer").val());
+    checkHymnName(this, $("#idContainer").val());
 });
 $("#nameKrEdit").on("change", () => {
-	checkHymnName2(this, $("#idContainer").val());
+    checkHymnName2(this, $("#idContainer").val());
 });
-$("#infoUpdationBtn").on("click", () => {
-	let inputArrays = ["#nameJpEdit", "#nameKrEdit", "#linkEdit", "#serifEdit"];
-	for (const array of inputArrays) {
-		$(array).removeClass('is-valid is-invalid');
-		$(array).next("span").removeClass('valid-feedback invalid-feedback');
-		$(array).next("span").text(emptyString);
-	}
-	let listArray = projectInputContextGet(inputArrays);
-	if (listArray.includes(emptyString)) {
-		projectNullInputBoxDiscern(inputArrays);
-	} else if ($("#editForm").find("*").hasClass('is-invalid')) {
-		layer.msg(inputWarning);
-	} else {
-		let putData = JSON.stringify({
-			'id': $("#idContainer").val(),
-			'nameJp': $("#nameJpEdit").val().trim(),
-			'nameKr': $("#nameKrEdit").val().trim(),
-			'link': $("#linkEdit").val(),
-			'serif': $("#serifEdit").val(),
-			'updatedTime': $("#datestampContainer").val(),
-			'updatedUser': $("#toPersonal").find("input").val().replace(/,/g, emptyString)
-		});
-		projectAjaxModify('/hymns/info-update', 'PUT', putData, hymnsPutSuccessFunction);
-	}
+$("#infoUpdateBtn").on("click", () => {
+    let inputArrays = ["#nameJpEdit", "#nameKrEdit", "#linkEdit", "#serifEdit"];
+    for (const array of inputArrays) {
+        $(array).removeClass('is-valid is-invalid');
+        $(array).next("span").removeClass('valid-feedback invalid-feedback');
+        $(array).next("span").text(emptyString);
+    }
+    let listArray = projectInputContextGet(inputArrays);
+    if (listArray.includes(emptyString)) {
+        projectNullInputBoxDiscern(inputArrays);
+    } else if ($("#editForm").find("*").hasClass('is-invalid')) {
+        layer.msg(inputWarning);
+    } else {
+        let putData = JSON.stringify({
+            'id': $("#idContainer").val(),
+            'nameJp': $("#nameJpEdit").val().trim(),
+            'nameKr': $("#nameKrEdit").val().trim(),
+            'link': $("#linkEdit").val(),
+            'serif': $("#serifEdit").val(),
+            'updatedTime': $("#datestampContainer").val(),
+            'updatedUser': $("#toPersonal").find("input").val().replace(/,/g, emptyString)
+        });
+        projectAjaxModify('/hymns/info-update', PUT, putData, hymnsPutSuccessFunction);
+    }
 });
 $("#resetBtn").on("click", () => {
-	formReset("#inputForm");
+    formReset("#inputForm");
 });
 $("#restoreBtn").on("click", () => {
-	formReset("#editForm");
+    formReset("#editForm");
 });
 
 function hymnsPostSuccessFunction(response) {
-	localStorage.setItem('redirectMessage', inputString);
-	window.location.replace('/hymns/to-pages?pageNum=' + response);
+    localStorage.setItem('redirectMessage', inputString);
+    window.location.replace('/hymns/to-pages?pageNum=' + response);
 }
 
 function hymnsPutSuccessFunction(response) {
-	let message = response.replace(/^"|"$/g, emptyString);
-	localStorage.setItem('redirectMessage', message);
-	window.location.replace('/hymns/to-pages?pageNum=' + pageNum);
+    let message = response.replace(/^"|"$/g, emptyString);
+    localStorage.setItem('redirectMessage', message);
+    window.location.replace('/hymns/to-pages?pageNum=' + pageNum);
 }
 
 function checkHymnName(hymnName, idVal) {
-	let nameVal = $(hymnName).val().trim();
-	if (nameVal === emptyString) {
-		showValidationMsg(hymnName, responseFailure, showVadMsgError);
-	} else {
-		$.ajax({
-			url: '/hymns/check-duplicated',
-			data: {
-				'id': idVal,
-				'nameJp': nameVal
-			},
-			success: (response) => {
-				showValidationMsg(hymnName, responseSuccess, response);
-			},
-			error: (xhr) => {
-				showValidationMsg(hymnName, responseFailure, xhr.responseText);
-			}
-		});
-	}
+    let nameVal = $(hymnName).val().trim();
+    if (nameVal === emptyString) {
+        showValidationMsg(hymnName, responseFailure, showVadMsgError);
+    } else {
+        $.ajax({
+            url: '/hymns/check-duplicated',
+            data: {
+                'id': idVal,
+                'nameJp': nameVal
+            },
+            success: (response) => {
+                showValidationMsg(hymnName, responseSuccess, response);
+            },
+            error: (xhr) => {
+                showValidationMsg(hymnName, responseFailure, xhr.responseText);
+            }
+        });
+    }
 }
 
 function checkHymnName2(hymnName, idVal) {
-	let nameVal = $(hymnName).val().trim();
-	if (nameVal === emptyString) {
-		showValidationMsg(hymnName, responseFailure, showVadMsgError);
-	} else {
-		$.ajax({
-			url: '/hymns/check-duplicated2',
-			data: {
-				'id': idVal,
-				'nameKr': nameVal
-			},
-			success: (response) => {
-				showValidationMsg(hymnName, responseSuccess, response);
-			},
-			error: (xhr) => {
-				showValidationMsg(hymnName, responseFailure, xhr.responseText);
-			}
-		});
-	}
+    let nameVal = $(hymnName).val().trim();
+    if (nameVal === emptyString) {
+        showValidationMsg(hymnName, responseFailure, showVadMsgError);
+    } else {
+        $.ajax({
+            url: '/hymns/check-duplicated2',
+            data: {
+                'id': idVal,
+                'nameKr': nameVal
+            },
+            success: (response) => {
+                showValidationMsg(hymnName, responseSuccess, response);
+            },
+            error: (xhr) => {
+                showValidationMsg(hymnName, responseFailure, xhr.responseText);
+            }
+        });
+    }
 }

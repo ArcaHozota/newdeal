@@ -3,64 +3,64 @@
 {{template "include-header.html" .}}
 
 <body>
-    {{template "include-navbar.html" .}}
-    <div class="container-fluid">
-        <div class="row">
-            {{template "include-sidebar.html" .}}
-            <div class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">
-                <div class="card border-tunagray mb-3" style="margin-top: 1rem;">
-                    <div class="card-header text-bg-tunagray mb-3">
-                        <h5 class="card-title" style="padding-top: 8px;">
-                            <i class="fa-solid fa-bars-staggered"></i> 聖書章節入力
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <form class="row" id="inputForm" style="height: 5.7vh;">
-                            <div class="col-md-3">
-                                <select id="bookInput" class="form-select">
-                                    {{range $key,$value := .bookDtos}}
-                                    <option value="{{$value.ID}}">{{$value.Name}}</option>
-                                    {{end}}
-                                </select>
+{{template "include-navbar.html" .}}
+<div class="container-fluid">
+    <div class="row">
+        {{template "include-sidebar.html" .}}
+        <div class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">
+            <div class="card border-tunagray mb-3" style="margin-top: 1rem;">
+                <div class="card-header text-bg-tunagray mb-3">
+                    <h5 class="card-title" style="padding-top: 8px;">
+                        <i class="fa-solid fa-bars-staggered"></i> 聖書章節入力
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form class="row" id="inputForm" style="height: 5.7vh;">
+                        <div class="col-md-3">
+                            <select class="form-select" id="bookInput">
+                                {{range $key,$value := .bookDtos}}
+                                <option value="{{$value.ID}}">{{$value.Name}}</option>
+                                {{end}}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="chapterInput">
+                                {{range $key,$value := .chapterDtos}}
+                                <option value="{{$value.ID}}">{{$value.Name}}</option>
+                                {{end}}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input class="form-control" id="phraseIdInput" placeholder="節の数を入力しましょう">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-danger my-2 my-sm-0" id="infoStorageBtn" type="button">
+                                <i class="fa-solid fa-book"></i> 追加
+                            </button>
+                        </div>
+                    </form>
+                    <form id="inputForm2">
+                        <div class="form-group row" style="margin-top: 2.2rem;">
+                            <label class="col-md-1 col-form-label text-end" for="phraseTextEnInput">英語文書</label>
+                            <div class="col-md-11" style="height: 12vh;">
+                                    <textarea class="form-control" id="phraseTextEnInput"
+                                              style="height: 100%"></textarea>
                             </div>
-                            <div class="col-md-4">
-                                <select id="chapterInput" class="form-select">
-                                    {{range $key,$value := .chapterDtos}}
-                                    <option value="{{$value.ID}}">{{$value.Name}}</option>
-                                    {{end}}
-                                </select>
+                        </div>
+                        <div class="form-group row" style="margin-top: 0.4rem;">
+                            <label class="col-md-1 col-form-label text-end" for="phraseTextJpInput">日本語文書</label>
+                            <div class="col-md-11" style="height: 12vh;">
+                                    <textarea class="form-control" id="phraseTextJpInput"
+                                              style="height: 100%"></textarea>
                             </div>
-                            <div class="col-md-3">
-                                <input id="phraseIdInput" class="form-control" placeholder="節の数を入力しましょう">
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-danger my-2 my-sm-0" id="infoStorageBtn">
-                                    <i class="fa-solid fa-book"></i> 追加
-                                </button>
-                            </div>
-                        </form>
-                        <form id="inputForm2">
-                            <div class="form-group row" style="margin-top: 2.2rem;">
-                                <label for="phraseTextEnInput" class="col-md-1 col-form-label text-end">英語文書</label>
-                                <div class="col-md-11" style="height: 12vh;">
-                                    <textarea class="form-control" style="height: 100%"
-                                        id="phraseTextEnInput"></textarea>
-                                </div>
-                            </div>
-                            <div class="form-group row" style="margin-top: 0.4rem;">
-                                <label for="phraseTextJpInput" class="col-md-1 col-form-label text-end">日本語文書</label>
-                                <div class="col-md-11" style="height: 12vh;">
-                                    <textarea class="form-control" style="height: 100%"
-                                        id="phraseTextJpInput"></textarea>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/static/customizes/books-addition.js" nonce="${nonce}"></script>
+</div>
+<script src="/static/customizes/books-addition.js" type="text/javascript"></script>
 </body>
 
 </html>

@@ -6,7 +6,7 @@ $("#toStudentsPages").on("click", (e) => {
 $("#accountEdit").on("change", () => {
 	checkStudentName(this, $("#idContainer").val());
 });
-$("#infoUpdationBtn").on("click", () => {
+$("#infoUpdateBtn").on("click", () => {
 	let inputArrays = ["#accountEdit", "#nameEdit", "#passwordEdit", "#birthdayEdit", "#emailEdit"];
 	for (const array of inputArrays) {
 		$(array).removeClass("is-valid is-invalid");

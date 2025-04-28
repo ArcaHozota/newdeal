@@ -42,11 +42,11 @@ $("#emailIpt").on("change", () => {
 $("#loginBtn").on("click", () => {
     let account = $("#accountIpt").val().trim();
     let password = $("#passwordIpt").val().trim();
-    if (account === '' && password === '') {
+    if (account === emptyString && password === emptyString) {
         layer.msg('アカウントとパスワードを入力してください。');
-    } else if (account === '') {
+    } else if (account === emptyString) {
         layer.msg('アカウントを入力してください。');
-    } else if (password === '') {
+    } else if (password === emptyString) {
         layer.msg('パスワードを入力してください。');
     } else {
         $("#loginForm").submit();
@@ -66,6 +66,5 @@ $("#torokuBtn").on("click", () => {
         layer.msg('入力したパスワードが不一致です。');
     } else {
         layer.msg('すみませんが、当機能はまだ実装されていません');
-        // $("#torokuForm").submit();
     }
 });

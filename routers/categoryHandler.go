@@ -19,12 +19,12 @@ func CategoryHandlerInit(r *gin.Engine) {
 	categoryRouter := r.Group("/category")
 	{
 		categoryRouter.GET("login", func(ctx *gin.Context) {
-			ctx.HTML(http.StatusOK, "logintoroku.html", gin.H{
+			ctx.HTML(http.StatusOK, "login-toroku.html", gin.H{
 				common.AttrNameTorokuMsg: common.EmptyString,
 			})
 		})
 		categoryRouter.GET("login-with-out", func(ctx *gin.Context) {
-			ctx.HTML(http.StatusOK, "logintoroku.html", gin.H{
+			ctx.HTML(http.StatusOK, "login-toroku.html", gin.H{
 				common.AttrNameTorokuMsg: common.LogoutMsg,
 			})
 		})
@@ -45,14 +45,14 @@ func CategoryHandlerInit(r *gin.Engine) {
 			var req service.LoginRequest
 			// JSONバインディング（リクエストボディから取得）
 			if err := ctx.ShouldBind(&req); err != nil {
-				ctx.HTML(http.StatusBadRequest, "logintoroku.html", gin.H{
+				ctx.HTML(http.StatusBadRequest, "login-toroku.html", gin.H{
 					common.AttrNameTorokuMsg: common.LoginFormError,
 				})
 				return
 			}
 			loginAccount, err := service.ProcessLogin(req)
 			if err != nil {
-				ctx.HTML(http.StatusBadRequest, "logintoroku.html", gin.H{
+				ctx.HTML(http.StatusBadRequest, "login-toroku.html", gin.H{
 					common.AttrNameTorokuMsg: err,
 				})
 				return
