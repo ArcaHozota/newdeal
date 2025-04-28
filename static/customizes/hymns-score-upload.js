@@ -18,7 +18,7 @@ $("#scoreUploadBtn").on("click", () => {
 	}
 	let listArray = projectInputContextGet(inputArrays);
 	if (listArray.includes(emptyString)) {
-		projectNullInputboxDiscern(inputArrays);
+		projectNullInputBoxDiscern(inputArrays);
 		return;
 	}
 	let editId = $("#idContainer").val();

@@ -22,7 +22,7 @@ $("#searchBtn2").on("click", () => {
 $tableBody.on("click", '.delete-btn', () => {
 	let deleteId = $(this).attr("data-delete-id");
 	let nameJp = $(this).parents("tr").find("th").text().trim();
-	normalDeletebtnFunction('/hymns/', 'この「' + nameJp + '」という歌の情報を削除するとよろしいでしょうか。', deleteId);
+	normalDeleteBtnFunction('/hymns/', 'この「' + nameJp + '」という歌の情報を削除するとよろしいでしょうか。', deleteId);
 });
 $("#infoAdditionBtn").on("click", (e) => {
 	e.preventDefault();

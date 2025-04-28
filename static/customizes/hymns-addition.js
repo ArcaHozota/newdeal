@@ -24,7 +24,7 @@ $("#infoStorageBtn").on("click", () => {
 	}
 	let listArray = projectInputContextGet(inputArrays);
 	if (listArray.includes(emptyString)) {
-		projectNullInputboxDiscern(inputArrays);
+		projectNullInputBoxDiscern(inputArrays);
 	} else if ($("#inputForm").find("*").hasClass('is-invalid')) {
 		layer.msg(inputWarning);
 	} else {
@@ -53,7 +53,7 @@ $("#infoUpdationBtn").on("click", () => {
 	}
 	let listArray = projectInputContextGet(inputArrays);
 	if (listArray.includes(emptyString)) {
-		projectNullInputboxDiscern(inputArrays);
+		projectNullInputBoxDiscern(inputArrays);
 	} else if ($("#editForm").find("*").hasClass('is-invalid')) {
 		layer.msg(inputWarning);
 	} else {

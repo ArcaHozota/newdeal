@@ -26,7 +26,7 @@ $("#infoStorageBtn").on("click", () => {
     }
     let listArray = projectInputContextGet(inputArrays);
     if (listArray.includes(emptyString)) {
-        projectNullInputboxDiscern(inputArrays);
+        projectNullInputBoxDiscern(inputArrays);
     } else if ($("#inputForm").find('*').hasClass('is-invalid')) {
         layer.msg(inputWarning);
     } else {
@@ -36,7 +36,7 @@ $("#infoStorageBtn").on("click", () => {
             'textEn': $("#phraseTextEnInput").val().trim(),
             'textJp': $("#phraseTextJpInput").val().trim()
         });
-        projectAjaxModify('/books/info-storage', 'POST', postData, booksPostSuccessFunction);
+        projectAjaxModify('/books/info-storage', POST, postData, booksPostSuccessFunction);
     }
 });
 
