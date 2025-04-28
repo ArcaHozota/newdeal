@@ -38,7 +38,7 @@ func GetStudentById(id int64) (pojos.StudentDTO, error) {
 	}, nil
 }
 
-func ProcessLogin(loginForm LoginRequest) (string, error) {
+func ProcessLogin(loginForm LoginRequest) (pojos.StudentDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	username := loginForm.Username
@@ -51,17 +51,24 @@ func ProcessLogin(loginForm LoginRequest) (string, error) {
 			),
 		).Only(ctx)
 	if err != nil {
-		return common.EmptyString, errors.New(common.StudentError)
+		return pojos.StudentDTO{}, errors.New(common.StudentError)
 	}
 	checkPass := tools.CheckHashPassword(loginUser.Password, loginForm.Password)
 	if !checkPass {
-		return common.EmptyString, errors.New(common.PasswordError)
+		return pojos.StudentDTO{}, errors.New(common.PasswordError)
 	}
 	err = preLogin(*loginUser)
 	if err != nil {
-		return common.EmptyString, err
+		return pojos.StudentDTO{}, err
 	}
-	return loginUser.LoginAccount, nil
+	return pojos.StudentDTO{
+		ID:           strconv.Itoa(int(loginUser.ID)),
+		LoginAccount: loginUser.LoginAccount,
+		Username:     loginUser.Username,
+		Password:     loginUser.Password,
+		Email:        loginUser.Email,
+		DateOfBirth:  loginUser.DateOfBirth,
+	}, nil
 }
 
 func preLogin(loginUser ent.Student) error {

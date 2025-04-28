@@ -50,7 +50,7 @@ func CategoryHandlerInit(r *gin.Engine) {
 				})
 				return
 			}
-			loginAccount, err := service.ProcessLogin(req)
+			loginUser, err := service.ProcessLogin(req)
 			if err != nil {
 				ctx.HTML(http.StatusBadRequest, "login-toroku.html", gin.H{
 					common.AttrNameTorokuMsg: err,
@@ -58,7 +58,8 @@ func CategoryHandlerInit(r *gin.Engine) {
 				return
 			}
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-				"username": loginAccount,
+				"username": loginUser.LoginAccount,
+				"loginId":  loginUser.ID,
 				"exp":      time.Now().Add(time.Hour * 3).Unix(), // 有効期限：24時間
 			})
 			tokenString, err := token.SignedString(jwtSecret)
