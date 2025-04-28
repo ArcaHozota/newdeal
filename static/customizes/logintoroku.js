@@ -55,7 +55,7 @@ $("#loginBtn").on("click", () => {
 $("#torokuBtn").on("click", () => {
     let inputArrays = ["#emailIpt", "#passwordIpt1", "#passwordIpt2"];
     for (const element of inputArrays) {
-        if ($(element).val().trim() === '') {
+        if ($(element).val().trim() === emptyString) {
             layer.msg('入力しなかった情報があります。');
             return;
         }

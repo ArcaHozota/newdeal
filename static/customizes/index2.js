@@ -195,11 +195,11 @@ function kanumiRetrieve(hymnId) {
 
 function buildTableBody2(response) {
 	$tableBody.empty();
-	$.each(response, (index, item) => {
+	$.each(response, (_, item) => {
 		let checkBoxTd = $("<td class='text-center' style='width: 10%;vertical-align: middle;'></td>")
 			.append($("<input class='form-check-input mt-0' style='vertical-align: middle;' type='checkbox' value='" + item.id + "'>"));
 		let nameMixTd = $("<td class='text-left' style='width: 70%;vertical-align: middle;'></td>")
-			.append($("<a href='#' class='link-btn' data-transfer-val='" + item.link + "'>" + item.nameJp + "/" + item.nameKr + "</a>"));
+			.append($("<a href='#' class='link-btn' data-transfer-val='" + item.link + "'>" + item.nameJp + delimiter + item.nameKr + "</a>"));
 		let scoreTd = $("<td class='text-center' style='width: 20%;vertical-align: middle;'></td>")
 			.append($("<a href='#' class='score-download-btn' data-score-id='" + item.id + "'>&#x1D11E;</a>"));
 		if (item.lineNumber === 'BURGUNDY') {

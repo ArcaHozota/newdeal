@@ -69,7 +69,7 @@ $(document).ready(() => {
 	});
 	$("#toPersonal").on("click", (e) => {
 		e.preventDefault();
-		let userId = $(this).find("input").val().replace(/,/g, emptyString);
+		let userId = $(e.currentTarget).find("input").val().replace(/,/g, emptyString);
 		let url = '/students/to-edition?editId=' + userId;
 		checkPermissionAndTransfer(url);
 	});

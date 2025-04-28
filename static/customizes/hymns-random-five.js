@@ -10,7 +10,7 @@ $("#randomSearchBtn").on("click", () => {
 });
 $tableBody.on("click", '.link-btn', (e) => {
     e.preventDefault();
-    let transferVal = $(this).attr('transferVal');
+    let transferVal = $(e.currentTarget).attr('transferVal');
     window.open(transferVal);
 });
 
@@ -29,7 +29,7 @@ function retrieveRandomFive(keyword) {
 
 function buildTableBody(response) {
     $tableBody.empty();
-    $.each(response, (response, item) => {
+    $.each(response, (_, item) => {
         let nameMixTd = $("<td class='text-center' style='vertical-align: middle;'></td>")
             .append($("<a href='#' class='link-btn' transferVal='" + item.link + "'>" + item.nameJp + delimiter + item.nameKr + "</a>"));
         $("<tr></tr>").append(nameMixTd).appendTo("#tableBody");
