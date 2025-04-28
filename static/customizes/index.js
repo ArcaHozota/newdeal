@@ -26,11 +26,11 @@ $randomSearchBtn.on("click", () => {
 });
 $tableBody.on("click", '.link-btn', (e) => {
 	e.preventDefault();
-	let transferVal = $(this).attr('transferVal');
+	let transferVal = $(e.currentTarget).attr('transfer-val');
 	window.open(transferVal);
 });
 $("#toIchiranHyoBtn").on("click", () => {
-	swal.fire({
+	Swal.fire({
 		title: 'メッセージ',
 		text: '賛美歌一覧表画面へ移動してよろしいでしょうか。',
 		icon: 'question',
@@ -40,8 +40,6 @@ $("#toIchiranHyoBtn").on("click", () => {
 	}).then((result) => {
 		if (result.isConfirmed) {
 			window.location.href = '/home/to-list';
-		} else if (result.isDenied) {
-			$(this).close();
 		}
 	});
 });
@@ -61,7 +59,7 @@ function commonRetrieve(keyword) {
 
 function buildTableBody(response) {
 	$tableBody.empty();
-	$.each(response, (response, item) => {
+	$.each(response, (_, item) => {
 		let nameMixTd = $("<td class='text-center' style='vertical-align: middle;'></td>")
 			.append($("<a href='#' class='link-btn' transferVal='" + item.link + "'>" + item.nameJp + "/" + item.nameKr + "</a>"));
 		if (item.lineNumber === 'BURGUNDY') {

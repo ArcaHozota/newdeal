@@ -44,7 +44,7 @@ $(document).ready(() => {
 		openNodeLinkOnNewTab: true
 	});
 	$("#logoutBtn").on("click", () => {
-		swal.fire({
+		Swal.fire({
 			title: '警告',
 			text: 'ログアウトしてよろしいでしょうか。',
 			icon: 'warning',
@@ -56,8 +56,6 @@ $(document).ready(() => {
 		}).then((result) => {
 			if (result.isConfirmed) {
 				$("#logoutForm").submit();
-			} else if (result.isDenied) {
-				$(this).close();
 			}
 		});
 	});

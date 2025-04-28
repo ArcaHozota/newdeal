@@ -6,10 +6,12 @@ $(document).ready(() => {
 	adjustWidth();
 	initialPagination(1, null);
 	$kanumiSearchBtn.on("mousemove", (e) => {
-		let x = e.pageX - this.offset().left;
-		let y = e.pageY - this.offset().top;
-		this.css("--x", x + "px");
-		this.css("--y", y + "px");
+		const $btn = $(e.currentTarget);           // 常にイベント発生元
+		const offset = $btn.offset();
+		const x = e.pageX - offset.left;
+		const y = e.pageY - offset.top;
+		$btn.css('--x', `${x}px`)
+			.css('--y', `${y}px`);
 	});
 });
 $kanumiSearchBtn.on("click", (e) => {
@@ -18,7 +20,7 @@ $kanumiSearchBtn.on("click", (e) => {
 	if (hymnId === "0" || hymnId === 0 || hymnId === null || hymnId === undefined) {
 		layer.msg('賛美歌を選択してください');
 	} else {
-		swal.fire({
+		Swal.fire({
 			title: "HINT",
 			text: "選択された曲に基づく歌詞が似てる三つの曲を検索します。検索が約1分間ぐらいかかりますので行ってよろしいでしょうか。",
 			footer: '<p style="font-size: 13px;">※この画面及び検索は金海嶺氏のアイディアによって作成されたものです。</p>',
@@ -42,8 +44,6 @@ $kanumiSearchBtn.on("click", (e) => {
 					$nameDisplay.text('検索完了---' + nameJp.substring(0, slashIndex));
 					$nameDisplay.attr('idVal', 0);
 				}, 66000);
-			} else if (result.isDenied) {
-				$(this).close();
 			}
 		});
 	}
@@ -72,7 +72,7 @@ $tableBody.on("click", '.form-check-input', () => {
 					data: 'hymnId=' + $(element).val(),
 					success: (response) => {
 						$nameDisplay.text(response.nameJp);
-						$nameDisplay.attr('idVal', response.id);
+						$nameDisplay.attr('id-val', response.id);
 					},
 					error: (xhr) => {
 						let message = xhr.responseText.replace(/^"|"$/g, emptyString);
@@ -86,7 +86,7 @@ $tableBody.on("click", '.form-check-input', () => {
 });
 $tableBody.on("click", '.link-btn', (e) => {
 	e.preventDefault();
-	let transferVal = $(this).attr('transfer-val');
+	let transferVal = $(e.currentTarget).attr('data-transfer-val');
 	window.open(transferVal);
 });
 
@@ -109,13 +109,13 @@ function initialPagination(pageNum, keyword) {
 function buildTableBody1(response) {
 	$tableBody.empty();
 	let index = response.records;
-	$.each(index, (index, item) => {
+	$.each(index, (_, item) => {
 		let checkBoxTd = $("<td class='text-center' style='width: 10%;vertical-align: middle;'></td>")
 			.append($("<input class='form-check-input mt-0' style='vertical-align: middle;' type='checkbox' value='" + item.id + "'>"));
 		let nameMixTd = $("<td class='text-left' style='width: 70%;vertical-align: middle;'></td>")
-			.append($("<a href='#' class='link-btn' transfer-val='" + item.link + "'>" + item.nameJp + delimiter + item.nameKr + "</a>"));
+			.append($("<a href='#' class='link-btn' data-transfer-val='" + item.link + "'>" + item.nameJp + delimiter + item.nameKr + "</a>"));
 		let scoreTd = $("<td class='text-center' style='width: 20%;vertical-align: middle;'></td>")
-			.append($("<a href='#' class='score-download-btn' scoreId='" + item.id + "'>&#x1D11E;</a>"));
+			.append($("<a href='#' class='score-download-btn' data-score-id='" + item.id + "'>&#x1D11E;</a>"));
 		$("<tr></tr>").append(checkBoxTd).append(nameMixTd).append(scoreTd).appendTo("#tableBody");
 	});
 }
@@ -199,9 +199,9 @@ function buildTableBody2(response) {
 		let checkBoxTd = $("<td class='text-center' style='width: 10%;vertical-align: middle;'></td>")
 			.append($("<input class='form-check-input mt-0' style='vertical-align: middle;' type='checkbox' value='" + item.id + "'>"));
 		let nameMixTd = $("<td class='text-left' style='width: 70%;vertical-align: middle;'></td>")
-			.append($("<a href='#' class='link-btn' transferVal='" + item.link + "'>" + item.nameJp + "/" + item.nameKr + "</a>"));
+			.append($("<a href='#' class='link-btn' data-transfer-val='" + item.link + "'>" + item.nameJp + "/" + item.nameKr + "</a>"));
 		let scoreTd = $("<td class='text-center' style='width: 20%;vertical-align: middle;'></td>")
-			.append($("<a href='#' class='score-download-btn' scoreId='" + item.id + "'>&#x1D11E;</a>"));
+			.append($("<a href='#' class='score-download-btn' data-score-id='" + item.id + "'>&#x1D11E;</a>"));
 		if (item.lineNumber === 'BURGUNDY') {
 			$("<tr class='table-danger'></tr>").append(checkBoxTd).append(nameMixTd).append(scoreTd).appendTo("#tableBody");
 		} else if (item.lineNumber === 'NAPLES') {
