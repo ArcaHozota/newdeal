@@ -48,7 +48,12 @@ func StudentsHandlerInit(r *gin.Engine) {
 				ctx.JSON(http.StatusBadRequest, err)
 				return
 			}
-
+			updateInfo, err := service.StudentInfoUpdate(req)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, err)
+				return
+			}
+			ctx.JSON(http.StatusOK, updateInfo)
 		})
 	}
 }

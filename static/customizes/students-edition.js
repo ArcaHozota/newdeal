@@ -22,11 +22,6 @@ $("#infoUpdateBtn").on("click", () => {
         layer.msg(inputWarning);
     } else {
         let editId = $("#idContainer").val();
-        let userId = $("#toPersonal").find("input").val().replace(/,/g, emptyString);
-        if (editId !== userId) {
-            layer.msg('システムエラー発生しました');
-            return;
-        }
         let putData = JSON.stringify({
             'id': editId,
             'loginAccount': $("#accountEdit").val().trim(),
@@ -93,7 +88,7 @@ function initialStudent() {
  * 文字列・数値・Date 何が来ても HTML date 用の YYYY-MM-DD に整形
  */
 function toDateInputValue(src) {
-    if (!src) return '';
+    if (!src) return emptyString;
     // すでに YYYY-MM-DD ならそのまま
     if (/^\d{4}-\d{2}-\d{2}$/.test(src)) return src;
     // ISO 8601 やタイムスタンプを Date に変換
