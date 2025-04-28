@@ -23,20 +23,20 @@ func ProcessLogin(loginForm LoginRequest) (string, error) {
 		Where(
 			student.VisibleFlg(true),
 			student.Or(
-				student.LoginAccountEQ(username),
-				student.EmailEQ(username),
+				student.LoginAccount(username),
+				student.Email(username),
 			),
 		).Only(ctx)
 	if err != nil {
 		return common.EmptyString, errors.New(common.StudentError)
 	}
-	err = preLogin(*loginUser)
-	if err != nil {
-		return common.EmptyString, err
-	}
 	checkPass := tools.CheckHashPassword(loginUser.Password, loginForm.Password)
 	if !checkPass {
 		return common.EmptyString, errors.New(common.PasswordError)
+	}
+	err = preLogin(*loginUser)
+	if err != nil {
+		return common.EmptyString, err
 	}
 	return loginUser.LoginAccount, nil
 }

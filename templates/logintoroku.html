@@ -3,7 +3,7 @@
 
 <head>
     <title>NASB1995</title>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8" />
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="${_csrf.headerName}" name="_csrf_header">
@@ -41,36 +41,36 @@
 </head>
 
 <body>
-<div class="container">
-    <input id="torokuMsgContainer" type="hidden" value="{{.torokuMsg}}">
-    <div class="login-box" id="loginBox">
-        <h2 class="login-title">
-            <span>すでにアカウント持ち？</span>ログイン
-        </h2>
-        <form action="/category/do-login" class="input-box" id="loginForm" method="post">
-            <input id="accountIpt" name="loginAcct" placeholder="アカウント" type="text" value="{{.registeredEmail}}">
-            <ion-icon id="eyeIcons" name="eye-outline"></ion-icon>
-            <input id="passwordIpt" name="password" placeholder="パスワード" type="password">
-        </form>
-        <button id="loginBtn" type="button">ログイン</button>
-    </div>
-    <div class="toroku-box slide-up" id="torokuBox">
-        <div class="center">
-            <h2 class="toroku-title">
-                <span>アカウント無し？</span>登録
+    <div class="container">
+        <input id="torokuMsgContainer" type="hidden" value="{{.torokuMsg}}">
+        <div class="login-box" id="loginBox">
+            <h2 class="login-title">
+                <span>すでにアカウント持ち？</span>ログイン
             </h2>
-            <form action="/category/toroku" class="input-box" id="torokuForm" method="post">
-                <input id="emailIpt" name="email" placeholder="メール" type="email">
-                <input id="passwordIpt1" name="password" placeholder="パスワード" type="password">
-                <input id="passwordIpt2" placeholder="パス再入力" type="password">
+            <form action="/category/do-login" class="input-box" id="loginForm" method="post">
+                <input id="accountIpt" name="loginAcct" placeholder="アカウント" type="text" value="{{.registeredEmail}}">
+                <ion-icon id="eyeIcons" name="eye-outline"></ion-icon>
+                <input id="passwordIpt" name="password" placeholder="パスワード" type="password">
             </form>
-            <button id="torokuBtn" type="button">登録</button>
+            <button id="loginBtn" type="button">ログイン</button>
         </div>
+        <div class="toroku-box slide-up" id="torokuBox">
+            <div class="center">
+                <h2 class="toroku-title">
+                    <span>アカウント無し？</span>登録
+                </h2>
+                <form action="/category/toroku" class="input-box" id="torokuForm" method="post">
+                    <input id="emailIpt" name="email" placeholder="メール" type="email">
+                    <input id="passwordIpt1" name="password" placeholder="パスワード" type="password">
+                    <input id="passwordIpt2" placeholder="パス再入力" type="password">
+                </form>
+                <button id="torokuBtn" type="button">登録</button>
+            </div>
+        </div>
+        <script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js" type="module"></script>
+        <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     </div>
-    <script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js" type="module"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-</div>
-<script src="/static/customizes/logintoroku.js" type="text/javascript"></script>
+    <script src="/static/customizes/logintoroku.js" type="text/javascript"></script>
 </body>
 
 </html>
