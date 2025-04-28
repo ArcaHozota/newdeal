@@ -1,20 +1,5 @@
 $(document).ready(() => {
-    let editId = $("idContainer").val();
-    $.ajax({
-        url: '/students/initial',
-        data: 'editId=' + editId,
-        success: (response) => {
-            $("#accountEdit").val(response.loginAccount);
-            $("#nameEdit").val(response.username);
-            $("#passwordEdit").val(response.password);
-            $("#birthdayEdit").val(response.dateOfBirth);
-            $("#emailEdit").val(response.email);
-        },
-        error: (xhr) => {
-            let message = xhr.responseText.replace(/^"|"$/g, emptyString);
-            layer.msg(message);
-        }
-    })
+    initialStudent();
 });
 $("#toStudentsPages").on("click", (e) => {
     e.preventDefault();
@@ -55,6 +40,7 @@ $("#infoUpdateBtn").on("click", () => {
 });
 $("#restoreBtn").on("click", () => {
     formReset("#editForm");
+    initialStudent();
 });
 
 function studentsPutSuccessFunction(response) {
@@ -82,4 +68,23 @@ function checkStudentName(studentName, idVal) {
             }
         });
     }
+}
+
+function initialStudent() {
+    let editId = $("#idContainer").val();
+    $.ajax({
+        url: '/students/initial',
+        data: 'editId=' + editId,
+        success: (response) => {
+            $("#accountEdit").val(response.loginAccount);
+            $("#nameEdit").val(response.username);
+            $("#passwordEdit").val(response.password);
+            $("#birthdayEdit").val(response.dateOfBirth);
+            $("#emailEdit").val(response.email);
+        },
+        error: (xhr) => {
+            let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+            layer.msg(message);
+        }
+    });
 }

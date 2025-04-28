@@ -59,6 +59,7 @@ $(document).ready(() => {
             }
         });
     });
+    usernameInitial();
     $("#toMainmenu").on("click", (e) => {
         e.preventDefault();
         window.location.replace('/category/to-mainmenu');
@@ -69,8 +70,7 @@ $(document).ready(() => {
     });
     $("#toPersonal").on("click", (e) => {
         e.preventDefault();
-        let userId = $(e.currentTarget).find("input").val();
-        let url = '/students/to-edition?editId=' + userId;
+        let url = '/students/to-edition';
         checkPermissionAndTransfer(url);
     });
     $("#toMessage").on("click", (e) => {
@@ -200,4 +200,17 @@ function normalDeleteBtnFunction(url, message, deleteId) {
             layer.msg(response.responseJSON.message);
         }
     });
+}
+
+function usernameInitial() {
+    $.ajax({
+        url: '/category/get-username',
+        success: (response) => {
+            $("#userNameContainer").text(response);
+        },
+        error: (xhr) => {
+            let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+            layer.msg(message);
+        }
+    })
 }

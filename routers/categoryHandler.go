@@ -101,6 +101,15 @@ func CategoryHandlerInit(r *gin.Engine) {
 				common.AttrNameTorokuMsg: common.LoginedMsg,
 			})
 		})
+		categoryRouter.GET("get-username", authMiddleware, func(ctx *gin.Context) {
+			username, exists := ctx.Get("username")
+			if !exists {
+				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
+					common.AttrNameException: common.StudentError,
+				})
+			}
+			ctx.JSON(http.StatusOK, username)
+		})
 	}
 
 }
