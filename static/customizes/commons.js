@@ -51,8 +51,8 @@ $(document).ready(() => {
             showDenyButton: true,
             denyButtonText: 'いいえ',
             confirmButtonText: 'はい',
-            confirmButtonColor: '#7F0020',
-            denyButtonColor: '#002FA7'
+            confirmButtonColor: '#7f0020',
+            denyButtonColor: '#002fa7'
         }).then((result) => {
             if (result.isConfirmed) {
                 $("#logoutForm").submit();
@@ -183,7 +183,7 @@ function normalDeleteBtnFunction(url, message, deleteId) {
         url: url + 'deletion-check',
         type: GET,
         success: () => {
-            swal.fire({
+            Swal.fire({
                 title: 'メッセージ',
                 text: message,
                 icon: 'question',

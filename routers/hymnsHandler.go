@@ -72,14 +72,14 @@ func HymnsHandlerInit(r *gin.Engine) {
 			ctx.JSON(http.StatusOK, hymnDtos)
 		})
 		hymnsRouter.GET("get-info-id", func(ctx *gin.Context) {
-			keyword := ctx.DefaultQuery("hymnId", common.EmptyString)
-			hymnId, err := strconv.ParseInt(keyword, 10, 64)
+			hymnIdStr := ctx.DefaultQuery("hymnId", common.EmptyString)
+			hymnId, err := strconv.Atoi(hymnIdStr)
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
 				return
 			}
-			hymnDto, err := service.GetHymnById(hymnId)
+			hymnDto, err := service.GetHymnById(int64(hymnId))
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err)
