@@ -12,7 +12,6 @@ import (
 )
 
 var EntCore *ent.Client
-var err error
 
 func InitEntClient() {
 	// DSNを定義する
