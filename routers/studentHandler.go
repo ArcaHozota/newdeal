@@ -1,13 +1,14 @@
 package routers
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"newdeal/common"
 	"newdeal/pojos"
 	"newdeal/service"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func StudentsHandlerInit(r *gin.Engine) {
@@ -17,13 +18,22 @@ func StudentsHandlerInit(r *gin.Engine) {
 		studentsRouter.GET("/to-edition", authMiddleware, func(ctx *gin.Context) {
 			studentId, exists := ctx.Get("loginId")
 			if !exists {
-				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
-					common.AttrNameException: common.NeedLoginMsg,
-				})
+				ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+				return
+			}
+			loginId, ok := studentId.(int64)
+			if !ok {
+				ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+				return
+			}
+			studentById, err := service.GetStudentById(loginId)
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err)
 				return
 			}
 			ctx.HTML(http.StatusOK, "students-edition.html", gin.H{
-				"studentId": studentId,
+				common.AttrNameEntity: studentById,
 			})
 		})
 		studentsRouter.GET("/initial", authMiddleware, func(ctx *gin.Context) {

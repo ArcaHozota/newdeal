@@ -87,7 +87,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			}
 			ctx.JSON(http.StatusOK, hymnDto)
 		})
-		hymnsRouter.GET("to-pages", func(ctx *gin.Context) {
+		hymnsRouter.GET("to-pages", authMiddleware, func(ctx *gin.Context) {
 			pageNumStr := ctx.DefaultQuery(common.AttrNamePageNo, "1")
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
@@ -99,7 +99,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 				common.AttrNamePageNo: pageNum,
 			})
 		})
-		hymnsRouter.GET("to-addition", func(ctx *gin.Context) {
+		hymnsRouter.GET("to-addition", authMiddleware, func(ctx *gin.Context) {
 			pageNumStr := ctx.DefaultQuery(common.AttrNamePageNo, "1")
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
@@ -111,7 +111,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 				common.AttrNamePageNo: pageNum,
 			})
 		})
-		hymnsRouter.GET("to-edition", func(ctx *gin.Context) {
+		hymnsRouter.GET("to-edition", authMiddleware, func(ctx *gin.Context) {
 			pageNumStr := ctx.DefaultQuery(common.AttrNamePageNo, "1")
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
@@ -141,7 +141,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 				common.AttrNameEntity: hymnDto,
 			})
 		})
-		hymnsRouter.GET("to-score-upload", func(ctx *gin.Context) {
+		hymnsRouter.GET("to-score-upload", authMiddleware, func(ctx *gin.Context) {
 			pageNumStr := ctx.DefaultQuery(common.AttrNamePageNo, "1")
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
@@ -155,7 +155,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 				"scoreId":             scoreId,
 			})
 		})
-		hymnsRouter.POST("score-upload", func(ctx *gin.Context) {
+		hymnsRouter.POST("score-upload", authMiddleware, func(ctx *gin.Context) {
 			var req pojos.HymnDTO
 			if err := ctx.ShouldBindJSON(&req); err != nil {
 				ctx.JSON(http.StatusBadRequest, err)
@@ -168,7 +168,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			}
 			ctx.JSON(http.StatusOK, storageInfo)
 		})
-		hymnsRouter.PUT("info-update", func(ctx *gin.Context) {
+		hymnsRouter.PUT("info-update", authMiddleware, func(ctx *gin.Context) {
 			var req pojos.HymnDTO
 			if err := ctx.ShouldBindJSON(&req); err != nil {
 				ctx.JSON(http.StatusBadRequest, err)
@@ -181,7 +181,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			}
 			ctx.JSON(http.StatusOK, updateInfo)
 		})
-		hymnsRouter.GET("to-random-five", func(ctx *gin.Context) {
+		hymnsRouter.GET("to-random-five", authMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "hymns-random-five.html", gin.H{})
 		})
 	}

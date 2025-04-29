@@ -70,8 +70,7 @@ $(document).ready(() => {
     });
     $("#toPersonal").on("click", (e) => {
         e.preventDefault();
-        let url = '/students/to-edition';
-        checkPermissionAndTransfer(url);
+        window.location.replace('/students/to-edition');
     });
     $("#toMessage").on("click", (e) => {
         e.preventDefault();
@@ -90,13 +89,11 @@ $(document).ready(() => {
     });
     $("#toCollection").on("click", (e) => {
         e.preventDefault();
-        let url = '/hymns/to-pages?pageNum=1';
-        checkPermissionAndTransfer(url);
+        window.location.replace('/hymns/to-pages?pageNum=1');
     });
     $("#toRandomFive").on("click", (e) => {
         e.preventDefault();
-        let url = '/hymns/to-random-five';
-        checkPermissionAndTransfer(url);
+        window.location.replace('/hymns/to-random-five');
     });
 });
 
