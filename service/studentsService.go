@@ -97,7 +97,7 @@ func StudentInfoUpdate(studentDto pojos.StudentDTO) (string, error) {
 	}
 	if reflect.DeepEqual(hikakuStudentDto, studentDto) {
 		if studentById.Password == studentDto.Password || tools.CheckHashPassword(studentById.Password, studentDto.Password) {
-			return common.NochangeMsg, nil
+			return common.EmptyString, errors.New(common.NochangeMsg)
 		}
 		password, err := tools.GenerateHashPassword(studentDto.Password)
 		if err != nil {
