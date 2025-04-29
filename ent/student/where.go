@@ -80,11 +80,6 @@ func Email(v string) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldEmail, v))
 }
 
-// RoleID applies equality check predicate on the "role_id" field. It's identical to RoleIDEQ.
-func RoleID(v int64) predicate.Student {
-	return predicate.Student(sql.FieldEQ(FieldRoleID, v))
-}
-
 // UpdatedTime applies equality check predicate on the "updated_time" field. It's identical to UpdatedTimeEQ.
 func UpdatedTime(v time.Time) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldUpdatedTime, v))
@@ -405,26 +400,6 @@ func EmailContainsFold(v string) predicate.Student {
 	return predicate.Student(sql.FieldContainsFold(FieldEmail, v))
 }
 
-// RoleIDEQ applies the EQ predicate on the "role_id" field.
-func RoleIDEQ(v int64) predicate.Student {
-	return predicate.Student(sql.FieldEQ(FieldRoleID, v))
-}
-
-// RoleIDNEQ applies the NEQ predicate on the "role_id" field.
-func RoleIDNEQ(v int64) predicate.Student {
-	return predicate.Student(sql.FieldNEQ(FieldRoleID, v))
-}
-
-// RoleIDIn applies the In predicate on the "role_id" field.
-func RoleIDIn(vs ...int64) predicate.Student {
-	return predicate.Student(sql.FieldIn(FieldRoleID, vs...))
-}
-
-// RoleIDNotIn applies the NotIn predicate on the "role_id" field.
-func RoleIDNotIn(vs ...int64) predicate.Student {
-	return predicate.Student(sql.FieldNotIn(FieldRoleID, vs...))
-}
-
 // UpdatedTimeEQ applies the EQ predicate on the "updated_time" field.
 func UpdatedTimeEQ(v time.Time) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldUpdatedTime, v))
@@ -500,29 +475,6 @@ func HasUpdatedHymns() predicate.Student {
 func HasUpdatedHymnsWith(preds ...predicate.Hymn) predicate.Student {
 	return predicate.Student(func(s *sql.Selector) {
 		step := newUpdatedHymnsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasRoledStudent applies the HasEdge predicate on the "roled_student" edge.
-func HasRoledStudent() predicate.Student {
-	return predicate.Student(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, RoledStudentTable, RoledStudentColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasRoledStudentWith applies the HasEdge predicate on the "roled_student" edge with a given conditions (other predicates).
-func HasRoledStudentWith(preds ...predicate.Role) predicate.Student {
-	return predicate.Student(func(s *sql.Selector) {
-		step := newRoledStudentStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -52,8 +52,6 @@ func (Student) Fields() []ent.Field {
 			SchemaType(map[string]string{
 				dialect.Postgres: "varchar(60)",
 			}),
-		field.Int64("role_id").
-			Comment("役割ID"),
 		field.Time("updated_time").
 			Comment("登録時間").
 			Optional(),
@@ -65,11 +63,6 @@ func (Student) Fields() []ent.Field {
 func (Student) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("updated_hymns", Hymn.Type),
-		edge.From("roled_student", Role.Type).
-			Ref("student").   // 反向关系字段
-			Field("role_id"). // 外键字段
-			Required().
-			Unique(),
 	}
 }
 
