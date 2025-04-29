@@ -32,8 +32,9 @@ func CategoryHandlerInit(r *gin.Engine) {
 		categoryRouter.GET("login-with-error", func(ctx *gin.Context) {
 			count, err := service.CountHymnsAll()
 			if err != nil {
+				log.Println(err)
 				ctx.HTML(http.StatusBadRequest, "error.html", gin.H{
-					common.AttrNameException: err,
+					common.AttrNameException: err.Error(),
 				})
 				return
 			}
@@ -46,6 +47,7 @@ func CategoryHandlerInit(r *gin.Engine) {
 			var req service.LoginRequest
 			// JSONバインディング（リクエストボディから取得）
 			if err := ctx.ShouldBind(&req); err != nil {
+				log.Println(err)
 				ctx.HTML(http.StatusBadRequest, "login-toroku.html", gin.H{
 					common.AttrNameTorokuMsg: common.LoginFormError,
 				})
@@ -53,8 +55,9 @@ func CategoryHandlerInit(r *gin.Engine) {
 			}
 			loginUser, err := service.ProcessLogin(req)
 			if err != nil {
+				log.Println(err)
 				ctx.HTML(http.StatusBadRequest, "login-toroku.html", gin.H{
-					common.AttrNameTorokuMsg: err,
+					common.AttrNameTorokuMsg: err.Error(),
 				})
 				return
 			}

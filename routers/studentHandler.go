@@ -46,13 +46,13 @@ func StudentsHandlerInit(r *gin.Engine) {
 			studentId, err := strconv.Atoi(studentIdStr)
 			if err != nil {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			studentById, err := service.GetStudentById(int64(studentId))
 			if err != nil {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			ctx.JSON(http.StatusOK, studentById)
@@ -60,12 +60,14 @@ func StudentsHandlerInit(r *gin.Engine) {
 		studentsRouter.PUT("info-update", authMiddleware, func(ctx *gin.Context) {
 			var req pojos.StudentDTO
 			if err := ctx.ShouldBindJSON(&req); err != nil {
-				ctx.JSON(http.StatusBadRequest, err)
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			updateInfo, err := service.StudentInfoUpdate(req)
 			if err != nil {
-				ctx.JSON(http.StatusBadRequest, err)
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			ctx.JSON(http.StatusOK, updateInfo)

@@ -22,25 +22,25 @@ func HymnsHandlerInit(r *gin.Engine) {
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			cnt, err := service.CountHymnsByKeyword(common.EmptyString)
 			if err != nil {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			hymnDtos, err := service.GetHymnsByKeyword(common.EmptyString, pageNum)
 			if err != nil {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			pageInfos, err := pagination.NewPagination(hymnDtos, cnt, pageNum, int(common.DefaultPageSize), 5)
 			if err != nil {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			ctx.JSON(http.StatusOK, pageInfos)
@@ -50,7 +50,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			hymnDtos, err := service.GetHymnsRandomFive(keyword)
 			if err != nil {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			ctx.JSON(http.StatusOK, hymnDtos)
@@ -60,13 +60,13 @@ func HymnsHandlerInit(r *gin.Engine) {
 			id, err := strconv.Atoi(hymnId)
 			if err != nil {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			hymnDtos, err := service.GetHymnsKanumi(int64(id))
 			if err != nil {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			ctx.JSON(http.StatusOK, hymnDtos)
@@ -76,13 +76,13 @@ func HymnsHandlerInit(r *gin.Engine) {
 			hymnId, err := strconv.Atoi(hymnIdStr)
 			if err != nil {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			hymnDto, err := service.GetHymnById(int64(hymnId))
 			if err != nil {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			ctx.JSON(http.StatusOK, hymnDto)
@@ -92,7 +92,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			ctx.HTML(http.StatusOK, "hymns-pagination.html", gin.H{
@@ -104,7 +104,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			ctx.HTML(http.StatusOK, "hymns-addition.html", gin.H{
@@ -116,7 +116,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			editId := ctx.DefaultQuery("editId", common.EmptyString)
@@ -146,7 +146,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			pageNum, err := strconv.Atoi(pageNumStr)
 			if err != nil || pageNum < 1 {
 				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			scoreId := ctx.DefaultQuery("scoreId", common.EmptyString)
@@ -158,12 +158,14 @@ func HymnsHandlerInit(r *gin.Engine) {
 		hymnsRouter.POST("score-upload", authMiddleware, func(ctx *gin.Context) {
 			var req pojos.HymnDTO
 			if err := ctx.ShouldBindJSON(&req); err != nil {
-				ctx.JSON(http.StatusBadRequest, err)
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			storageInfo, err := service.HymnScoreStorage(req)
 			if err != nil {
-				ctx.JSON(http.StatusBadRequest, err)
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			ctx.JSON(http.StatusOK, storageInfo)
@@ -171,12 +173,14 @@ func HymnsHandlerInit(r *gin.Engine) {
 		hymnsRouter.PUT("info-update", authMiddleware, func(ctx *gin.Context) {
 			var req pojos.HymnDTO
 			if err := ctx.ShouldBindJSON(&req); err != nil {
-				ctx.JSON(http.StatusBadRequest, err)
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			updateInfo, err := service.HymnInfoUpdate(req)
 			if err != nil {
-				ctx.JSON(http.StatusBadRequest, err)
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
 			ctx.JSON(http.StatusOK, updateInfo)
