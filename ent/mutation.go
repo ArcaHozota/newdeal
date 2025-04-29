@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"newdeal/common"
 	"newdeal/ent/book"
 	"newdeal/ent/chapter"
 	"newdeal/ent/hymn"
@@ -3242,7 +3243,7 @@ type StudentMutation struct {
 	login_account        *string
 	password             *string
 	username             *string
-	date_of_birth        *time.Time
+	date_of_birth        **common.Date
 	email                *string
 	updated_time         *time.Time
 	visible_flg          *bool
@@ -3468,12 +3469,12 @@ func (m *StudentMutation) ResetUsername() {
 }
 
 // SetDateOfBirth sets the "date_of_birth" field.
-func (m *StudentMutation) SetDateOfBirth(t time.Time) {
-	m.date_of_birth = &t
+func (m *StudentMutation) SetDateOfBirth(c *common.Date) {
+	m.date_of_birth = &c
 }
 
 // DateOfBirth returns the value of the "date_of_birth" field in the mutation.
-func (m *StudentMutation) DateOfBirth() (r time.Time, exists bool) {
+func (m *StudentMutation) DateOfBirth() (r *common.Date, exists bool) {
 	v := m.date_of_birth
 	if v == nil {
 		return
@@ -3484,7 +3485,7 @@ func (m *StudentMutation) DateOfBirth() (r time.Time, exists bool) {
 // OldDateOfBirth returns the old "date_of_birth" field's value of the Student entity.
 // If the Student object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StudentMutation) OldDateOfBirth(ctx context.Context) (v time.Time, err error) {
+func (m *StudentMutation) OldDateOfBirth(ctx context.Context) (v *common.Date, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDateOfBirth is only allowed on UpdateOne operations")
 	}
@@ -3823,7 +3824,7 @@ func (m *StudentMutation) SetField(name string, value ent.Value) error {
 		m.SetUsername(v)
 		return nil
 	case student.FieldDateOfBirth:
-		v, ok := value.(time.Time)
+		v, ok := value.(*common.Date)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

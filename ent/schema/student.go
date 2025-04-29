@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"newdeal/common"
 )
 
 type Student struct {
@@ -43,6 +44,7 @@ func (Student) Fields() []ent.Field {
 			}),
 		field.Time("date_of_birth").
 			Comment("生年月日").
+			GoType(&common.Date{}).
 			SchemaType(map[string]string{
 				dialect.Postgres: "date",
 			}),

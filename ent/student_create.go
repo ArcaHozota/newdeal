@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"newdeal/common"
 	"newdeal/ent/hymn"
 	"newdeal/ent/student"
 	"time"
@@ -40,8 +41,8 @@ func (sc *StudentCreate) SetUsername(s string) *StudentCreate {
 }
 
 // SetDateOfBirth sets the "date_of_birth" field.
-func (sc *StudentCreate) SetDateOfBirth(t time.Time) *StudentCreate {
-	sc.mutation.SetDateOfBirth(t)
+func (sc *StudentCreate) SetDateOfBirth(c *common.Date) *StudentCreate {
+	sc.mutation.SetDateOfBirth(c)
 	return sc
 }
 

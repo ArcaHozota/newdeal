@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"newdeal/common"
 	"newdeal/ent/hymn"
 	"newdeal/ent/predicate"
 	"newdeal/ent/student"
@@ -72,16 +73,8 @@ func (su *StudentUpdate) SetNillableUsername(s *string) *StudentUpdate {
 }
 
 // SetDateOfBirth sets the "date_of_birth" field.
-func (su *StudentUpdate) SetDateOfBirth(t time.Time) *StudentUpdate {
-	su.mutation.SetDateOfBirth(t)
-	return su
-}
-
-// SetNillableDateOfBirth sets the "date_of_birth" field if the given value is not nil.
-func (su *StudentUpdate) SetNillableDateOfBirth(t *time.Time) *StudentUpdate {
-	if t != nil {
-		su.SetDateOfBirth(*t)
-	}
+func (su *StudentUpdate) SetDateOfBirth(c *common.Date) *StudentUpdate {
+	su.mutation.SetDateOfBirth(c)
 	return su
 }
 
@@ -351,16 +344,8 @@ func (suo *StudentUpdateOne) SetNillableUsername(s *string) *StudentUpdateOne {
 }
 
 // SetDateOfBirth sets the "date_of_birth" field.
-func (suo *StudentUpdateOne) SetDateOfBirth(t time.Time) *StudentUpdateOne {
-	suo.mutation.SetDateOfBirth(t)
-	return suo
-}
-
-// SetNillableDateOfBirth sets the "date_of_birth" field if the given value is not nil.
-func (suo *StudentUpdateOne) SetNillableDateOfBirth(t *time.Time) *StudentUpdateOne {
-	if t != nil {
-		suo.SetDateOfBirth(*t)
-	}
+func (suo *StudentUpdateOne) SetDateOfBirth(c *common.Date) *StudentUpdateOne {
+	suo.mutation.SetDateOfBirth(c)
 	return suo
 }
 

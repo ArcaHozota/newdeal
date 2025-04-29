@@ -3,6 +3,7 @@
 package student
 
 import (
+	"newdeal/common"
 	"newdeal/ent/predicate"
 	"time"
 
@@ -71,7 +72,7 @@ func Username(v string) predicate.Student {
 }
 
 // DateOfBirth applies equality check predicate on the "date_of_birth" field. It's identical to DateOfBirthEQ.
-func DateOfBirth(v time.Time) predicate.Student {
+func DateOfBirth(v *common.Date) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldDateOfBirth, v))
 }
 
@@ -286,42 +287,42 @@ func UsernameContainsFold(v string) predicate.Student {
 }
 
 // DateOfBirthEQ applies the EQ predicate on the "date_of_birth" field.
-func DateOfBirthEQ(v time.Time) predicate.Student {
+func DateOfBirthEQ(v *common.Date) predicate.Student {
 	return predicate.Student(sql.FieldEQ(FieldDateOfBirth, v))
 }
 
 // DateOfBirthNEQ applies the NEQ predicate on the "date_of_birth" field.
-func DateOfBirthNEQ(v time.Time) predicate.Student {
+func DateOfBirthNEQ(v *common.Date) predicate.Student {
 	return predicate.Student(sql.FieldNEQ(FieldDateOfBirth, v))
 }
 
 // DateOfBirthIn applies the In predicate on the "date_of_birth" field.
-func DateOfBirthIn(vs ...time.Time) predicate.Student {
+func DateOfBirthIn(vs ...*common.Date) predicate.Student {
 	return predicate.Student(sql.FieldIn(FieldDateOfBirth, vs...))
 }
 
 // DateOfBirthNotIn applies the NotIn predicate on the "date_of_birth" field.
-func DateOfBirthNotIn(vs ...time.Time) predicate.Student {
+func DateOfBirthNotIn(vs ...*common.Date) predicate.Student {
 	return predicate.Student(sql.FieldNotIn(FieldDateOfBirth, vs...))
 }
 
 // DateOfBirthGT applies the GT predicate on the "date_of_birth" field.
-func DateOfBirthGT(v time.Time) predicate.Student {
+func DateOfBirthGT(v *common.Date) predicate.Student {
 	return predicate.Student(sql.FieldGT(FieldDateOfBirth, v))
 }
 
 // DateOfBirthGTE applies the GTE predicate on the "date_of_birth" field.
-func DateOfBirthGTE(v time.Time) predicate.Student {
+func DateOfBirthGTE(v *common.Date) predicate.Student {
 	return predicate.Student(sql.FieldGTE(FieldDateOfBirth, v))
 }
 
 // DateOfBirthLT applies the LT predicate on the "date_of_birth" field.
-func DateOfBirthLT(v time.Time) predicate.Student {
+func DateOfBirthLT(v *common.Date) predicate.Student {
 	return predicate.Student(sql.FieldLT(FieldDateOfBirth, v))
 }
 
 // DateOfBirthLTE applies the LTE predicate on the "date_of_birth" field.
-func DateOfBirthLTE(v time.Time) predicate.Student {
+func DateOfBirthLTE(v *common.Date) predicate.Student {
 	return predicate.Student(sql.FieldLTE(FieldDateOfBirth, v))
 }
 

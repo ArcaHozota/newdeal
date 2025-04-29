@@ -4,6 +4,7 @@ package ent
 
 import (
 	"fmt"
+	"newdeal/common"
 	"newdeal/ent/student"
 	"strings"
 	"time"
@@ -25,7 +26,7 @@ type Student struct {
 	// ユーザ名称
 	Username string `json:"username,omitempty"`
 	// 生年月日
-	DateOfBirth time.Time `json:"date_of_birth,omitempty"`
+	DateOfBirth *common.Date `json:"date_of_birth,omitempty"`
 	// メール
 	Email string `json:"email,omitempty"`
 	// 登録時間
@@ -61,13 +62,15 @@ func (*Student) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case student.FieldDateOfBirth:
+			values[i] = new(common.Date)
 		case student.FieldVisibleFlg:
 			values[i] = new(sql.NullBool)
 		case student.FieldID:
 			values[i] = new(sql.NullInt64)
 		case student.FieldLoginAccount, student.FieldPassword, student.FieldUsername, student.FieldEmail:
 			values[i] = new(sql.NullString)
-		case student.FieldDateOfBirth, student.FieldUpdatedTime:
+		case student.FieldUpdatedTime:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -109,10 +112,10 @@ func (s *Student) assignValues(columns []string, values []any) error {
 				s.Username = value.String
 			}
 		case student.FieldDateOfBirth:
-			if value, ok := values[i].(*sql.NullTime); !ok {
+			if value, ok := values[i].(*common.Date); !ok {
 				return fmt.Errorf("unexpected type %T for field date_of_birth", values[i])
-			} else if value.Valid {
-				s.DateOfBirth = value.Time
+			} else if value != nil {
+				s.DateOfBirth = value
 			}
 		case student.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -183,7 +186,7 @@ func (s *Student) String() string {
 	builder.WriteString(s.Username)
 	builder.WriteString(", ")
 	builder.WriteString("date_of_birth=")
-	builder.WriteString(s.DateOfBirth.Format(time.ANSIC))
+	builder.WriteString(fmt.Sprintf("%v", s.DateOfBirth))
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(s.Email)
