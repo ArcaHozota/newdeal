@@ -35,7 +35,7 @@ func GetStudentById(id int64) (pojos.StudentDTO, error) {
 		Username:     loginUser.Username,
 		Password:     loginUser.Password,
 		Email:        loginUser.Email,
-		DateOfBirth:  common.NewDate(loginUser.DateOfBirth),
+		DateOfBirth:  loginUser.DateOfBirth.Format(common.DateLayout),
 	}, nil
 }
 
@@ -68,7 +68,7 @@ func ProcessLogin(loginForm LoginRequest) (pojos.StudentDTO, error) {
 		Username:     loginUser.Username,
 		Password:     loginUser.Password,
 		Email:        loginUser.Email,
-		DateOfBirth:  common.NewDate(loginUser.DateOfBirth),
+		DateOfBirth:  loginUser.DateOfBirth.Format(common.DateLayout),
 	}, nil
 }
 
@@ -91,7 +91,7 @@ func StudentInfoUpdate(studentDto pojos.StudentDTO) (string, error) {
 		ID:           strconv.Itoa(int(studentById.ID)),
 		LoginAccount: studentById.LoginAccount,
 		Username:     studentById.Username,
-		DateOfBirth:  common.NewDate(studentById.DateOfBirth),
+		DateOfBirth:  studentById.DateOfBirth.Format(common.DateLayout),
 		Email:        studentById.Email,
 		Password:     studentDto.Password,
 	}
@@ -115,12 +115,16 @@ func StudentInfoUpdate(studentDto pojos.StudentDTO) (string, error) {
 	if err != nil {
 		return common.EmptyString, err
 	}
+	birthday, err := time.Parse(common.DateLayout, studentDto.DateOfBirth)
+	if err != nil {
+		return common.EmptyString, err
+	}
 	err = EntCore.Student.UpdateOneID(studentById.ID).
 		SetLoginAccount(studentDto.LoginAccount).
 		SetPassword(password).
 		SetUsername(studentDto.Username).
 		SetEmail(studentDto.Email).
-		SetDateOfBirth(studentDto.DateOfBirth.Time).
+		SetDateOfBirth(birthday).
 		SetUpdatedTime(time.Now()).
 		Where(
 			student.VisibleFlg(true),

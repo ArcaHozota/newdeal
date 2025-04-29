@@ -36,6 +36,8 @@ const PasswordError string = "パスワードが不一致になります。"
 
 const LoginFormError string = "正しい形式で入力してください"
 
+const DateLayout string = "2006-01-02"
+
 var StrangeArray = []string{
 	"insert", "delete", "update", "create", "drop",
 	"#", "$", "%", "&", "(", ")", "\"", "'", "@", ":", "select",
