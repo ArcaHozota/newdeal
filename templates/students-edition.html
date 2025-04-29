@@ -28,20 +28,19 @@
                     </div>
                     <div class="card-body">
                         <form id="editForm">
-                            <input type="hidden" value="{{.arawaseta.ID}}" id="idContainer">
+                            <input type="hidden" value="{{.studentId}}" id="idContainer">
                             <div class="form-group row">
                                 <label for="accountEdit" class="col-sm-3 col-form-label text-end">アカウント</label>
                                 <div class="col-sm-7" style="height: 9vh;">
                                     <input type="text" class="form-control" id="accountEdit"
-                                        value="{{.arawaseta.LoginAccount}}" placeholder="アカウントを入力してください">
+                                        placeholder="アカウントを入力してください">
                                     <span class="form-text" style="font-size: 10px;"></span>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="nameEdit" class="col-sm-3 col-form-label text-end">名称</label>
                                 <div class="col-sm-7" style="height: 9vh;">
-                                    <input type="text" class="form-control" id="nameEdit"
-                                        value="{{.arawaseta.Username}}" placeholder="名称を入力してください">
+                                    <input type="text" class="form-control" id="nameEdit" placeholder="名称を入力してください">
                                     <span class="form-text" style="font-size: 10px;"></span>
                                 </div>
                             </div>
@@ -49,7 +48,7 @@
                                 <label for="passwordEdit" class="col-sm-3 col-form-label text-end">パスワード</label>
                                 <div class="col-sm-7" style="height: 9vh;">
                                     <input type="password" class="form-control" id="passwordEdit"
-                                        value="{{.arawaseta.Password}}" placeholder="パスワードを入力してください">
+                                        placeholder="パスワードを入力してください">
                                     <span class="form-text" style="font-size: 10px;"></span>
                                 </div>
                             </div>
@@ -57,15 +56,14 @@
                                 <label for="birthdayEdit" class="col-sm-3 col-form-label text-end">生年月日</label>
                                 <div class="col-sm-7" style="height: 9vh;">
                                     <input type="date" class="form-control" id="birthdayEdit"
-                                        value="{{.arawaseta.DateOfBirth}}" placeholder="生年月日を入力してください">
+                                        placeholder="生年月日を入力してください">
                                     <span class="form-text" style="font-size: 10px;"></span>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="emailEdit" class="col-sm-3 col-form-label text-end">メール</label>
                                 <div class="col-sm-7" style="height: 9vh;">
-                                    <input type="text" class="form-control" id="emailEdit" value="{{.arawaseta.Email}}"
-                                        placeholder="メールを入力してください">
+                                    <input type="text" class="form-control" id="emailEdit" placeholder="メールを入力してください">
                                     <span class="form-text" style="font-size: 10px;"></span>
                                 </div>
                             </div>

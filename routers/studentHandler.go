@@ -21,24 +21,24 @@ func StudentsHandlerInit(r *gin.Engine) {
 				ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
 				return
 			}
-			loginIdStr, ok := studentId.(string)
-			if !ok {
-				ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
-				return
-			}
-			loginId, err := strconv.Atoi(loginIdStr)
-			if err != nil {
-				ctx.JSON(http.StatusBadRequest, err)
-				return
-			}
-			studentById, err := service.GetStudentById(int64(loginId))
-			if err != nil {
-				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err)
-				return
-			}
+			// loginIdStr, ok := studentId.(string)
+			// if !ok {
+			// 	ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+			// 	return
+			// }
+			// loginId, err := strconv.Atoi(loginIdStr)
+			// if err != nil {
+			// 	ctx.JSON(http.StatusBadRequest, err)
+			// 	return
+			// }
+			// studentById, err := service.GetStudentById(int64(loginId))
+			// if err != nil {
+			// 	log.Println(err)
+			// 	ctx.JSON(http.StatusBadRequest, err)
+			// 	return
+			// }
 			ctx.HTML(http.StatusOK, "students-edition.html", gin.H{
-				common.AttrNameEntity: studentById,
+				"studentId": studentId,
 			})
 		})
 		studentsRouter.GET("/initial", authMiddleware, func(ctx *gin.Context) {

@@ -27,5 +27,5 @@ func (d Date) MarshalJSON() ([]byte, error) {
 func NewDate(t time.Time) Date {
 	// たとえば必ずローカルタイムゾーン 0:00 に揃える
 	y, m, d := t.Date()
-	return Date{Time: time.Date(y, m, d, 0, 0, 0, 0, nil)}
+	return Date{Time: time.Date(y, m, d, 0, 0, 0, 0, t.Location())}
 }
