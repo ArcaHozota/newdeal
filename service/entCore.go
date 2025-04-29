@@ -13,7 +13,7 @@ var err error
 
 func InitEntClient() {
 	// DSNを定義する
-	dsn := "postgres://postgres:postgres@52.198.76.7:5432/nasb1995?sslmode=disable"
+	dsn := "postgres://postgres:postgres@52.198.76.7:5432/nasb?sslmode=disable"
 
 	EntCore, err = ent.Open("postgres", dsn)
 	if err != nil {
