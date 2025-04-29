@@ -35,7 +35,7 @@ func GetStudentById(id int64) (pojos.StudentDTO, error) {
 		Username:     loginUser.Username,
 		Password:     loginUser.Password,
 		Email:        loginUser.Email,
-		DateOfBirth:  loginUser.DateOfBirth,
+		DateOfBirth:  common.NewDate(loginUser.DateOfBirth),
 	}, nil
 }
 
@@ -68,7 +68,7 @@ func ProcessLogin(loginForm LoginRequest) (pojos.StudentDTO, error) {
 		Username:     loginUser.Username,
 		Password:     loginUser.Password,
 		Email:        loginUser.Email,
-		DateOfBirth:  loginUser.DateOfBirth,
+		DateOfBirth:  common.NewDate(loginUser.DateOfBirth),
 	}, nil
 }
 
@@ -91,7 +91,7 @@ func StudentInfoUpdate(studentDto pojos.StudentDTO) (string, error) {
 		ID:           strconv.Itoa(int(studentById.ID)),
 		LoginAccount: studentById.LoginAccount,
 		Username:     studentById.Username,
-		DateOfBirth:  studentById.DateOfBirth,
+		DateOfBirth:  common.NewDate(studentById.DateOfBirth),
 		Email:        studentById.Email,
 		Password:     studentDto.Password,
 	}
@@ -120,7 +120,7 @@ func StudentInfoUpdate(studentDto pojos.StudentDTO) (string, error) {
 		SetPassword(password).
 		SetUsername(studentDto.Username).
 		SetEmail(studentDto.Email).
-		SetDateOfBirth(studentDto.DateOfBirth).
+		SetDateOfBirth(studentDto.DateOfBirth.Time).
 		SetUpdatedTime(time.Now()).
 		Where(
 			student.VisibleFlg(true),
