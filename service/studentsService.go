@@ -124,7 +124,7 @@ func StudentInfoUpdate(studentDto pojos.StudentDTO) (string, error) {
 		SetPassword(password).
 		SetUsername(studentDto.Username).
 		SetEmail(studentDto.Email).
-		SetDateOfBirth(birthday).
+		SetDateOfBirth(&common.Date{Time: birthday}).
 		SetUpdatedTime(time.Now()).
 		Where(
 			student.VisibleFlg(true),
