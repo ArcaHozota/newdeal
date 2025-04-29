@@ -1,51 +1,50 @@
 {{define "include-navbar.html"}}
 
 <body>
-<nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top" data-bs-theme="dark">
-    <div class="container-fluid">
-        <div class="d-flex justify-content-start">
-            <img alt="img01" height="60" src="/static/image/cross.svg" width="60">
-            <a class="navbar-brand effect-shine" href="/category/to-mainmenu" style="font-size: 33px;">
-                NASB1995
-            </a>
-        </div>
-        <div class="collapse navbar-collapse" id="navbarSupportedContents">
-            <div class="input-group d-flex justify-content-end">
-                <input class="form-control" id="searchInput" placeholder="検索" style="max-width: 180px;" type="text">
-                <button class="input-group-text bg-transparent p-0 px-2" id="searchBtn">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top" data-bs-theme="dark">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-start">
+                <img alt="img01" height="60" src="/static/image/cross.svg" width="60">
+                <a class="navbar-brand effect-shine" href="/category/to-mainmenu" style="font-size: 33px;">
+                    NASB1995
+                </a>
             </div>
-            <ul class="navbar-nav mb-2 mb-lg-0 d-flex" id="personalInfo">
-                <li class="nav-item dropdown">
-                    <a aria-expanded="false" class="nav-link dropdown-toggle btn btn-primary me-2"
-                       data-bs-toggle="dropdown"
-                       href="#" role="button" style="height: 37.6px;">
-                        <i class="fa-solid fa-user-circle" id="userNameContainer"></i>
-                    </a>
-                    <ul class=" dropdown-menu dropdown-menu-end" role="menu">
-                        <li>
-                            <a class="dropdown-item" href="#" id="toPersonal">
-                                <i class="fa-solid fa-user-gear"></i> 個人スペース
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="#" id="toMessage">
-                                <i class="fa-solid fa-comments"></i> メッセージ
-                            </a>
-                        </li>
-                        <form action="/category/do-logout" id="logoutForm" method="post" style="display: none;">
-                        </form>
-                    </ul>
-                </li>
-            </ul>
-            <div class="d-flex">
-                <button class="btn btn-danger me-2" id="logoutBtn" type="button">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContents">
+                <div class="input-group d-flex justify-content-end">
+                    <input class="form-control" id="searchInput" placeholder="検索" style="max-width: 180px;" type="text">
+                    <button class="input-group-text bg-transparent p-0 px-2" id="searchBtn">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+                <ul class="navbar-nav mb-2 mb-lg-0 d-flex" id="personalInfo">
+                    <li class="nav-item dropdown">
+                        <a aria-expanded="false" class="nav-link dropdown-toggle btn btn-primary me-2"
+                            data-bs-toggle="dropdown" href="#" role="button" style="height: 37.6px;">
+                            <i class="fa-solid fa-user-circle" id="userNameContainer"></i>
+                        </a>
+                        <ul class=" dropdown-menu dropdown-menu-end" role="menu">
+                            <li>
+                                <a class="dropdown-item" href="#" id="toPersonal">
+                                    <i class="fa-solid fa-user-gear"></i> 個人スペース
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" id="toMessage">
+                                    <i class="fa-solid fa-comments"></i> メッセージ
+                                </a>
+                            </li>
+                            <form action="/category/do-logout" id="logoutForm" method="post" style="display: none;">
+                            </form>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-danger me-2" id="logoutBtn" type="button">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
 </body>
 {{end}}
