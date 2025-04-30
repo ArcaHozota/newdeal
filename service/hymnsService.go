@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"log"
 	"math"
@@ -323,7 +324,7 @@ func HymnInfoUpdate(hymnDto pojos.HymnDTO, editUserId int64) (string, error) {
 		LineNumber:  hymnDto.LineNumber,
 	}
 	if reflect.DeepEqual(hikakuHymnDto, hymnDto) {
-		return common.NochangeMsg, nil
+		return common.EmptyString, errors.New(common.NochangeMsg)
 	}
 	err = EntCore.Hymn.UpdateOneID(hymnById.ID).
 		SetNameJp(hymnDto.NameJP).
