@@ -73,4 +73,5 @@ func StudentsHandlerInit(r *gin.Engine) {
 			ctx.JSON(http.StatusOK, updateInfo)
 		})
 	}
+
 }
