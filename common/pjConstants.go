@@ -40,7 +40,7 @@ const LoginFormError string = "正しい形式で入力してください"
 
 const DateLayout string = "2006-01-02"
 
-const DateTimeLayout string = "2006-01-02 15:04:05.000000 +0900 JST"
+const DateTimeLayout string = "2006-01-02 15:04:05.000000 -0700 MST"
 
 var StrangeArray = []string{
 	"insert", "delete", "update", "create", "drop",
