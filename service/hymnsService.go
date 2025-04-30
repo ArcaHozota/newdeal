@@ -276,7 +276,26 @@ func HymnScoreStorage(hymnDto pojos.HymnDTO) (string, error) {
 	return common.UpdatedMsg, nil
 }
 
-func HymnInfoUpdate(hymnDto pojos.HymnDTO) (string, error) {
+func HymnInfoStorage(hymnDto pojos.HymnDTO, editUserId int64) (string, error) {
+	hymnId := tools.SnowflakeID()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	err := EntCore.Hymn.Create().
+		SetID(hymnId).
+		SetNameJp(hymnDto.NameJP).
+		SetNameKr(hymnDto.NameKR).
+		SetLink(hymnDto.Link).
+		SetSerif(hymnDto.Serif).
+		SetUpdatedUser(editUserId).
+		SetUpdatedTime(time.Now()).
+		Exec(ctx)
+	if err != nil {
+		return common.EmptyString, err
+	}
+	return common.InsertedMsg, nil
+}
+
+func HymnInfoUpdate(hymnDto pojos.HymnDTO, editUserId int64) (string, error) {
 	hymnId, err := strconv.Atoi(hymnDto.ID)
 	if err != nil {
 		return common.EmptyString, err
@@ -311,6 +330,7 @@ func HymnInfoUpdate(hymnDto pojos.HymnDTO) (string, error) {
 		SetNameKr(hymnDto.NameKR).
 		SetLink(hymnDto.Link).
 		SetSerif(hymnDto.Serif).
+		SetUpdatedUser(editUserId).
 		Where(
 			hymn.VisibleFlg(true),
 		).

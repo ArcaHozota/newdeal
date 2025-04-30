@@ -170,6 +170,37 @@ func HymnsHandlerInit(r *gin.Engine) {
 			}
 			ctx.JSON(http.StatusOK, storageInfo)
 		})
+		hymnsRouter.POST("info-storage", authMiddleware, func(ctx *gin.Context) {
+			var req pojos.HymnDTO
+			if err := ctx.ShouldBindJSON(&req); err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+			studentId, exists := ctx.Get("loginId")
+			if !exists {
+				ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+				return
+			}
+			loginIdStr, ok := studentId.(string)
+			if !ok {
+				ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+				return
+			}
+			loginId, err := strconv.Atoi(loginIdStr)
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+			updateInfo, err := service.HymnInfoStorage(req, int64(loginId))
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+			ctx.JSON(http.StatusOK, updateInfo)
+		})
 		hymnsRouter.PUT("info-update", authMiddleware, func(ctx *gin.Context) {
 			var req pojos.HymnDTO
 			if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -177,7 +208,23 @@ func HymnsHandlerInit(r *gin.Engine) {
 				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
-			updateInfo, err := service.HymnInfoUpdate(req)
+			studentId, exists := ctx.Get("loginId")
+			if !exists {
+				ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+				return
+			}
+			loginIdStr, ok := studentId.(string)
+			if !ok {
+				ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+				return
+			}
+			loginId, err := strconv.Atoi(loginIdStr)
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+			updateInfo, err := service.HymnInfoUpdate(req, int64(loginId))
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusBadRequest, err.Error())

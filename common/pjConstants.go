@@ -24,6 +24,8 @@ const LoginedMsg string = "ログイン成功!"
 
 const LogoutMsg string = "ログアウトしました、必要な場合はもう一度ログインしてください。"
 
+const InsertedMsg string = "追加済み"
+
 const UpsertedMsg string = "更新または追加済み"
 
 const UpdatedMsg string = "更新済み"

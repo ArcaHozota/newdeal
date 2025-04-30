@@ -32,8 +32,7 @@ $("#infoStorageBtn").on("click", () => {
             'nameJp': $("#nameJpInput").val().trim(),
             'nameKr': $("#nameKrInput").val().trim(),
             'link': $("#linkInput").val(),
-            'serif': $("#serifInput").val(),
-            'updatedUser': $("#toPersonal").find("input").val().replace(/,/g, emptyString)
+            'serif': $("#serifInput").val()
         });
         projectAjaxModify('/hymns/info-storage', POST, postData, hymnsPostSuccessFunction);
     }
@@ -63,8 +62,7 @@ $("#infoUpdateBtn").on("click", () => {
             'nameKr': $("#nameKrEdit").val().trim(),
             'link': $("#linkEdit").val(),
             'serif': $("#serifEdit").val(),
-            'updatedTime': $("#datestampContainer").val(),
-            'updatedUser': $("#toPersonal").find("input").val().replace(/,/g, emptyString)
+            'updatedTime': $("#datestampContainer").val()
         });
         projectAjaxModify('/hymns/info-update', PUT, putData, hymnsPutSuccessFunction);
     }
