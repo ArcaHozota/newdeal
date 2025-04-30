@@ -15,8 +15,8 @@ func main() {
 
 	// ENTを初期化する
 	service.InitEntClient()
-	defer func(EntCore *ent.Client) {
-		err := EntCore.Close()
+	defer func(entCore *ent.Client) {
+		err := entCore.Close()
 		if err != nil {
 			log.Fatalf("failed to close ent core: %v", err)
 		}

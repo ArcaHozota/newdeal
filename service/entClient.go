@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
-	_ "github.com/lib/pq"
 	"log"
 	"newdeal/ent"
+
+	_ "github.com/lib/pq"
 )
 
 var EntCore *ent.Client
