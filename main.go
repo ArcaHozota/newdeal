@@ -31,7 +31,7 @@ func main() {
 	r.Static("/static", "./static")
 
 	// ハンドラを配置する
-	routers.BookHandlerInit(r)
+	routers.BooksHandlerInit(r)
 	routers.CategoryHandlerInit(r)
 	routers.HymnsHandlerInit(r)
 	routers.HomeHandlerInit(r)

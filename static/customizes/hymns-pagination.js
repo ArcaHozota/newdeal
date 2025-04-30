@@ -29,8 +29,8 @@ $("#infoAdditionBtn").on("click", (e) => {
 	let url = '/hymns/to-addition?pageNum=' + pageNum;
 	checkPermissionAndTransfer(url);
 });
-$tableBody.on("click", '.edit-btn', () => {
-	let editId = $(this).attr("data-edit-id");
+$tableBody.on("click", '.edit-btn', (e) => {
+	let editId = $(e.currentTarget).attr("data-edit-id");
 	let url = '/hymns/to-edition?editId=' + editId + '&pageNum=' + pageNum;
 	checkPermissionAndTransfer(url);
 });

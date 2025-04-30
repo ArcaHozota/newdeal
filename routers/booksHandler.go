@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func BookHandlerInit(r *gin.Engine) {
+func BooksHandlerInit(r *gin.Engine) {
 
 	bookRouter := r.Group("/books")
 	{
