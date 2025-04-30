@@ -1,9 +1,9 @@
 package common
 
 import (
+	"bytes"
 	"database/sql/driver"
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -12,7 +12,11 @@ type Date struct{ time.Time }
 
 // MarshalJSON : Date → "1994-12-03"
 func (d Date) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + d.Time.Format(DateLayout) + `"`), nil
+	if d.Time.IsZero() {
+		return []byte(`""`), nil
+	}
+	str := d.Time.In(jst).Format(DateLayout) // ★ 画面は JST
+	return []byte(`"` + str + `"`), nil
 }
 
 // Scan --- sql.Scanner (DB から読み込む) ---
@@ -44,12 +48,16 @@ func (d *Date) Scan(src interface{}) error {
 
 // UnmarshalJSON : "1994-12-03" → Date
 func (d *Date) UnmarshalJSON(b []byte) error {
-	s := strings.Trim(string(b), `"`)
-	t, err := time.Parse(DateLayout, s)
-	if err != nil {
-		return err
+	s := string(bytes.Trim(b, `"`))
+	if s == "" {
+		*d = Date{}
+		return nil
 	}
-	d.Time = t
+	t, err := time.ParseInLocation(DateLayout, s, jst) // JST として解釈
+	if err != nil {
+		return fmt.Errorf("DateTime: %w", err)
+	}
+	d.Time = t.UTC() // ★ 内部は UTC で保持
 	return nil
 }
 
@@ -59,4 +67,12 @@ func (d Date) Value() (driver.Value, error) {
 		return nil, nil // NULL 保存を許可
 	}
 	return d.Time.Format(DateLayout), nil // DATE 列には文字列でも OK
+}
+
+// Date へ追加
+func (d Date) String() string {
+	if d.Time.IsZero() {
+		return EmptyString
+	}
+	return d.Time.In(jst).Format(DateLayout) // ← JST で成形
 }
