@@ -57,10 +57,13 @@ func CountHymnsAll() (int, error) {
 func GetHymnById(id int64) (pojos.HymnDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	hymnById, err := EntCore.Hymn.Query().Where(
-		hymn.VisibleFlg(true),
-		hymn.ID(id),
-	).Only(ctx)
+	hymnById, err := EntCore.Hymn.Query().
+		Where(
+			hymn.VisibleFlg(true),
+			hymn.ID(id),
+		).
+		WithUpdatedBy().
+		Only(ctx)
 	if err != nil {
 		return pojos.HymnDTO{}, err
 	}
@@ -423,17 +426,17 @@ func analyzeKorean(koreanText string) ([]string, error) {
 
 // DTOへマップする
 func map2HymnDTOs(hymns []*ent.Hymn, lineNo pojos.LineNumber) []pojos.HymnDTO {
-	return lo.Map(hymns, func(hm *ent.Hymn, _ int) pojos.HymnDTO {
+	return lo.Map(hymns, func(hymnIndex *ent.Hymn, _ int) pojos.HymnDTO {
 		return pojos.HymnDTO{
-			ID:          strconv.Itoa(int(hm.ID)),
-			NameJP:      hm.NameJp,
-			NameKR:      hm.NameKr,
-			Serif:       hm.Serif,
-			Link:        hm.Link,
+			ID:          strconv.Itoa(int(hymnIndex.ID)),
+			NameJP:      hymnIndex.NameJp,
+			NameKR:      hymnIndex.NameKr,
+			Serif:       hymnIndex.Serif,
+			Link:        hymnIndex.Link,
 			Score:       nil,
 			Biko:        common.EmptyString,
-			UpdatedUser: hm.Edges.UpdatedBy.Username,
-			UpdatedTime: common.DateTime{Time: hm.UpdatedTime},
+			UpdatedUser: common.EmptyString,
+			UpdatedTime: common.DateTime{Time: hymnIndex.UpdatedTime},
 			LineNumber:  lineNo,
 		}
 	})
