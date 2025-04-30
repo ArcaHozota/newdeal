@@ -3,9 +3,7 @@ package service
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"math"
@@ -69,10 +67,6 @@ func GetHymnById(id int64) (pojos.HymnDTO, error) {
 	if err != nil {
 		return pojos.HymnDTO{}, err
 	}
-	fmt.Printf("DB→%s  (%v)\n", hymnById.UpdatedTime.Location(), hymnById.UpdatedTime)
-	dt := common.DateTime{Time: hymnById.UpdatedTime}
-	b, _ := json.Marshal(dt)
-	fmt.Printf("JSON→%s\n", b)
 	return pojos.HymnDTO{
 		ID:          strconv.Itoa(int(hymnById.ID)),
 		NameJP:      hymnById.NameJp,
@@ -82,7 +76,7 @@ func GetHymnById(id int64) (pojos.HymnDTO, error) {
 		Score:       nil,
 		Biko:        common.EmptyString,
 		UpdatedUser: hymnById.Edges.UpdatedBy.Username,
-		UpdatedTime: dt,
+		UpdatedTime: common.DateTime{Time: hymnById.UpdatedTime},
 		LineNumber:  pojos.LineNumber(5),
 	}, nil
 }
