@@ -77,3 +77,11 @@ func (d *DateTime) Scan(src any) error {
 	}
 	return nil
 }
+
+// DateTime へ追加
+func (d DateTime) String() string {
+	if d.Time.IsZero() {
+		return EmptyString
+	}
+	return d.Time.In(jst).Format(DateTimeLayout) // ← JST で成形
+}
