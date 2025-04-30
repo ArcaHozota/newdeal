@@ -72,7 +72,7 @@ func GetHymnById(id int64) (pojos.HymnDTO, error) {
 		Link:        hymnById.Link,
 		Score:       nil,
 		Biko:        common.EmptyString,
-		UpdatedUser: strconv.Itoa(int(hymnById.UpdatedUser)),
+		UpdatedUser: hymnById.Edges.UpdatedBy.Username,
 		UpdatedTime: common.DateTime{Time: hymnById.UpdatedTime},
 		LineNumber:  pojos.LineNumber(5),
 	}, nil
@@ -432,7 +432,7 @@ func map2HymnDTOs(hymns []*ent.Hymn, lineNo pojos.LineNumber) []pojos.HymnDTO {
 			Link:        hm.Link,
 			Score:       nil,
 			Biko:        common.EmptyString,
-			UpdatedUser: strconv.Itoa(int(hm.UpdatedUser)),
+			UpdatedUser: hm.Edges.UpdatedBy.Username,
 			UpdatedTime: common.DateTime{Time: hm.UpdatedTime},
 			LineNumber:  lineNo,
 		}
