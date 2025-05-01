@@ -16,7 +16,7 @@ $tableBody.on("click", '.link-btn', (e) => {
 
 function retrieveRandomFive(keyword) {
     $.ajax({
-        url: '/hymns/retrieve-random-five',
+        url: '/hymns/random-five-retrieve',
         data: 'keyword=' + keyword,
         success: (response) => {
             buildTableBody(response);

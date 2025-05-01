@@ -235,6 +235,16 @@ func HymnsHandlerInit(r *gin.Engine) {
 		hymnsRouter.GET("to-random-five", authMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "hymns-random-five.html", gin.H{})
 		})
+		hymnsRouter.GET("random-five-retrieve", authMiddleware, func(ctx *gin.Context) {
+			keyword := ctx.DefaultQuery("keyword", common.EmptyString)
+			hymnDtos, err := service.GetHymnsRandomFive(keyword)
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+			ctx.JSON(http.StatusOK, hymnDtos)
+		})
 	}
 
 }
