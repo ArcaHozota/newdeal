@@ -150,7 +150,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 				return
 			}
 			scoreId := ctx.DefaultQuery("scoreId", common.EmptyString)
-			ctx.HTML(http.StatusOK, "hymns-pagination.html", gin.H{
+			ctx.HTML(http.StatusOK, "hymns-score-upload.html", gin.H{
 				common.AttrNamePageNo: pageNum,
 				"scoreId":             scoreId,
 			})
@@ -244,6 +244,30 @@ func HymnsHandlerInit(r *gin.Engine) {
 				return
 			}
 			ctx.JSON(http.StatusOK, hymnDtos)
+		})
+		hymnsRouter.GET("deletion-check", authMiddleware, func(ctx *gin.Context) {
+			studentId, exists := ctx.Get("loginId")
+			if !exists {
+				ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+				return
+			}
+			loginIdStr, ok := studentId.(string)
+			if !ok {
+				ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
+				return
+			}
+			loginId, err := strconv.Atoi(loginIdStr)
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+			auth, err := service.CheckDeleteAuth(int64(loginId))
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusForbidden, err.Error())
+			}
+			ctx.JSON(http.StatusOK, auth)
 		})
 	}
 

@@ -135,6 +135,23 @@ func StudentInfoUpdate(studentDto pojos.StudentDTO) (string, error) {
 	return common.UpdatedMsg, nil
 }
 
+func CheckDeleteAuth(id int64) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	loginUser, err := EntCore.Student.Query().
+		Where(
+			student.VisibleFlg(true),
+			student.ID(id),
+		).Only(ctx)
+	if err != nil {
+		return common.EmptyString, err
+	}
+	if loginUser.Username == "ヨハネ" {
+		return common.CheckedMsg, nil
+	}
+	return common.EmptyString, errors.New(common.CheckErrMsg)
+}
+
 func preLogin(loginUser ent.Student) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

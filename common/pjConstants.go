@@ -32,6 +32,10 @@ const UpdatedMsg string = "更新済み"
 
 const NochangeMsg string = "変更なし"
 
+const CheckedMsg string = "チェック済み"
+
+const CheckErrMsg string = "権限なし"
+
 const StudentError string = "当ユーザが存在しません。"
 
 const PasswordError string = "パスワードが不一致になります。"
