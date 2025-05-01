@@ -266,6 +266,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			if err != nil {
 				log.Println(err)
 				ctx.JSON(http.StatusForbidden, err.Error())
+				return
 			}
 			ctx.JSON(http.StatusOK, auth)
 		})

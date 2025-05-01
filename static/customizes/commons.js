@@ -193,8 +193,9 @@ function normalDeleteBtnFunction(url, message, deleteId) {
                 }
             });
         },
-        error: (response) => {
-            layer.msg(response.responseJSON.message);
+        error: (xhr) => {
+            let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+            layer.msg(message);
         }
     });
 }

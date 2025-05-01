@@ -42,7 +42,7 @@ $kanumiSearchBtn.on("click", (e) => {
                     let nameJp = $('.table-danger').find("td:eq(1)").children("a").text();
                     let slashIndex = nameJp.indexOf('/');
                     $nameDisplay.text('検索完了---' + nameJp.substring(0, slashIndex));
-                    $nameDisplay.attr('idVal', 0);
+                    $nameDisplay.attr('data-id-val', 0);
                 }, 66000);
             }
         });
@@ -56,7 +56,7 @@ $tableBody.on("click", '.form-check-input', () => {
             data: 'hymnId=' + idVal,
             success: (response) => {
                 $nameDisplay.text(response.nameJp);
-                $nameDisplay.attr('idVal', response.id);
+                $nameDisplay.attr('data-id-val', response.id);
             },
             error: (xhr) => {
                 let message = xhr.responseText.replace(/^"|"$/g, emptyString);
@@ -72,7 +72,7 @@ $tableBody.on("click", '.form-check-input', () => {
                     data: 'hymnId=' + $(element).val(),
                     success: (response) => {
                         $nameDisplay.text(response.nameJp);
-                        $nameDisplay.attr('id-val', response.id);
+                        $nameDisplay.attr('data-id-val', response.id);
                     },
                     error: (xhr) => {
                         let message = xhr.responseText.replace(/^"|"$/g, emptyString);
