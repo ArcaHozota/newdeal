@@ -4,7 +4,7 @@ let $nameDisplay = $("#nameDisplay");
 let $loadingBackground2 = $("#loadingBackground2");
 $(document).ready(() => {
     adjustWidth();
-    initialPagination(1, null);
+    toSelectedPg(1, null);
     $kanumiSearchBtn.on("mousemove", (e) => {
         const $btn = $(e.currentTarget);           // 常にイベント発生元
         const offset = $btn.offset();
@@ -83,7 +83,7 @@ $tableBody.on("click", '.link-btn', (e) => {
     window.open(transferVal);
 });
 
-function initialPagination(pageNum, keyword) {
+function toSelectedPg(pageNum, keyword) {
     $.ajax({
         url: '/hymns/pagination',
         data: 'pageNum=' + pageNum,
