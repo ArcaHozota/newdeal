@@ -40,12 +40,12 @@ $("#scoreUploadBtn").on("click", () => {
             data: jsonData,
             contentType: 'application/json',
             success: (response) => {
-                let message = response.replace(/^"|"$/g, emptyString);
+                let message = trimQuote(response);
                 localStorage.setItem('redirectMessage', message);
                 window.location.replace('/hymns/to-pages?pageNum=' + pageNum);
             },
             error: (xhr) => {
-                let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+                let message = trimQuote(xhr.responseText);
                 layer.msg(message);
             }
         });

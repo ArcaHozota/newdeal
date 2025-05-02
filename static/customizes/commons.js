@@ -140,7 +140,7 @@ function projectAjaxModify(url, type, data, successFunction) {
         contentType: 'application/json;charset=UTF-8',
         success: successFunction,
         error: (xhr) => {
-            let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+            let message = trimQuote(xhr.responseText);
             layer.msg(message);
         }
     });
@@ -194,7 +194,7 @@ function normalDeleteBtnFunction(url, message, deleteId) {
             });
         },
         error: (xhr) => {
-            let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+            let message = trimQuote(xhr.responseText);
             layer.msg(message);
         }
     });
@@ -207,7 +207,7 @@ function usernameInitial() {
             $("#userNameContainer").text(response);
         },
         error: (xhr) => {
-            let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+            let message = trimQuote(xhr.responseText);
             layer.msg(message);
         }
     })

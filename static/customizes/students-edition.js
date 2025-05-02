@@ -39,7 +39,7 @@ $("#restoreBtn").on("click", () => {
 });
 
 function studentsPutSuccessFunction(response) {
-    let message = response.replace(/^"|"$/g, emptyString);
+    let message = trimQuote(response);
     localStorage.setItem('redirectMessage', message);
     window.location.replace('/category/to-mainmenu');
 }
@@ -78,7 +78,7 @@ function initialStudent() {
             $("#emailEdit").val(response.email);
         },
         error: (xhr) => {
-            let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+            let message = trimQuote(xhr.responseText);
             layer.msg(message);
         }
     });

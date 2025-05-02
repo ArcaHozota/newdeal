@@ -10,6 +10,7 @@ const GET = 'GET';
 const POST = 'POST';
 const PUT = 'PUT';
 const DELETE = 'DELETE';
+const trimQuote = (str) => str.replace(/^"|"$/g, emptyString);
 
 function buildPageInfos(response) {
     let $pageInfos = $("#pageInfos");

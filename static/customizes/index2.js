@@ -2,9 +2,10 @@ let $tableBody = $("#tableBody");
 let $kanumiSearchBtn = $("#kanamiSearchBtn");
 let $nameDisplay = $("#nameDisplay");
 let $loadingBackground2 = $("#loadingBackground2");
+let keyword = null
 $(document).ready(() => {
     adjustWidth();
-    toSelectedPg(1, null);
+    toSelectedPg(1, keyword);
     $kanumiSearchBtn.on("mousemove", (e) => {
         const $btn = $(e.currentTarget);           // 常にイベント発生元
         const offset = $btn.offset();
@@ -16,7 +17,7 @@ $(document).ready(() => {
 });
 $kanumiSearchBtn.on("click", (e) => {
     e.preventDefault();
-    let hymnId = $nameDisplay.attr('id-val');
+    let hymnId = $nameDisplay.attr('data-id-val');
     if (hymnId === "0" || hymnId === 0 || hymnId === null || hymnId === undefined) {
         layer.msg('賛美歌を選択してください');
     } else {
@@ -48,9 +49,9 @@ $kanumiSearchBtn.on("click", (e) => {
         });
     }
 });
-$tableBody.on("click", '.form-check-input', () => {
-    if ($(this).prop('checked')) {
-        let idVal = $(this).val();
+$tableBody.on("click", '.form-check-input', (e) => {
+    if ($(e.currentTarget).prop('checked')) {
+        let idVal = $(e.currentTarget).val();
         $.ajax({
             url: '/hymns/get-info-id',
             data: 'hymnId=' + idVal,
@@ -59,7 +60,7 @@ $tableBody.on("click", '.form-check-input', () => {
                 $nameDisplay.attr('data-id-val', response.id);
             },
             error: (xhr) => {
-                let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+                let message = trimQuote(xhr.responseText);
                 layer.msg(message);
             }
         });
@@ -71,7 +72,7 @@ $tableBody.on("click", '.form-check-input', () => {
                 $nameDisplay.text('賛美歌' + response + '曲レコード済み');
             },
             error: (xhr) => {
-                let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+                let message = trimQuote(xhr.responseText);
                 layer.msg(message);
             }
         });
@@ -93,7 +94,7 @@ function toSelectedPg(pageNum, keyword) {
             buildPageNavi(response);
         },
         error: (xhr) => {
-            let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+            let message = trimQuote(xhr.responseText);
             layer.msg(message);
         }
     });

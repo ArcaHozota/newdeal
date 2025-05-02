@@ -63,7 +63,7 @@ function toSelectedPg(pageNum, keyword) {
             buildPageNavi(response);
         },
         error: (xhr) => {
-            let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+            let message = trimQuote(xhr.responseText);
             layer.msg(message);
         }
     });
