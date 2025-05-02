@@ -48,7 +48,7 @@ var emptyStrArray = map[string]int{common.EmptyString: 0}
 func CountHymnsAll() (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	return EntCore.Hymn.Query().
+	return EntClient.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
 		).Count(ctx)
@@ -57,7 +57,7 @@ func CountHymnsAll() (int, error) {
 func GetHymnById(id int64) (pojos.HymnDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	hymnById, err := EntCore.Hymn.Query().
+	hymnById, err := EntClient.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
 			hymn.ID(id),
@@ -84,7 +84,7 @@ func GetHymnById(id int64) (pojos.HymnDTO, error) {
 func CountHymnsByKeyword(keyword string) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	return EntCore.Hymn.Query().
+	return EntClient.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
 			hymn.Or(
@@ -101,7 +101,7 @@ func GetHymnsByKeyword(keyword string, pageNum int) ([]pojos.HymnDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	offset := (pageNum - 1) * int(common.DefaultPageSize)
-	hymns, err := EntCore.Hymn.Query().
+	hymns, err := EntClient.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
 			hymn.Or(
@@ -123,7 +123,7 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 	defer cancel()
 	for _, strange := range common.StrangeArray {
 		if strings.Contains(strings.ToLower(keyword), strange) || len(keyword) >= 100 {
-			hymns, err := EntCore.Hymn.Query().
+			hymns, err := EntClient.Hymn.Query().
 				Where(hymn.VisibleFlg(true)).
 				Order(hymn.ByID(sql.OrderAsc())).
 				Limit(int(common.DefaultPageSize)).All(ctx)
@@ -132,12 +132,12 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 		}
 	}
 	if keyword == common.EmptyString {
-		hymns, err := EntCore.Hymn.Query().
+		hymns, err := EntClient.Hymn.Query().
 			Where(hymn.VisibleFlg(true)).All(ctx)
 		hymnDtos := map2HymnDTOs(hymns, pojos.LineNumber(5))
 		return randomFiveLoop2(hymnDtos), err
 	}
-	hymns, err := EntCore.Hymn.Query().
+	hymns, err := EntClient.Hymn.Query().
 		Where(hymn.VisibleFlg(true),
 			hymn.Or(
 				hymn.NameJp(keyword),
@@ -159,7 +159,7 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 		}
 		return int64(parseInt)
 	})
-	hymns2, err := EntCore.Hymn.Query().
+	hymns2, err := EntClient.Hymn.Query().
 		Where(hymn.VisibleFlg(true),
 			hymn.Or(
 				hymn.NameJpContains(keyword),
@@ -188,7 +188,7 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 		return int64(parseInt)
 	})
 	keyword = tools.GetDetailKeyword(keyword)
-	hymns3, err := EntCore.Hymn.Query().
+	hymns3, err := EntClient.Hymn.Query().
 		Where(hymn.VisibleFlg(true),
 			hymn.Or(
 				hymn.NameJpContains(keyword),
@@ -217,7 +217,7 @@ func GetHymnsRandomFive(keyword string) ([]pojos.HymnDTO, error) {
 		}
 		return int64(parseInt)
 	})
-	hymns4, err := EntCore.Hymn.Query().
+	hymns4, err := EntClient.Hymn.Query().
 		Where(hymn.VisibleFlg(true)).All(ctx)
 	if err != nil {
 		return nil, err
@@ -239,7 +239,7 @@ func GetHymnsKanumi(id int64) ([]pojos.HymnDTO, error) {
 	hymnDtos = append(hymnDtos, hymnDto)
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	hymns, err := EntCore.Hymn.Query().
+	hymns, err := EntClient.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
 			hymn.IDNEQ(id),
@@ -257,7 +257,7 @@ func HymnScoreStorage(hymnDto pojos.HymnDTO) (string, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	hymnById, err := EntCore.HymnsWork.Query().Where(
+	hymnById, err := EntClient.HymnsWork.Query().Where(
 		hymnswork.WorkID(int64(hymnId)),
 	).Only(ctx)
 	if err != nil {
@@ -267,7 +267,7 @@ func HymnScoreStorage(hymnDto pojos.HymnDTO) (string, error) {
 		return common.NochangeMsg, nil
 	}
 	fileType := checkFileTypeFromBytes(hymnDto.Score)
-	err = EntCore.HymnsWork.UpdateOneID(hymnById.ID).
+	err = EntClient.HymnsWork.UpdateOneID(hymnById.ID).
 		SetScore(hymnDto.Score).
 		SetBiko(fileType).
 		Where(
@@ -284,7 +284,7 @@ func HymnInfoStorage(hymnDto pojos.HymnDTO, editUserId int64) (string, error) {
 	hymnId := tools.SnowflakeID()
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	err := EntCore.Hymn.Create().
+	err := EntClient.Hymn.Create().
 		SetID(hymnId).
 		SetNameJp(hymnDto.NameJP).
 		SetNameKr(hymnDto.NameKR).
@@ -306,7 +306,7 @@ func HymnInfoUpdate(hymnDto pojos.HymnDTO, editUserId int64) (string, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	hymnById, err := EntCore.Hymn.Query().
+	hymnById, err := EntClient.Hymn.Query().
 		Where(
 			hymn.VisibleFlg(true),
 			hymn.ID(int64(hymnId)),
@@ -329,7 +329,7 @@ func HymnInfoUpdate(hymnDto pojos.HymnDTO, editUserId int64) (string, error) {
 	if reflect.DeepEqual(hikakuHymnDto, hymnDto) {
 		return common.EmptyString, errors.New(common.NochangeMsg)
 	}
-	err = EntCore.Hymn.UpdateOneID(hymnById.ID).
+	err = EntClient.Hymn.UpdateOneID(hymnById.ID).
 		SetNameJp(hymnDto.NameJP).
 		SetNameKr(hymnDto.NameKR).
 		SetLink(hymnDto.Link).

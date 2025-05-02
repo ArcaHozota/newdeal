@@ -21,7 +21,7 @@ type LoginRequest struct {
 func GetStudentById(id int64) (pojos.StudentDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	loginUser, err := EntCore.Student.Query().
+	loginUser, err := EntClient.Student.Query().
 		Where(
 			student.VisibleFlg(true),
 			student.ID(id),
@@ -43,7 +43,7 @@ func ProcessLogin(loginForm LoginRequest) (pojos.StudentDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	username := loginForm.Username
-	loginUser, err := EntCore.Student.Query().
+	loginUser, err := EntClient.Student.Query().
 		Where(
 			student.VisibleFlg(true),
 			student.Or(
@@ -79,7 +79,7 @@ func StudentInfoUpdate(studentDto pojos.StudentDTO) (string, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	studentById, err := EntCore.Student.Query().
+	studentById, err := EntClient.Student.Query().
 		Where(
 			student.VisibleFlg(true),
 			student.ID(int64(studentId)),
@@ -103,7 +103,7 @@ func StudentInfoUpdate(studentDto pojos.StudentDTO) (string, error) {
 		if err != nil {
 			return common.EmptyString, err
 		}
-		err = EntCore.Student.UpdateOneID(studentById.ID).
+		err = EntClient.Student.UpdateOneID(studentById.ID).
 			SetPassword(password).
 			Exec(ctx)
 		if err != nil {
@@ -119,7 +119,7 @@ func StudentInfoUpdate(studentDto pojos.StudentDTO) (string, error) {
 	if err != nil {
 		return common.EmptyString, err
 	}
-	err = EntCore.Student.UpdateOneID(studentById.ID).
+	err = EntClient.Student.UpdateOneID(studentById.ID).
 		SetLoginAccount(studentDto.LoginAccount).
 		SetPassword(password).
 		SetUsername(studentDto.Username).
@@ -138,7 +138,7 @@ func StudentInfoUpdate(studentDto pojos.StudentDTO) (string, error) {
 func CheckDeleteAuth(id int64) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	loginUser, err := EntCore.Student.Query().
+	loginUser, err := EntClient.Student.Query().
 		Where(
 			student.VisibleFlg(true),
 			student.ID(id),
@@ -155,7 +155,7 @@ func CheckDeleteAuth(id int64) (string, error) {
 func preLogin(loginUser ent.Student) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	err := EntCore.Student.UpdateOneID(loginUser.ID).
+	err := EntClient.Student.UpdateOneID(loginUser.ID).
 		SetUpdatedTime(time.Now()).
 		Where(student.VisibleFlg(true)).
 		Exec(ctx)

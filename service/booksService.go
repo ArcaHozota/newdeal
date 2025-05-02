@@ -20,7 +20,7 @@ import (
 func GetBooks() ([]pojos.BookDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	books, err := EntCore.Book.Query().
+	books, err := EntClient.Book.Query().
 		Order(book.ByID(sql.OrderAsc())).
 		All(ctx)
 	if err != nil {
@@ -32,7 +32,7 @@ func GetBooks() ([]pojos.BookDTO, error) {
 func GetChaptersByBookId(bookId int16) ([]pojos.ChapterDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	chapters, err := EntCore.Chapter.Query().
+	chapters, err := EntClient.Chapter.Query().
 		Where(
 			chapter.BookIDEQ(bookId),
 		).
@@ -55,7 +55,7 @@ func PhraseInfoStorage(phraseDto pojos.PhraseDTO) (string, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	queriedCh, err := EntCore.Chapter.Query().Where(
+	queriedCh, err := EntClient.Chapter.Query().Where(
 		chapter.IDEQ(int32(chapterId)),
 	).Only(ctx)
 	if err != nil {
@@ -68,13 +68,13 @@ func PhraseInfoStorage(phraseDto pojos.PhraseDTO) (string, error) {
 		textEn = strings.ReplaceAll(textEn, "#", common.EmptyString)
 	}
 	phraseId := int64(chapterId*100 + id)
-	count, _ := EntCore.Phrase.Query().
+	count, _ := EntClient.Phrase.Query().
 		Where(
 			phrase.IDEQ(phraseId),
 		).
 		Count(ctx)
 	if count != 0 {
-		err = EntCore.Phrase.UpdateOneID(phraseId).
+		err = EntClient.Phrase.UpdateOneID(phraseId).
 			SetName(fmt.Sprintf("%s:%d", queriedCh.Name, id)).
 			SetTextEn(textEn).
 			SetTextJp(phraseDto.TextJP).
@@ -86,7 +86,7 @@ func PhraseInfoStorage(phraseDto pojos.PhraseDTO) (string, error) {
 		}
 		return common.UpsertedMsg, nil
 	}
-	err = EntCore.Phrase.Create().
+	err = EntClient.Phrase.Create().
 		SetID(phraseId).
 		SetName(fmt.Sprintf("%s:%d", queriedCh.Name, id)).
 		SetTextEn(textEn).

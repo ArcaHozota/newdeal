@@ -15,12 +15,12 @@ func main() {
 
 	// ENTを初期化する
 	service.InitEntClient()
-	defer func(entCore *ent.Client) {
-		err := entCore.Close()
+	defer func(entClient *ent.Client) {
+		err := entClient.Close()
 		if err != nil {
 			log.Fatalf("failed to close ent core: %v", err)
 		}
-	}(service.EntCore)
+	}(service.EntClient)
 
 	// Ginを配置する
 	r := gin.Default()
