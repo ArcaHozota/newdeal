@@ -10,7 +10,7 @@ $("#bookInput").on("change", () => {
         url: '/books/get-chapters',
         data: 'bookId=' + bookId,
         success: (response) => {
-            $.each(response, (response, item) => {
+            $.each(response, (_, item) => {
                 let optionElement = $("<option></option>").val(item.id).text(item.name);
                 optionElement.appendTo("#chapterInput");
             });

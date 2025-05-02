@@ -9,11 +9,11 @@ $("#toHymnPages").on("click", (e) => {
     let url = '/hymns/to-pages?pageNum=' + pageNum;
     checkPermissionAndTransfer(url);
 });
-$("#nameJpInput").on("change", () => {
-    checkHymnName(this, null);
+$("#nameJpInput").on("change", (e) => {
+    checkHymnName(e.currentTarget, null);
 });
-$("#nameKrInput").on("change", () => {
-    checkHymnName2(this, null);
+$("#nameKrInput").on("change", (e) => {
+    checkHymnName2(e.currentTarget, null);
 });
 $("#infoStorageBtn").on("click", () => {
     let inputArrays = ["#nameJpInput", "#nameKrInput", "#linkInput", "#serifInput"];
