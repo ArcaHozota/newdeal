@@ -49,6 +49,9 @@ $kanumiSearchBtn.on("click", (e) => {
         });
     }
 });
+$tableBody.on("change", '.form-check-input', (e) => {
+    $('.form-check-input').not(e.currentTarget).prop('checked', false);
+});
 $tableBody.on("click", '.form-check-input', (e) => {
     if ($(e.currentTarget).prop('checked')) {
         let idVal = $(e.currentTarget).val();
