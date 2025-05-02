@@ -87,6 +87,15 @@ func HymnsHandlerInit(r *gin.Engine) {
 			}
 			ctx.JSON(http.StatusOK, hymnDto)
 		})
+		hymnsRouter.GET("get-records", func(ctx *gin.Context) {
+			count, err := service.CountHymnsAll()
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+			ctx.JSON(http.StatusOK, count)
+		})
 		hymnsRouter.GET("to-pages", authMiddleware, func(ctx *gin.Context) {
 			pageNumStr := ctx.DefaultQuery(common.AttrNamePageNo, "1")
 			pageNum, err := strconv.Atoi(pageNumStr)

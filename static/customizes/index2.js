@@ -64,24 +64,17 @@ $tableBody.on("click", '.form-check-input', () => {
             }
         });
     } else {
-        let checkBoxArray = $tableBody.find('.form-check-input');
-        for (const element of checkBoxArray) {
-            if ($(element).prop('checked')) {
-                $.ajax({
-                    url: '/hymns/get-info-id',
-                    data: 'hymnId=' + $(element).val(),
-                    success: (response) => {
-                        $nameDisplay.text(response.nameJp);
-                        $nameDisplay.attr('data-id-val', response.id);
-                    },
-                    error: (xhr) => {
-                        let message = xhr.responseText.replace(/^"|"$/g, emptyString);
-                        layer.msg(message);
-                    }
-                });
-                return;
+        $nameDisplay.attr('data-id-val', 0);
+        $.ajax({
+            url: '/hymns/get-records',
+            success: (response) => {
+                $nameDisplay.text('賛美歌' + response + '曲レコード済み');
+            },
+            error: (xhr) => {
+                let message = xhr.responseText.replace(/^"|"$/g, emptyString);
+                layer.msg(message);
             }
-        }
+        });
     }
 });
 $tableBody.on("click", '.link-btn', (e) => {
