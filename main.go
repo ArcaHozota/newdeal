@@ -33,8 +33,8 @@ func main() {
 	// ハンドラを配置する
 	routers.BooksHandlerInit(r)
 	routers.CategoryHandlerInit(r)
-	routers.HymnsHandlerInit(r)
 	routers.HomeHandlerInit(r)
+	routers.HymnsHandlerInit(r)
 	routers.StudentsHandlerInit(r)
 
 	// ポートを定義する
