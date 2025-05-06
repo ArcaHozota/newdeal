@@ -1,6 +1,8 @@
 package routers
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"newdeal/common"
@@ -8,6 +10,7 @@ import (
 	"newdeal/pojos"
 	"newdeal/service"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -63,13 +66,44 @@ func HymnsHandlerInit(r *gin.Engine) {
 				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
 			}
-			hymnDtos, err := service.GetHymnsKanumi(int64(id))
-			if err != nil {
-				log.Println(err)
-				ctx.JSON(http.StatusBadRequest, err.Error())
+			ctx.Header("X-Accel-Buffering", "no")
+			ctx.Header("Content-Type", "text/event-stream")
+			ctx.Header("Cache-Control", "no-cache")
+			ctx.Header("Connection", "keep-alive")
+			flusher, ok := ctx.Writer.(http.Flusher)
+			if !ok {
+				ctx.JSON(http.StatusInternalServerError, "Streaming not supported")
 				return
 			}
-			ctx.JSON(http.StatusOK, hymnDtos)
+			// 每30秒发送一次空数据
+			ticker := time.NewTicker(30 * time.Second)
+			defer ticker.Stop()
+			done := make(chan struct{})
+			var hymnDtos []pojos.HymnDTO
+			go func() {
+				// 長時間サービス
+				hymnDtos, err = service.GetHymnsKanumi(int64(id))
+				if err != nil {
+					log.Println(err)
+					ctx.JSON(http.StatusBadRequest, err.Error())
+					return
+				}
+				close(done)
+			}()
+			for {
+				select {
+				case <-done:
+					// 写一条真正的事件，把 JSON 打包在 data: 行里：
+					b, _ := json.Marshal(hymnDtos)
+					_, _ = fmt.Fprintf(ctx.Writer, "data: %s\n\n", b)
+					flusher.Flush()
+					return
+				case <-ticker.C:
+					_, _ = fmt.Fprintf(ctx.Writer, ": keep-alive\n\n")
+					// 注释，不影响输出
+					flusher.Flush()
+				}
+			}
 		})
 		hymnsRouter.GET("get-info-id", func(ctx *gin.Context) {
 			hymnIdStr := ctx.DefaultQuery("hymnId", common.EmptyString)
