@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"newdeal/common"
 	"newdeal/ent"
 	"newdeal/routers"
 	"newdeal/service"
@@ -35,7 +36,7 @@ func main() {
 	r := gin.Default()
 
 	/* ---------- ②: テンプレートを embed から読み込む ---------- */
-	tpl := template.Must(template.ParseFS(tplFS, "templates/*"))
+	tpl := template.Must(template.New(common.EmptyString).ParseFS(tplFS, "templates/*"))
 	r.SetHTMLTemplate(tpl)
 
 	/* ---------- ③: 静的ファイルを embed から配信 ---------- */
