@@ -1,15 +1,23 @@
 package main
 
 import (
+	"embed"
+	"html/template"
+	"io/fs"
 	"log"
-	"newdeal/common/tools"
+	"net/http"
 	"newdeal/ent"
 	"newdeal/routers"
 	"newdeal/service"
-	"text/template"
 
 	"github.com/gin-gonic/gin"
 )
+
+//go:embed templates/*
+var tplFS embed.FS
+
+//go:embed static/*
+var staticFS embed.FS
 
 func main() {
 
@@ -23,12 +31,18 @@ func main() {
 	}(service.EntClient)
 
 	// Ginを配置する
+	gin.SetMode(gin.ReleaseMode) // ← 本番なら ReleaseMode 推奨
 	r := gin.Default()
-	r.SetFuncMap(template.FuncMap{
-		"Substr": tools.Substr,
-	})
-	r.LoadHTMLGlob("templates/*")
-	r.Static("/static", "./static")
+
+	/* ---------- ②: テンプレートを embed から読み込む ---------- */
+	tpl := template.Must(template.ParseFS(tplFS, "templates/*"))
+	r.SetHTMLTemplate(tpl)
+
+	/* ---------- ③: 静的ファイルを embed から配信 ---------- */
+	// staticFS は "static/css/style.css" という prefix 付きなので、
+	// サブ FS に切って URL と一致させる
+	subStatic, _ := fs.Sub(staticFS, "static")
+	r.StaticFS("/static", http.FS(subStatic))
 
 	// ハンドラを配置する
 	routers.BooksHandlerInit(r)
