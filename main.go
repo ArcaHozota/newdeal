@@ -36,12 +36,14 @@ func main() {
 	// 本番なら ReleaseMode 推奨
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
-	r.SetFuncMap(template.FuncMap{
+	funcMapA := template.FuncMap{
 		"Substr": tools.Substr,
-	})
+	}
 
 	/* ---------- ②: テンプレートを embed から読み込む ---------- */
-	tpl := template.Must(template.New(common.EmptyString).ParseFS(tplFS, "templates/*"))
+	tplBase := template.New(common.EmptyString).Funcs(funcMapA)
+	//tplBase = tplBase.Funcs(funcMapB)
+	tpl := template.Must(tplBase.ParseFS(tplFS, "templates/*"))
 	r.SetHTMLTemplate(tpl)
 
 	/* ---------- ③: 静的ファイルを embed から配信 ---------- */
