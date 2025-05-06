@@ -401,10 +401,16 @@ func distinctHymnDtos(input []pojos.HymnDTO) []pojos.HymnDTO {
 
 // 韓国語単語を取得する
 func analyzeKorean(koreanText string) ([]string, error) {
-	execDir, _ := getExecutableDir() // main.go と同じ階層のスクリプトのパスを取得
+	execDir, err := getExecutableDir() // main.go と同じ階層のスクリプトのパスを取得
+	if err != nil {
+		return nil, err
+	}
 	scriptPath := filepath.Join(execDir, "komoran.py")
 	cmd := exec.Command("python3", scriptPath)
-	stdin, _ := cmd.StdinPipe()
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		return nil, err
+	}
 	go func() {
 		defer func(stdin io.WriteCloser) {
 			err := stdin.Close()
