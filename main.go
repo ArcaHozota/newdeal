@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"newdeal/common"
+	"newdeal/common/tools"
 	"newdeal/ent"
 	"newdeal/routers"
 	"newdeal/service"
@@ -31,9 +32,12 @@ func main() {
 		}
 	}(service.EntClient)
 
-	// Ginを配置する
+	// ①: Ginを配置する
 	gin.SetMode(gin.ReleaseMode) // ← 本番なら ReleaseMode 推奨
 	r := gin.Default()
+	r.SetFuncMap(template.FuncMap{
+		"Substr": tools.Substr,
+	})
 
 	/* ---------- ②: テンプレートを embed から読み込む ---------- */
 	tpl := template.Must(template.New(common.EmptyString).ParseFS(tplFS, "templates/*"))
