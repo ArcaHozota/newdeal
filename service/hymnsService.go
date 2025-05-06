@@ -406,7 +406,7 @@ func analyzeKorean(koreanText string) ([]string, error) {
 		return nil, err
 	}
 	scriptPath := filepath.Join(execDir, "komoran.py")
-	cmd := exec.Command("python3", scriptPath)
+	cmd := exec.Command("/usr/bin/python3", scriptPath)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return nil, err
@@ -467,9 +467,6 @@ func tokenizeKoreanTextWithFq(originalText string) map[string]int {
 		log.Println(err)
 		return nil
 	}
-	lo.ForEach(koreanTokens, func(kto string, _ int) {
-		log.Printf("pythonトークン取得中：%v", kto)
-	})
 	return lo.CountValues(koreanTokens)
 }
 
