@@ -40,7 +40,7 @@ $kanumiSearchBtn.on("click", (e) => {
                 setTimeout(() => {
                     $loadingBackground2.hide();
                     $kanumiSearchBtn.css('pointer-events', "auto");
-                    let nameJp = $('.table-danger').find("td:eq(1)").children("a").text();
+                    let nameJp = $('.table-light').find("td:eq(1)").children("a").text();
                     let slashIndex = nameJp.indexOf('/');
                     $nameDisplay.text('検索完了---' + nameJp.substring(0, slashIndex));
                     $nameDisplay.attr('data-id-val', 0);
