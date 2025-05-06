@@ -32,8 +32,9 @@ func main() {
 		}
 	}(service.EntClient)
 
-	// ①: Ginを配置する
-	gin.SetMode(gin.ReleaseMode) // ← 本番なら ReleaseMode 推奨
+	/* ---------- ①: Ginを配置する ---------- */
+	// ← 本番なら ReleaseMode 推奨
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.SetFuncMap(template.FuncMap{
 		"Substr": tools.Substr,
