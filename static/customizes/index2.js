@@ -44,7 +44,7 @@ $kanumiSearchBtn.on("click", (e) => {
                     let slashIndex = nameJp.indexOf('/');
                     $nameDisplay.text('検索完了---' + nameJp.substring(0, slashIndex));
                     $nameDisplay.attr('data-id-val', 0);
-                }, 66000);
+                }, 660000);
             }
         });
     }
@@ -132,7 +132,7 @@ function kanumiRetrieve(hymnId) {
 
 function buildTableBody2(response) {
     $tableBody.empty();
-    $.each(response, (_, item) => {
+    $.each(response.data, (_, item) => {
         let checkBoxTd = $("<td class='text-center' style='width: 10%;vertical-align: middle;'></td>")
             .append($("<input class='form-check-input mt-0' style='vertical-align: middle;' type='checkbox' value='" + item.id + "'>"));
         let nameMixTd = $("<td class='text-left' style='width: 70%;vertical-align: middle;'></td>")
