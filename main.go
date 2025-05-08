@@ -1,10 +1,7 @@
 package main
 
 import (
-	"context"
 	"embed"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	"html/template"
 	"io/fs"
 	"log"
@@ -62,14 +59,14 @@ func main() {
 	routers.HymnsHandlerInit(r)
 	routers.StudentsHandlerInit(r)
 
-	// log出力ライタを定義する
-	cfg, _ := config.LoadDefaultConfig(context.TODO())
-	cw := &common.CloudWatchWriter{
-		Client:        cloudwatchlogs.NewFromConfig(cfg),
-		LogGroupName:  "/etc/application",
-		LogStreamName: "instance001",
-	}
-	log.SetOutput(cw) // 👈 替换 log 输出目标
+	//// log出力ライタを定義する
+	//cfg, _ := config.LoadDefaultConfig(context.TODO())
+	//cw := &common.CloudWatchWriter{
+	//	Client:        cloudwatchlogs.NewFromConfig(cfg),
+	//	LogGroupName:  "/etc/application",
+	//	LogStreamName: "instance001",
+	//}
+	//log.SetOutput(cw) // 👈 替换 log 输出目标
 
 	// ポートを定義する
 	err := r.Run(":8277")
