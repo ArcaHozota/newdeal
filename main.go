@@ -60,7 +60,7 @@ func main() {
 	routers.StudentsHandlerInit(r)
 
 	//// log出力ライタを定義する
-	//cfg, _ := config.LoadDefaultConfig(context.TODO())
+	//cfg, _ := config.LoadDefaultConfig(context._TODO())
 	//cw := &common.CloudWatchWriter{
 	//	Client:        cloudwatchlogs.NewFromConfig(cfg),
 	//	LogGroupName:  "/etc/application",
