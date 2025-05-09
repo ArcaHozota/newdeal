@@ -1,10 +1,7 @@
 package main
 
 import (
-	"context"
 	"embed"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
 	"html/template"
 	"io/fs"
 	"log"
@@ -14,6 +11,7 @@ import (
 	"newdeal/ent"
 	"newdeal/routers"
 	"newdeal/service"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -63,16 +61,14 @@ func main() {
 	routers.StudentsHandlerInit(r)
 
 	// log出力ライタを定義する
-	cfg, _ := config.LoadDefaultConfig(context.TODO())
-	cw := &common.CloudWatchWriter{
-		Client:        cloudwatchlogs.NewFromConfig(cfg),
-		LogGroupName:  "/go-app/logs",
-		LogStreamName: "instance-001",
+	f, err := os.OpenFile("/var/log/myapp.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
 	}
-	log.SetOutput(cw) // 👈 替换 log 输出目标
+	log.SetOutput(f)
 
 	// ポートを定義する
-	err := r.Run(":8277")
+	err = r.Run(":8277")
 	if err != nil {
 		log.Fatalf("failed to run router: %v", err)
 	}
