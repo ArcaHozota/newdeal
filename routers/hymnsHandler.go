@@ -60,6 +60,8 @@ func HymnsHandlerInit(r *gin.Engine) {
 			ctx.JSON(http.StatusOK, hymnDtos)
 		})
 		hymnsRouter.GET("kanumi-retrieve", func(ctx *gin.Context) {
+			log.Println("kanumi-retrieve開始")
+			time01 := time.Now()
 			hymnId := ctx.DefaultQuery("hymnId", common.EmptyString)
 			id, err := strconv.Atoi(hymnId)
 			if err != nil {
@@ -98,6 +100,8 @@ func HymnsHandlerInit(r *gin.Engine) {
 					b, _ := json.Marshal(hymnDtos)
 					_, _ = fmt.Fprintf(ctx.Writer, "data: %s\n\n", b)
 					flusher.Flush()
+					duration := time.Now().Sub(time01).Seconds()
+					log.Printf("kanumi-retrieve終了、かかる時間：%v\n", duration)
 					return
 				case <-ticker.C:
 					_, _ = fmt.Fprintf(ctx.Writer, ": keep-alive\n\n")
