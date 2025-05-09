@@ -117,28 +117,27 @@ function buildTableBody1(response) {
     });
 }
 
-async function kanumiRetrieve(hymnId) {
-    const resp = await fetch("/hymns/kanumi-retrieve?hymnId=" + hymnId);
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    let buffer = emptyString;
-    for (; ;) {
-        const {value, done} = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, {stream: true});
-        // SSE 以空行分隔一个事件块
-        let parts = buffer.split("\n\n");
-        buffer = parts.pop(); // 最后一个可能是残缺块，先留着
-        parts.forEach(block => {
-            if (block.startsWith("data: ")) {
-                const jsonStr = block.slice(6).trim(); // 删掉 "data: "
-                const hymnDtos = JSON.parse(jsonStr);
-                buildTableBody2(hymnDtos);
-            }
-        });
-    }
+function kanumiRetrieve(id) {
+    const es = new EventSource(`/hymns/kanumi-retrieve?hymnId=${id}`);
+    // 心跳不处理，只为保持连接
+    es.addEventListener('message',  () => {});
+    // 最终结果
+    es.addEventListener('done', (e) => {
+        const hymnDtos = JSON.parse(e.data);
+        buildTableBody2(hymnDtos);   // ← 你自己的渲染逻辑
+        es.close();              // 任务完成就关掉流
+    });
+    // 后端显式发送的错误
+    es.addEventListener('error', (e) => {
+        console.error('Server Error:', e.data);
+        es.close();
+    });
+    // 网络 / 服务器异常
+    es.onerror = (e) => {
+        console.error('EventSource failed:', e);
+        es.close();
+    };
 }
-kanumiRetrieve().catch(console.error);
 
 function buildTableBody2(response) {
     $tableBody.empty();

@@ -81,31 +81,48 @@ func HymnsHandlerInit(r *gin.Engine) {
 			// 每30秒发送一次空数据
 			ticker := time.NewTicker(30 * time.Second)
 			defer ticker.Stop()
-			done := make(chan struct{})
-			var hymnDtos []pojos.HymnDTO
+			// chanでクエリの結果を取得する
+			done := make(chan []pojos.HymnDTO)
 			go func() {
 				// 長時間サービス
-				hymnDtos, err = service.GetHymnsKanumi(int64(id))
+				hymnDtos, err := service.GetHymnsKanumi(int64(id))
 				if err != nil {
-					log.Println(err)
-					ctx.JSON(http.StatusBadRequest, err.Error())
+					// SSE 规范：以 event: error + data: ... 告知前端
+					_, err := fmt.Fprintf(ctx.Writer, "event: error\ndata: %s\n\n", err.Error())
+					if err != nil {
+						log.Println(err)
+						ctx.JSON(http.StatusBadRequest, err.Error())
+						return
+					}
+					flusher.Flush()
+					close(done) // 告诉主 goroutine 结束
 					return
 				}
-				close(done)
+				done <- hymnDtos
 			}()
 			for {
 				select {
-				case <-done:
-					// 写一条真正的事件，把 JSON 打包在 data: 行里：
-					b, _ := json.Marshal(hymnDtos)
-					_, _ = fmt.Fprintf(ctx.Writer, "data: %s\n\n", b)
+				case result := <-done:
+					// ④: 任务结束 —— 把整包 JSON 一次性推给前端
+					b, _ := json.Marshal(result)
+					_, err := fmt.Fprintf(ctx.Writer, "event: done\ndata: %s\n\n", b)
+					if err != nil {
+						log.Println(err)
+						ctx.JSON(http.StatusBadRequest, err.Error())
+						return
+					}
 					flusher.Flush()
 					duration := time.Now().Sub(time01).Seconds()
 					log.Printf("kanumi-retrieve終了、かかる時間：%v秒\n", duration)
-					return
+					return // 结束 HTTP 连接
 				case <-ticker.C:
-					_, _ = fmt.Fprintf(ctx.Writer, ": keep-alive\n\n")
-					// 注释，不影响输出
+					// ⑤: keep‑alive（SSE 注释行即可）
+					_, err := fmt.Fprint(ctx.Writer, ": keep-alive\n\n")
+					if err != nil {
+						log.Println(err)
+						ctx.JSON(http.StatusBadRequest, err.Error())
+						return
+					}
 					flusher.Flush()
 				case <-ctx.Done():
 					// 客户端断开时释放 goroutine
