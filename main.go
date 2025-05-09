@@ -61,7 +61,7 @@ func main() {
 	routers.StudentsHandlerInit(r)
 
 	// log出力ライタを定義する
-	f, err := os.OpenFile("/var/log/myapp.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	f, err := os.OpenFile("/home/ec2-user/dev/newdeal.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
