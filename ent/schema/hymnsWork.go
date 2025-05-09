@@ -39,7 +39,7 @@ func (HymnsWork) Fields() []ent.Field {
 			Comment("備考").
 			Optional().
 			SchemaType(map[string]string{
-				dialect.Postgres: "varchar(10)",
+				dialect.Postgres: "varchar(15)",
 			}),
 	}
 }

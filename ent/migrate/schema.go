@@ -90,7 +90,7 @@ var (
 		{Name: "score", Type: field.TypeBytes, Nullable: true, Comment: "楽譜"},
 		{Name: "name_jp_rational", Type: field.TypeString, Nullable: true, Comment: "日本語名称", SchemaType: map[string]string{"postgres": "varchar(120)"}},
 		{Name: "updated_time", Type: field.TypeTime, Comment: "更新時間"},
-		{Name: "biko", Type: field.TypeString, Nullable: true, Comment: "備考", SchemaType: map[string]string{"postgres": "varchar(10)"}},
+		{Name: "biko", Type: field.TypeString, Nullable: true, Comment: "備考", SchemaType: map[string]string{"postgres": "varchar(15)"}},
 		{Name: "work_id", Type: field.TypeInt64, Unique: true, Comment: "ワークID", SchemaType: map[string]string{"postgres": "bigint"}},
 	}
 	// HymnsWorkTable holds the schema information for the "hymns_work" table.
