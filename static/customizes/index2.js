@@ -23,7 +23,7 @@ $kanumiSearchBtn.on("click", (e) => {
     } else {
         Swal.fire({
             title: "HINT",
-            text: "選択された曲に基づく歌詞が似てる三つの曲を検索します。検索が約1分間ぐらいかかりますので行ってよろしいでしょうか。",
+            text: "選択された曲に基づく歌詞が似てる三つの曲を検索します。検索が約20分間ぐらいかかりますので行ってよろしいでしょうか。",
             footer: '<p style="font-size: 13px;">※この画面及び検索は金海嶺氏のアイディアによって作成されたものです。</p>',
             icon: "info",
             showDenyButton: true,
@@ -44,7 +44,7 @@ $kanumiSearchBtn.on("click", (e) => {
                     let slashIndex = nameJp.indexOf('/');
                     $nameDisplay.text('検索完了---' + nameJp.substring(0, slashIndex));
                     $nameDisplay.attr('data-id-val', 0);
-                }, 660000);
+                }, 1320000);
             }
         });
     }
@@ -117,22 +117,32 @@ function buildTableBody1(response) {
     });
 }
 
-function kanumiRetrieve(hymnId) {
-    $.ajax({
-        url: '/hymns/kanumi-retrieve',
-        data: 'hymnId=' + hymnId,
-        success: (response) => {
-            buildTableBody2(response);
-        },
-        error: (result) => {
-            layer.msg(result.responseJSON.message);
-        }
-    });
+async function kanumiRetrieve(hymnId) {
+    const resp = await fetch("/hymns/kanumi-retrieve?hymnId=" + hymnId);
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = emptyString;
+    for (; ;) {
+        const {value, done} = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, {stream: true});
+        // SSE 以空行分隔一个事件块
+        let parts = buffer.split("\n\n");
+        buffer = parts.pop(); // 最后一个可能是残缺块，先留着
+        parts.forEach(block => {
+            if (block.startsWith("data: ")) {
+                const jsonStr = block.slice(6).trim(); // 删掉 "data: "
+                const hymnDtos = JSON.parse(jsonStr);
+                buildTableBody2(hymnDtos);
+            }
+        });
+    }
 }
+kanumiRetrieve().catch(console.error);
 
 function buildTableBody2(response) {
     $tableBody.empty();
-    $.each(response.data, (_, item) => {
+    $.each(response, (_, item) => {
         let checkBoxTd = $("<td class='text-center' style='width: 10%;vertical-align: middle;'></td>")
             .append($("<input class='form-check-input mt-0' style='vertical-align: middle;' type='checkbox' value='" + item.id + "'>"));
         let nameMixTd = $("<td class='text-left' style='width: 70%;vertical-align: middle;'></td>")

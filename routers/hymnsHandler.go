@@ -101,12 +101,15 @@ func HymnsHandlerInit(r *gin.Engine) {
 					_, _ = fmt.Fprintf(ctx.Writer, "data: %s\n\n", b)
 					flusher.Flush()
 					duration := time.Now().Sub(time01).Seconds()
-					log.Printf("kanumi-retrieve終了、かかる時間：%v\n", duration)
+					log.Printf("kanumi-retrieve終了、かかる時間：%v秒\n", duration)
 					return
 				case <-ticker.C:
 					_, _ = fmt.Fprintf(ctx.Writer, ": keep-alive\n\n")
 					// 注释，不影响输出
 					flusher.Flush()
+				case <-ctx.Done():
+					// 客户端断开时释放 goroutine
+					return
 				}
 			}
 		})
