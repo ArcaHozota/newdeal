@@ -95,7 +95,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 						return
 					}
 					flusher.Flush()
-					close(done) // 告诉主 goroutine 结束
+					close(done)
 					return
 				}
 				done <- hymnDtos

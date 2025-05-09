@@ -117,15 +117,15 @@ function buildTableBody1(response) {
     });
 }
 
-function kanumiRetrieve(id) {
-    const es = new EventSource(`/hymns/kanumi-retrieve?hymnId=${id}`);
+function kanumiRetrieve(hymnId) {
+    const es = new EventSource(`/hymns/kanumi-retrieve?hymnId=${hymnId}`);
     // 心跳不处理，只为保持连接
     es.addEventListener('message',  () => {});
     // 最终结果
     es.addEventListener('done', (e) => {
         const hymnDtos = JSON.parse(e.data);
         buildTableBody2(hymnDtos);   // ← 你自己的渲染逻辑
-        es.close();              // 任务完成就关掉流
+        es.close();// 任务完成就关掉流
     });
     // 后端显式发送的错误
     es.addEventListener('error', (e) => {
