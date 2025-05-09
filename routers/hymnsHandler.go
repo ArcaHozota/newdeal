@@ -147,8 +147,10 @@ func HymnsHandlerInit(r *gin.Engine) {
 			}
 			biko := download.Biko
 			index := strings.Index(biko, "/") + 1
-			ctx.Header("Content-Type", biko[index:])
-			ctx.Header("Content-Disposition", fmt.Sprintf(`attachment; filename="%d"`, download.WorkID))
+			mimeType := biko[index:]
+			nameStr := strconv.Itoa(int(download.WorkID))
+			ctx.Header("Content-Type", mimeType)
+			ctx.Header("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, nameStr+"."+mimeType))
 			ctx.Header("Content-Transfer-Encoding", "binary")
 			ctx.Header("Cache-Control", "no-cache")
 			ctx.Writer.WriteHeader(http.StatusOK)
