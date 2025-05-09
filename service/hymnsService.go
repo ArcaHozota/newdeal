@@ -280,6 +280,20 @@ func HymnScoreStorage(hymnDto pojos.HymnDTO) (string, error) {
 	return common.UpdatedMsg, nil
 }
 
+func HymnScoreDownload(hymnId int64) (*ent.HymnsWork, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	hymnsWork, err := EntClient.HymnsWork.Query().
+		Where(
+			hymnswork.WorkID(hymnId),
+		).
+		Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return hymnsWork, nil
+}
+
 func HymnInfoStorage(hymnDto pojos.HymnDTO, editUserId int64) (string, error) {
 	hymnId := tools.SnowflakeID()
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)

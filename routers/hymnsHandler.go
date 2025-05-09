@@ -10,6 +10,7 @@ import (
 	"newdeal/pojos"
 	"newdeal/service"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -129,6 +130,29 @@ func HymnsHandlerInit(r *gin.Engine) {
 				return
 			}
 			ctx.JSON(http.StatusOK, count)
+		})
+		hymnsRouter.GET("score-download", func(ctx *gin.Context) {
+			scoreIdStr := ctx.DefaultQuery("scoreId", common.EmptyString)
+			scoreId, err := strconv.Atoi(scoreIdStr)
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+			download, err := service.HymnScoreDownload(int64(scoreId))
+			if err != nil {
+				log.Println(err)
+				ctx.JSON(http.StatusBadRequest, err.Error())
+				return
+			}
+			biko := download.Biko
+			index := strings.Index(biko, "/") + 1
+			ctx.Header("Content-Type", biko[index:])
+			ctx.Header("Content-Disposition", fmt.Sprintf(`attachment; filename="%d"`, download.ID))
+			ctx.Header("Content-Transfer-Encoding", "binary")
+			ctx.Header("Cache-Control", "no-cache")
+			ctx.Writer.WriteHeader(http.StatusOK)
+			_, _ = ctx.Writer.Write(download.Score)
 		})
 		hymnsRouter.GET("to-pages", authMiddleware, func(ctx *gin.Context) {
 			pageNumStr := ctx.DefaultQuery(common.AttrNamePageNo, "1")
