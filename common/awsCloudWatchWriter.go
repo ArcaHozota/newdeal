@@ -33,7 +33,7 @@ package common
 //		},
 //		SequenceToken: w.sequenceToken,
 //	}
-//	resp, err := w.Client.PutLogEvents(context.TODO(), input)
+//	resp, err := w.Client.PutLogEvents(context._TODO(), input)
 //	if err != nil {
 //		return 0, err
 //	}
