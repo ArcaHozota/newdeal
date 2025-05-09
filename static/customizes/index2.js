@@ -87,7 +87,7 @@ $tableBody.on("click", '.link-btn', (e) => {
     window.open(transferVal);
 });
 
-function toSelectedPg(pageNum, keyword) {
+function toSelectedPg(pageNum, _) {
     $.ajax({
         url: '/hymns/pagination',
         data: 'pageNum=' + pageNum,
