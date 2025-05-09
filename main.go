@@ -67,7 +67,7 @@ func main() {
 	cw := &common.CloudWatchWriter{
 		Client:        cloudwatchlogs.NewFromConfig(cfg),
 		LogGroupName:  "/go-app/logs",
-		LogStreamName: "instance001",
+		LogStreamName: "instance-001",
 	}
 	log.SetOutput(cw) // 👈 替换 log 输出目标
 
