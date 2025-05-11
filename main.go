@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"github.com/gin-gonic/gin"
 	"html/template"
 	"io/fs"
 	"log"
@@ -12,6 +11,8 @@ import (
 	"newdeal/ent"
 	"newdeal/routers"
 	"newdeal/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 //go:embed templates/*
@@ -33,7 +34,7 @@ func main() {
 
 	/* ---------- ①: Ginを配置する ---------- */
 	// 本番なら ReleaseMode 推奨
-	gin.SetMode(gin.ReleaseMode)
+	// gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	funcMapA := template.FuncMap{
 		"Substr": tools.Substr,
