@@ -39,8 +39,7 @@ func (Role) Fields() []ent.Field {
 func (Role) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("roled", Student.Type),
-		edge.From("role_auth", Auth.Type).
-			Ref("auth_role"),
+		edge.To("auth", Auth.Type),
 	}
 }
 

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"newdeal/common"
 	"newdeal/ent/hymn"
+	"newdeal/ent/role"
 	"newdeal/ent/student"
 	"time"
 
@@ -43,6 +44,12 @@ func (sc *StudentCreate) SetUsername(s string) *StudentCreate {
 // SetDateOfBirth sets the "date_of_birth" field.
 func (sc *StudentCreate) SetDateOfBirth(c *common.Date) *StudentCreate {
 	sc.mutation.SetDateOfBirth(c)
+	return sc
+}
+
+// SetRoleID sets the "role_id" field.
+func (sc *StudentCreate) SetRoleID(i int64) *StudentCreate {
+	sc.mutation.SetRoleID(i)
 	return sc
 }
 
@@ -101,6 +108,17 @@ func (sc *StudentCreate) AddUpdatedHymns(h ...*Hymn) *StudentCreate {
 	return sc.AddUpdatedHymnIDs(ids...)
 }
 
+// SetStudentRoleID sets the "student_role" edge to the Role entity by ID.
+func (sc *StudentCreate) SetStudentRoleID(id int64) *StudentCreate {
+	sc.mutation.SetStudentRoleID(id)
+	return sc
+}
+
+// SetStudentRole sets the "student_role" edge to the Role entity.
+func (sc *StudentCreate) SetStudentRole(r *Role) *StudentCreate {
+	return sc.SetStudentRoleID(r.ID)
+}
+
 // Mutation returns the StudentMutation object of the builder.
 func (sc *StudentCreate) Mutation() *StudentMutation {
 	return sc.mutation
@@ -147,8 +165,14 @@ func (sc *StudentCreate) check() error {
 	if _, ok := sc.mutation.DateOfBirth(); !ok {
 		return &ValidationError{Name: "date_of_birth", err: errors.New(`ent: missing required field "Student.date_of_birth"`)}
 	}
+	if _, ok := sc.mutation.RoleID(); !ok {
+		return &ValidationError{Name: "role_id", err: errors.New(`ent: missing required field "Student.role_id"`)}
+	}
 	if _, ok := sc.mutation.VisibleFlg(); !ok {
 		return &ValidationError{Name: "visible_flg", err: errors.New(`ent: missing required field "Student.visible_flg"`)}
+	}
+	if len(sc.mutation.StudentRoleIDs()) == 0 {
+		return &ValidationError{Name: "student_role", err: errors.New(`ent: missing required edge "Student.student_role"`)}
 	}
 	return nil
 }
@@ -224,6 +248,23 @@ func (sc *StudentCreate) createSpec() (*Student, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.StudentRoleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   student.StudentRoleTable,
+			Columns: []string{student.StudentRoleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.RoleID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

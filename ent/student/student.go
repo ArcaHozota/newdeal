@@ -20,6 +20,8 @@ const (
 	FieldUsername = "username"
 	// FieldDateOfBirth holds the string denoting the date_of_birth field in the database.
 	FieldDateOfBirth = "date_of_birth"
+	// FieldRoleID holds the string denoting the role_id field in the database.
+	FieldRoleID = "role_id"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
 	// FieldUpdatedTime holds the string denoting the updated_time field in the database.
@@ -28,6 +30,8 @@ const (
 	FieldVisibleFlg = "visible_flg"
 	// EdgeUpdatedHymns holds the string denoting the updated_hymns edge name in mutations.
 	EdgeUpdatedHymns = "updated_hymns"
+	// EdgeStudentRole holds the string denoting the student_role edge name in mutations.
+	EdgeStudentRole = "student_role"
 	// Table holds the table name of the student in the database.
 	Table = "students"
 	// UpdatedHymnsTable is the table that holds the updated_hymns relation/edge.
@@ -37,6 +41,13 @@ const (
 	UpdatedHymnsInverseTable = "hymns"
 	// UpdatedHymnsColumn is the table column denoting the updated_hymns relation/edge.
 	UpdatedHymnsColumn = "updated_user"
+	// StudentRoleTable is the table that holds the student_role relation/edge.
+	StudentRoleTable = "students"
+	// StudentRoleInverseTable is the table name for the Role entity.
+	// It exists in this package in order to avoid circular dependency with the "role" package.
+	StudentRoleInverseTable = "roles"
+	// StudentRoleColumn is the table column denoting the student_role relation/edge.
+	StudentRoleColumn = "role_id"
 )
 
 // Columns holds all SQL columns for student fields.
@@ -46,6 +57,7 @@ var Columns = []string{
 	FieldPassword,
 	FieldUsername,
 	FieldDateOfBirth,
+	FieldRoleID,
 	FieldEmail,
 	FieldUpdatedTime,
 	FieldVisibleFlg,
@@ -89,6 +101,11 @@ func ByDateOfBirth(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateOfBirth, opts...).ToFunc()
 }
 
+// ByRoleID orders the results by the role_id field.
+func ByRoleID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRoleID, opts...).ToFunc()
+}
+
 // ByEmail orders the results by the email field.
 func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
@@ -117,10 +134,24 @@ func ByUpdatedHymns(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUpdatedHymnsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByStudentRoleField orders the results by student_role field.
+func ByStudentRoleField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStudentRoleStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newUpdatedHymnsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UpdatedHymnsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UpdatedHymnsTable, UpdatedHymnsColumn),
+	)
+}
+func newStudentRoleStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StudentRoleInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, StudentRoleTable, StudentRoleColumn),
 	)
 }

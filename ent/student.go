@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"newdeal/common"
+	"newdeal/ent/role"
 	"newdeal/ent/student"
 	"strings"
 	"time"
@@ -27,6 +28,8 @@ type Student struct {
 	Username string `json:"username,omitempty"`
 	// 生年月日
 	DateOfBirth *common.Date `json:"date_of_birth,omitempty"`
+	// 役割ID
+	RoleID int64 `json:"role_id,omitempty"`
 	// メール
 	Email string `json:"email,omitempty"`
 	// 登録時間
@@ -43,9 +46,11 @@ type Student struct {
 type StudentEdges struct {
 	// UpdatedHymns holds the value of the updated_hymns edge.
 	UpdatedHymns []*Hymn `json:"updated_hymns,omitempty"`
+	// StudentRole holds the value of the student_role edge.
+	StudentRole *Role `json:"student_role,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // UpdatedHymnsOrErr returns the UpdatedHymns value or an error if the edge
@@ -57,6 +62,17 @@ func (e StudentEdges) UpdatedHymnsOrErr() ([]*Hymn, error) {
 	return nil, &NotLoadedError{edge: "updated_hymns"}
 }
 
+// StudentRoleOrErr returns the StudentRole value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e StudentEdges) StudentRoleOrErr() (*Role, error) {
+	if e.StudentRole != nil {
+		return e.StudentRole, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: role.Label}
+	}
+	return nil, &NotLoadedError{edge: "student_role"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Student) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -66,7 +82,7 @@ func (*Student) scanValues(columns []string) ([]any, error) {
 			values[i] = new(common.Date)
 		case student.FieldVisibleFlg:
 			values[i] = new(sql.NullBool)
-		case student.FieldID:
+		case student.FieldID, student.FieldRoleID:
 			values[i] = new(sql.NullInt64)
 		case student.FieldLoginAccount, student.FieldPassword, student.FieldUsername, student.FieldEmail:
 			values[i] = new(sql.NullString)
@@ -117,6 +133,12 @@ func (s *Student) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				s.DateOfBirth = value
 			}
+		case student.FieldRoleID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field role_id", values[i])
+			} else if value.Valid {
+				s.RoleID = value.Int64
+			}
 		case student.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
@@ -153,6 +175,11 @@ func (s *Student) QueryUpdatedHymns() *HymnQuery {
 	return NewStudentClient(s.config).QueryUpdatedHymns(s)
 }
 
+// QueryStudentRole queries the "student_role" edge of the Student entity.
+func (s *Student) QueryStudentRole() *RoleQuery {
+	return NewStudentClient(s.config).QueryStudentRole(s)
+}
+
 // Update returns a builder for updating this Student.
 // Note that you need to call Student.Unwrap() before calling this method if this Student
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -187,6 +214,9 @@ func (s *Student) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("date_of_birth=")
 	builder.WriteString(fmt.Sprintf("%v", s.DateOfBirth))
+	builder.WriteString(", ")
+	builder.WriteString("role_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.RoleID))
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(s.Email)

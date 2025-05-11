@@ -6,11 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"newdeal/ent/auth"
 	"newdeal/ent/book"
 	"newdeal/ent/chapter"
 	"newdeal/ent/hymn"
 	"newdeal/ent/hymnswork"
 	"newdeal/ent/phrase"
+	"newdeal/ent/role"
 	"newdeal/ent/student"
 	"reflect"
 	"sync"
@@ -78,11 +80,13 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			auth.Table:      auth.ValidColumn,
 			book.Table:      book.ValidColumn,
 			chapter.Table:   chapter.ValidColumn,
 			hymn.Table:      hymn.ValidColumn,
 			hymnswork.Table: hymnswork.ValidColumn,
 			phrase.Table:    phrase.ValidColumn,
+			role.Table:      role.ValidColumn,
 			student.Table:   student.ValidColumn,
 		})
 	})
