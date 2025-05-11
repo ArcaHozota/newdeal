@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"github.com/gin-gonic/gin"
 	"html/template"
 	"io/fs"
 	"log"
@@ -11,9 +12,6 @@ import (
 	"newdeal/ent"
 	"newdeal/routers"
 	"newdeal/service"
-	"os"
-
-	"github.com/gin-gonic/gin"
 )
 
 //go:embed templates/*
@@ -60,15 +58,15 @@ func main() {
 	routers.HymnsHandlerInit(r)
 	routers.StudentsHandlerInit(r)
 
-	// log出力ライタを定義する
-	f, err := os.OpenFile("/home/ec2-user/dev/newdeal.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.SetOutput(f)
+	//// log出力ライタを定義する
+	//f, err := os.OpenFile("/home/ec2-user/dev/newdeal.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//log.SetOutput(f)
 
 	// ポートを定義する
-	err = r.Run(":8277")
+	err := r.Run(":8277")
 	if err != nil {
 		log.Fatalf("failed to run router: %v", err)
 	}

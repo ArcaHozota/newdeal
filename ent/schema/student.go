@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"newdeal/common"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/entsql"
@@ -8,7 +10,6 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"newdeal/common"
 )
 
 type Student struct {
@@ -48,6 +49,11 @@ func (Student) Fields() []ent.Field {
 			SchemaType(map[string]string{
 				dialect.Postgres: "date",
 			}),
+		field.Int64("role_id").
+			Comment("役割ID").
+			SchemaType(map[string]string{
+				dialect.Postgres: "bigint",
+			}),
 		field.String("email").
 			Comment("メール").
 			Optional().
@@ -65,6 +71,11 @@ func (Student) Fields() []ent.Field {
 func (Student) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("updated_hymns", Hymn.Type),
+		edge.From("student_role", Role.Type).
+			Ref("roled").     // 反向关系字段
+			Field("role_id"). // 外键字段
+			Required().
+			Unique(),
 	}
 }
 
