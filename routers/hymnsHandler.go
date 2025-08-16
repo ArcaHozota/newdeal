@@ -112,7 +112,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 						return
 					}
 					flusher.Flush()
-					duration := time.Now().Sub(time01).Seconds()
+					duration := time.Since(time01).Seconds()
 					log.Printf("kanumi-retrieve終了、かかる時間：%v秒\n", duration)
 					return // 结束 HTTP 连接
 				case <-ticker.C:
@@ -338,7 +338,7 @@ func HymnsHandlerInit(r *gin.Engine) {
 			}
 			ctx.JSON(http.StatusOK, hymnDtos)
 		})
-		hymnsRouter.GET("deletion-check", authMiddleware, func(ctx *gin.Context) {
+		hymnsRouter.GET("delete-check", authMiddleware, func(ctx *gin.Context) {
 			studentId, exists := ctx.Get("loginId")
 			if !exists {
 				ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")

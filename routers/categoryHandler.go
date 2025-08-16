@@ -1,7 +1,6 @@
 package routers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"newdeal/common"
@@ -13,13 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var jwtSecret = []byte("nasbWebToken")
-
 func CategoryHandlerInit(r *gin.Engine) {
 
 	categoryRouter := r.Group("/category")
 	{
-		categoryRouter.GET("login", func(ctx *gin.Context) {
+		categoryRouter.GET("to-login", func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "login-toroku.html", gin.H{
 				common.AttrNameTorokuMsg: common.EmptyString,
 			})
@@ -29,7 +26,7 @@ func CategoryHandlerInit(r *gin.Engine) {
 				common.AttrNameTorokuMsg: common.LogoutMsg,
 			})
 		})
-		categoryRouter.GET("login-with-error", func(ctx *gin.Context) {
+		categoryRouter.GET("not-login", func(ctx *gin.Context) {
 			count, err := service.CountHymnsAll()
 			if err != nil {
 				log.Println(err)
@@ -94,12 +91,12 @@ func CategoryHandlerInit(r *gin.Engine) {
 			)
 			ctx.Redirect(http.StatusSeeOther, "/category/login-with-out") // ログアウト後ログインページへ
 		})
-		categoryRouter.GET("to-mainmenu", authMiddleware, func(ctx *gin.Context) {
-			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
+		categoryRouter.GET("to-main-menu", authMiddleware, func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "main-menu.html", gin.H{
 				common.AttrNameTorokuMsg: common.EmptyString,
 			})
 		})
-		categoryRouter.GET("to-mainmenu-with-login", authMiddleware, func(ctx *gin.Context) {
+		categoryRouter.GET("to-main-menu-with-login", authMiddleware, func(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "mainmenu.html", gin.H{
 				common.AttrNameTorokuMsg: common.LoginedMsg,
 			})
@@ -115,35 +112,4 @@ func CategoryHandlerInit(r *gin.Engine) {
 		})
 	}
 
-}
-
-// authMiddleware JWT認証ミドルウェア
-func authMiddleware(ctx *gin.Context) {
-	tokenString, err := ctx.Cookie("token")
-	if err != nil {
-		ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
-		ctx.Abort()
-		return
-	}
-	// トークンのパースと署名方式チェック
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-		// algがHS256かチェック
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return jwtSecret, nil
-	})
-	if err != nil || !token.Valid {
-		ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
-		ctx.Abort()
-		return
-	}
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		ctx.Set("username", claims["username"])
-		ctx.Set("loginId", claims["loginId"])
-		ctx.Next()
-	} else {
-		ctx.Redirect(http.StatusSeeOther, "/category/login-with-error")
-		ctx.Abort()
-	}
 }
