@@ -61,7 +61,7 @@ func CategoryHandlerInit(r *gin.Engine) {
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 				"username": loginUser.Username,
 				"loginId":  loginUser.ID,
-				"exp":      time.Now().Add(time.Hour * 3).Unix(), // 有効期限：24時間
+				"exp":      time.Now().Add(time.Hour * 3).Unix(), // 有効期限：3時間
 			})
 			tokenString, err := token.SignedString(jwtSecret)
 			if err != nil {
